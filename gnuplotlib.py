@@ -495,7 +495,7 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
         # the programmer (me!) to deal with
         def reformat(curve):
             d          = curve[-1]
-            d['_data'] = curve[0:-1]
+            d['_data'] = list(curve[0:-1])
             return d
 
         curves = [ reformat(curve) for curve in curves ]
