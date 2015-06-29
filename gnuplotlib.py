@@ -580,7 +580,9 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
             np.savetxt( pipe,
                         np.vstack(curve['_data']).transpose(),
                         '%s' )
-            pipe.write( "e\n")
+            pipe.write("e\n")
+            if _active('matrix',curve):
+                pipe.write("e\n")
         else:
             np.vstack(curve['_data']).transpose().tofile(pipe)
 
@@ -752,7 +754,7 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
 
                 testData_curve = ''
                 if _active('matrix', curve):
-                    testmatrix = "{0} {0}\n" + "{0} {0}\n\n" + "e\n"
+                    testmatrix = "{0} {0}\n" + "{0} {0}\n" + "e\ne\n"
                     testData_curve = testmatrix.format(testdataunit_ascii) * (curve['tuplesize'] - 2)
                 else:
                     testData_curve = ' '.join( ['{}'.format(testdataunit_ascii)] * curve['tuplesize']) + \
