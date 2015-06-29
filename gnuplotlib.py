@@ -578,7 +578,7 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
         pipe = self._gnuplotStdin()
         if self._activePlotOption('ascii'):
             np.savetxt( pipe,
-                        np.vstack(curve['_data']).transpose(),
+                        np.vstack(curve['_data']),
                         '%s' )
             pipe.write("e\n")
             if _active('matrix',curve):
@@ -679,8 +679,8 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
 
             # to test the plot I plot a single record
             fmtTest = fmt
-            fmtTest = re.sub('record=\d+',         'record=1',     fmtTest)
-            fmtTest = re.sub('array=\(\d+, \d+\)', 'array=(2, 2)', fmtTest)
+            fmtTest = re.sub('record=\d+',        'record=1',     fmtTest)
+            fmtTest = re.sub('array=\(\d+,\d+\)', 'array=(2, 2)', fmtTest)
 
             return fmt,fmtTest
 
