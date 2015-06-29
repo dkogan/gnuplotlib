@@ -14,7 +14,7 @@ import numpy as np
 knownPlotOptions = set(('3d', 'dump', 'ascii', 'log',
                         'extracmds', 'nogrid', 'square', 'square_xy', 'title',
                         'hardcopy', 'terminal', 'output',
-                        'globalwith',
+                        'with',
                         'xlabel', 'xmax', 'xmin',
                         'y2label', 'y2max', 'y2min',
                         'ylabel', 'ymax', 'ymin',
@@ -78,7 +78,19 @@ def _have(opt, where):
 def _active(opt, where):
     return opt in where and where[opt]
 
+def _dictDeUnderscore(d):
+    """Takes a dict, and renames all keys that start with an '_' to not contain that
+anymore. This is done because some keys are illegal as kwargs (notably 'with'
+and '3d'), so the user passes in '_with' and '_3d', which ARE legal
+    """
+    d2 = {}
+    for key in d:
+        if type(key) is str and key[0] == '_':
+            d2[key[1:]] = d[key]
+        else:
+            d2[key] = d[key]
 
+    return d2
 
 class GnuplotlibError(Exception):
     def __init__(self, err): self.err = err
@@ -98,7 +110,7 @@ class gnuplotlib:
 
         # some defaults
         self.gnuplotProcess   = None
-        self.plotOptions      = plotOptions
+        self.plotOptions      = _dictDeUnderscore(plotOptions)
         self.t0               = time.time()
         self.checkpoint_stuck = False
 
@@ -137,8 +149,8 @@ class gnuplotlib:
 
         # set some defaults
         # plot with lines and points by default
-        if not have('globalwith'):
-            self.plotOptions['globalwith'] = 'linespoints'
+        if not have('with'):
+            self.plotOptions['with'] = 'linespoints'
 
         # make sure I'm not passed invalid combinations of options
         if active('3d'):
@@ -494,7 +506,7 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
         # The former is nicer as a user interface, but the latter is easier for
         # the programmer (me!) to deal with
         def reformat(curve):
-            d          = curve[-1]
+            d          = _dictDeUnderscore(curve[-1])
             d['_data'] = list(curve[0:-1])
             return d
 
@@ -633,7 +645,7 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
 
             # use the given per-curve 'with' style if there is one. Otherwise fall
             # back on the global
-            _with = curve['with'] if 'with' in curve else self.plotOptions['globalwith']
+            _with = curve['with'] if 'with' in curve else self.plotOptions['with']
 
             if _with:                cmd += "with {} ".format(_with)
             if _active('y2', curve): cmd += "axes x1y2 "
@@ -789,7 +801,7 @@ if __name__ == '__main__':
     x = np.arange(10, dtype=float)
     y = x ** 2
 
-    g = gnuplotlib(globalwith='linespoints')
+    g = gnuplotlib(_with='linespoints')
 
 
     g.plot( (y/10,{}), (y*2,x,{'legend': 'whoa'}),
@@ -822,3 +834,5 @@ if __name__ == '__main__':
 # gnuplot binary types. assume float64/double for now
 
 # non-copying binary
+
+# document _ leading options
