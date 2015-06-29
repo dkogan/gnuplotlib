@@ -90,7 +90,10 @@ class GnuplotlibError(Exception):
 
 class gnuplotlib:
 
-    # class members
+    def _havePlotOption  (self, opt): return _have  (opt, self.plotOptions)
+    def _activePlotOption(self, opt): return _active(opt, self.plotOptions)
+
+
     def __init__(self, **plotOptions):
 
         # some defaults
@@ -111,7 +114,7 @@ class gnuplotlib:
 
         self._logEvent("_startgnuplot()")
 
-        if 'dump' in self.plotOptions:
+        if self._activePlotOption('dump'):
             return
 
         cmd = ['gnuplot']
@@ -120,9 +123,6 @@ class gnuplotlib:
 
         self.gnuplotProcess = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-
-    def _havePlotOption  (self, opt): return _have  (opt, self.plotOptions)
-    def _activePlotOption(self, opt): return _active(opt, self.plotOptions)
 
     def _getPlotOptionsCmd(self):
 
