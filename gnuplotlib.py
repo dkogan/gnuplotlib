@@ -309,13 +309,13 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
 
 
 
+    def _gnuplotStdin(self):
+        if self.gnuplotProcess:
+            return self.gnuplotProcess.stdin
+        return sys.stdout
 
     def _printGnuplotPipe(self, string):
-        if self.gnuplotProcess:
-            pipe = self.gnuplotProcess.stdin
-        else:
-            pipe = sys.stdout
-        pipe.write( string )
+        self._gnuplotStdin().write( string )
         self._logEvent("Sent to child process {} bytes ==========\n{}=========================".
                        format(len(string), string))
 
@@ -575,10 +575,11 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
 
     def _sendCurve(self, curve):
 
-        np.savetxt( self.gnuplotProcess.stdin,
+        pipe = self._gnuplotStdin()
+        np.savetxt( pipe,
                     np.vstack(curve['_data']).transpose(),
                     '%s' )
-        self.gnuplotProcess.stdin.write( "e\n")
+        pipe.write( "e\n")
 
 
     def plot(self, *curves):
