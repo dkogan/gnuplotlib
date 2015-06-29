@@ -11,7 +11,7 @@ import numpy as np
 
 
 
-knownPlotOptions = set(('3d', 'dump', 'binary', 'log',
+knownPlotOptions = set(('3d', 'dump', 'ascii', 'log',
                         'extracmds', 'nogrid', 'square', 'square_xy', 'title',
                         'hardcopy', 'terminal', 'output',
                         'globalwith',
@@ -530,7 +530,7 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
                 elif Ndata+2 == curve['tuplesize']:
                     # a plot is 2 elements short. Use a grid as a domain. I simply set the
                     # 'matrix' flag and have gnuplot deal with it later
-                    if not self._activePlotOption('binary') and curve['tuplesize'] > 3:
+                    if self._activePlotOption('ascii') and curve['tuplesize'] > 3:
                         raise GnuplotlibError( \
                             "Can't make more than 3-dimensional plots on a implicit 2D domain\n" + \
                             "when sending ASCII data. I don't think gnuplot supports this. Use binary data\n" + \
@@ -576,10 +576,13 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
     def _sendCurve(self, curve):
 
         pipe = self._gnuplotStdin()
-        np.savetxt( pipe,
-                    np.vstack(curve['_data']).transpose(),
-                    '%s' )
-        pipe.write( "e\n")
+        if self._activePlotOption('ascii'):
+            np.savetxt( pipe,
+                        np.vstack(curve['_data']).transpose(),
+                        '%s' )
+            pipe.write( "e\n")
+        else:
+            np.vstack(curve['_data']).transpose().tofile(pipe)
 
 
     def plot(self, *curves):
@@ -636,46 +639,48 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
             return cmd
 
 
-        # def binaryFormatcmd(curve):
-        #     # I make 2 formats: one real, and another to test the plot cmd, in case it
-        #     # fails
+        def binaryFormatcmd(curve):
+            # I make 2 formats: one real, and another to test the plot cmd, in case it
+            # fails
 
-        #     tuplesize = curve['tuplesize']
+            tuplesize = curve['tuplesize']
 
-        #     format = ''
-        #     if curve['matrix']:
-        #         format += 'binary array=(' . curve['data'][0]->dim(0) . ',' . curve['data'][0]->dim(1) . ')'
-        #         format += ' transpose'
-        #         format += ' format="' . ('%double' x (tuplesize-2)) . '"'
-        #     }
-        #     else
-        #     {
-        #       format = 'binary record=' . curve['data'][0]->dim(0)
-        #       format += ' format="' . ('%double' x tuplesize) . '"'
-        #     }
+            fmt = ''
+            if _active('matrix', curve):
+                fmt += 'binary array=({},{})'.format(curve['_data'][0].shape[-1],
+                                                     curve['_data'][0].shape[-2])
+                fmt += ' transpose'
+                fmt += ' format="' + ('%double' * (tuplesize-2)) + '"'
+            else:
+                fmt += 'binary record=' + str(curve['_data'][0].shape[-1])
+                fmt += ' format="' + ('%double' * tuplesize) + '"'
 
-        #     # when doing fancy things, gnuplot can get confused if I don't explicitly
-        #     # tell it the tuplesize. It has its own implicit-tuples logic that I don't
-        #     # want kicking in. As an example, the following simple plot doesn't work
-        #     # in binary without telling it 'using':
-        #     #   plot3d(binary => 1, with => 'image', sequence(5,5))
-        #     my using_Ncolumns = curve['matrix'] ? (tuplesize-2) : tuplesize
-        #     my using = ' using ' . join(':', 1..using_Ncolumns)
 
-        #     # When plotting in binary, gnuplot gets confused if I don't explicitly
-        #     # tell it the tuplesize. It's got its own implicit-tuples logic that I
-        #     # don't want kicking in. As an example, the following simple plot doesn't
-        #     # work in binary without this extra line:
-        #     # plot3d(binary => 1,
-        #     #        with => 'image', sequence(5,5))
-        #     format += " using"
+            # when doing fancy things, gnuplot can get confused if I don't explicitly
+            # tell it the tuplesize. It has its own implicit-tuples logic that I don't
+            # want kicking in. As an example, the following simple plot doesn't work
+            # in binary without telling it 'using':
+            #   plot3d(binary => 1, with => 'image', sequence(5,5))
+            using_Ncolumns = tuplesize
+            if _active('matrix', curve):
+                using_Ncolumns -= 2
 
-        #     # to test the plot I plot a single record
-        #     my formatTest = format
-        #     formatTest =~ s/record=\d+/record=1/
-        #     formatTest =~ s/array=\(\d+,\d+\)/array=(2,2)/
+            using = ' using ' + ':'.join( str(x+1) for x in range(using_Ncolumns) )
 
-        #     return (format, formatTest)
+            # When plotting in binary, gnuplot gets confused if I don't explicitly
+            # tell it the tuplesize. It's got its own implicit-tuples logic that I
+            # don't want kicking in. As an example, the following simple plot doesn't
+            # work in binary without this extra line:
+            # plot3d(binary => 1,
+            #        with => 'image', sequence(5,5))
+            fmt += ' ' + using
+
+            # to test the plot I plot a single record
+            fmtTest = fmt
+            fmtTest = re.sub('record=\d+',         'record=1',     fmtTest)
+            fmtTest = re.sub('array=\(\d+, \d+\)', 'array=(2, 2)', fmtTest)
+
+            return fmt,fmtTest
 
 
         def getTestDataLen(curve):
@@ -709,26 +714,25 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
         for curve in curves:
             optioncmds = optioncmd(curve)
 
-            if self._activePlotOption('binary'):
-                # # I get 2 formats: one real, and another to test the plot cmd, in case it
-                # # fails. The test command is the same, but with a minimal point count. I
-                # # also get the number of bytes in a single data point here
-                # my (format, formatMinimal) = binaryFormatcmd(curve)
-                # my Ntestbytes_here          = getTestDataLen(curve)
+            if not self._activePlotOption('ascii'):
+                # I get 2 formats: one real, and another to test the plot cmd, in case it
+                # fails. The test command is the same, but with a minimal point count. I
+                # also get the number of bytes in a single data point here
+                formatFull,formatMinimal = binaryFormatcmd(curve)
+                Ntestbytes_here          = getTestDataLen(curve)
 
-                # push @plotCurveCmds,        map { "'-' format _"     }    @optioncmds
-                # push @plotCurveCmdsMinimal, map { "'-' formatMinimal _" } @optioncmds
+                plotCurveCmds       .append( "'-' " + formatFull    + ' ' + optioncmds )
+                plotCurveCmdsMinimal.append( "'-' " + formatMinimal + ' ' + optioncmds )
 
-                # # If there was an error, these whitespace commands will simply do
-                # # nothing. If there was no error, these are data that will be plotted in
-                # # some manner. I'm not actually looking at this plot so I don't care
-                # # what it is. Note that I'm not making assumptions about how long a
-                # # newline is (perl docs say it could be 0 bytes). I'm printing as many
-                # # spaces as the number of bytes that I need, so I'm potentially doubling
-                # # or even tripling the amount of needed data. This is OK, since gnuplot
-                # # will simply ignore the tail.
-                # testData += " \n" x (Ntestbytes_here * scalar @optioncmds)
-                5
+                # If there was an error, these whitespace commands will simply do
+                # nothing. If there was no error, these are data that will be plotted in
+                # some manner. I'm not actually looking at this plot so I don't care
+                # what it is. Note that I'm not making assumptions about how long a
+                # newline is (perl docs say it could be 0 bytes). I'm printing as many
+                # spaces as the number of bytes that I need, so I'm potentially doubling
+                # or even tripling the amount of needed data. This is OK, since gnuplot
+                # will simply ignore the tail.
+                testData += " \n" * Ntestbytes_here
 
             else:
                 # for some things gnuplot has its own implicit-tuples logic; I want to
@@ -780,11 +784,19 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
 
 if __name__ == '__main__':
 
-    x = np.arange(100)
+    x = np.arange(10, dtype=float)
     y = x ** 2
 
-    g = gnuplotlib()
-    g.plot( (x,y,{}))
+    g = gnuplotlib(globalwith='linespoints')
+
+
+    g.plot( (y/10,{}), (y*2,x,{'legend': 'whoa'}),
+            (x/2, y/3,
+             {'legend': 'whoa',
+              'tuplesize': 3,
+              'with': 'circles'}))
+
+    time.sleep(3)
 
 
 
@@ -806,3 +818,5 @@ if __name__ == '__main__':
 #   plot( x,y ) should work (note not a list of tuples)
 
 # find && ||
+
+# gnuplot binary types. assume float64/double for now
