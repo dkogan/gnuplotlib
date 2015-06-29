@@ -804,14 +804,12 @@ if __name__ == '__main__':
 # search for "pdl", PDL
 # make sure to shut down the process properly
 # use checkpoint_stuck (sub DESTROY in Gnuplot.pm)
-# binary default
 # can I feed the data in a SEPARATE pipe? '&5'
 
 # makeCurve and friends: do I really need chunks? As it is, I process the
 # options and the data in completely different places, so I can just keep them
 # where they are
 
-# make binary work
 # new option parsing: omitted curve options
 #   packed data
 #   matrices
@@ -820,3 +818,5 @@ if __name__ == '__main__':
 # find && ||
 
 # gnuplot binary types. assume float64/double for now
+
+# non-copying binary
