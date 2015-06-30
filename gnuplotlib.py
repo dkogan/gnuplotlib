@@ -70,12 +70,10 @@ features = _getGnuplotFeatures()
 
 
 
-
-def _have(opt, where):
-    return opt in where
-
-def _active(opt, where):
-    return opt in where and where[opt]
+# used to read options. 'have' looks at the existence of an option, 'active'
+# looks at its truth
+def _have  (opt, where): return opt in where
+def _active(opt, where): return opt in where and where[opt]
 
 def _dictDeUnderscore(d):
     """Takes a dict, and renames all keys that start with an '_' to not contain that
