@@ -12,7 +12,7 @@ import numpy as np
 
 
 knownPlotOptions = frozenset(('3d', 'dump', 'ascii', 'log',
-                              'extracmds', 'nogrid', 'square', 'square_xy', 'title',
+                              'cmds', 'nogrid', 'square', 'square_xy', 'title',
                               'hardcopy', 'terminal', 'output',
                               'with',
                               'xmax',  'xmin',  'xrange',  'xlabel',
@@ -254,13 +254,13 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
             sys.stderr.write('Warning: defined gnuplot terminal, but NOT an output file. Is this REALLY what you want?\n')
 
         # add the extra global options
-        if have('extracmds'):
-            # if there's a single extracmds option, put it into a 1-element list to
+        if have('cmds'):
+            # if there's a single cmds option, put it into a 1-element list to
             # make the processing work
-            if type(self.plotOptions['extracmds']) is str:
-                self.plotOptions['extracmds'] = [self.plotOptions['extracmds']]
+            if type(self.plotOptions['cmds']) is str:
+                self.plotOptions['cmds'] = [self.plotOptions['cmds']]
 
-            for extracmd in self.plotOptions['extracmds']:
+            for extracmd in self.plotOptions['cmds']:
                 cmd += extracmd + "\n"
 
         return cmd
