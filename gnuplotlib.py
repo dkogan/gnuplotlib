@@ -5,6 +5,7 @@ from __future__ import print_function
 import subprocess
 import time
 import sys
+import os
 import re
 import select
 import numpy as np
@@ -130,6 +131,7 @@ class gnuplotlib:
         if 'persist' in features:
             cmd += ['--persist']
 
+        self.fdDupSTDOUT = os.dup(sys.stdout.fileno())
         self.gnuplotProcess = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
@@ -275,6 +277,8 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
 
             self.gnuplotProcess.wait()
             self.gnuplotProcess = None
+            os.close(self.fdDupSTDOUT)
+
 
 
 
@@ -785,6 +789,8 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
                                     'terminal')
 
         if self._havePlotOption('output'):
+            if hasattr(self,'fdDupSTDOUT') and self.plotOptions['output'] == '*STDOUT':
+                self.plotOptions['output'] = '/dev/fd/' + str(self.fdDupSTDOUT)
             self._safelyWriteToPipe('set output "{}"\n'.format(self.plotOptions['output']),
                                     'output')
 
