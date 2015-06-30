@@ -402,8 +402,8 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
                 self.checkpoint_stuck = True
 
                 raise GnuplotlibError(
-                    r'''Gnuplot process no longer responding. This is likely a bug in PDL::Graphics::Gnuplot
-and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
+                    r'''Gnuplot process no longer responding. This is likely a bug in gnuplotlib
+and/or gnuplot itself. Please report this as a gnuplotlib bug''')
 
 
             err_re_result = re.search(r'\s*(.*?)\s*{}$'.format(checkpoint), fromerr, re.M + re.S)
@@ -727,7 +727,7 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
 
                 else:
                     raise GnuplotlibError( \
-                        "plot() needed {} data piddles, but only got {}".format(curve['tuplesize'],Ndata))
+                        "plot() needed {} data arrays, but only got {}".format(curve['tuplesize'],Ndata))
 
 
 
