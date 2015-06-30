@@ -601,42 +601,6 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
             np.vstack(curve['_data']).transpose().tofile(pipe)
 
 
-    def plot(self, *curves):
-        """Main gnuplotlib API entry point"""
-
-        curves = self._massageAndValidateArgs(curves)
-
-        # I'm now ready to send the plot command. If the plot command fails,
-        # I'll get an error message; if it succeeds, gnuplot will sit there
-        # waiting for data. I don't want to have a timeout waiting for the error
-        # message, so I try to run the plot command to see if it works. I make a
-        # dummy plot into the 'dumb' terminal, and then _checkpoint() for
-        # errors. To make this quick, the test plot command contains the minimum
-        # number of data points
-        plotcmd, testcmd, testdata = self._getPlotCmd( curves )
-
-        self._testPlotcmd(testcmd, testdata)
-
-        # tests ok. Now set the terminal and actually make the plot!
-        if self._havePlotOption('terminal'):
-            self._safelyWriteToPipe("set terminal {}\n".format(self.plotOptions['terminal']),
-                                    'terminal')
-
-        if self._havePlotOption('output'):
-            self._safelyWriteToPipe('set output "{}"\n'.format(self.plotOptions['output']),
-                                    'output')
-
-        # all done. make the plot
-        self._printGnuplotPipe( plotcmd + "\n")
-
-        for curve in curves:
-            self._sendCurve(curve)
-
-        # read and report any warnings that happened during the plot
-        self._checkpoint('printwarnings')
-
-
-
     def _getPlotCmd(self, curves):
 
         def optioncmd(curve):
@@ -782,6 +746,40 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
 
         return (cmd, cmdMinimal, testData)
 
+
+    def plot(self, *curves):
+        """Main gnuplotlib API entry point"""
+
+        curves = self._massageAndValidateArgs(curves)
+
+        # I'm now ready to send the plot command. If the plot command fails,
+        # I'll get an error message; if it succeeds, gnuplot will sit there
+        # waiting for data. I don't want to have a timeout waiting for the error
+        # message, so I try to run the plot command to see if it works. I make a
+        # dummy plot into the 'dumb' terminal, and then _checkpoint() for
+        # errors. To make this quick, the test plot command contains the minimum
+        # number of data points
+        plotcmd, testcmd, testdata = self._getPlotCmd( curves )
+
+        self._testPlotcmd(testcmd, testdata)
+
+        # tests ok. Now set the terminal and actually make the plot!
+        if self._havePlotOption('terminal'):
+            self._safelyWriteToPipe("set terminal {}\n".format(self.plotOptions['terminal']),
+                                    'terminal')
+
+        if self._havePlotOption('output'):
+            self._safelyWriteToPipe('set output "{}"\n'.format(self.plotOptions['output']),
+                                    'output')
+
+        # all done. make the plot
+        self._printGnuplotPipe( plotcmd + "\n")
+
+        for curve in curves:
+            self._sendCurve(curve)
+
+        # read and report any warnings that happened during the plot
+        self._checkpoint('printwarnings')
 
 
 
