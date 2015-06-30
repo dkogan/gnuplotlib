@@ -10,18 +10,17 @@ import select
 import numpy as np
 
 
+knownPlotOptions = frozenset(('3d', 'dump', 'ascii', 'log',
+                              'extracmds', 'nogrid', 'square', 'square_xy', 'title',
+                              'hardcopy', 'terminal', 'output',
+                              'with',
+                              'xlabel', 'xmax', 'xmin',
+                              'y2label', 'y2max', 'y2min',
+                              'ylabel', 'ymax', 'ymin',
+                              'zlabel', 'zmax', 'zmin',
+                              'cbmin', 'cbmax'))
 
-knownPlotOptions = set(('3d', 'dump', 'ascii', 'log',
-                        'extracmds', 'nogrid', 'square', 'square_xy', 'title',
-                        'hardcopy', 'terminal', 'output',
-                        'with',
-                        'xlabel', 'xmax', 'xmin',
-                        'y2label', 'y2max', 'y2min',
-                        'ylabel', 'ymax', 'ymin',
-                        'zlabel', 'zmax', 'zmin',
-                        'cbmin', 'cbmax'))
-
-knownCurveOptions = set(('legend', 'y2', 'with', 'tuplesize'))
+knownCurveOptions = frozenset(('legend', 'y2', 'with', 'tuplesize'))
 
 # when testing plots with ASCII i/o, this is the unit of test data
 testdataunit_ascii = 10
