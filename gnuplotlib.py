@@ -586,12 +586,17 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
 
         pipe = self._gnuplotStdin()
         if self._activePlotOption('ascii'):
-            np.savetxt( pipe,
-                        np.vstack(curve['_data']),
-                        '%s' )
-            pipe.write("e\n")
             if _active('matrix',curve):
+                np.savetxt( pipe,
+                            np.vstack(curve['_data']),
+                            '%s' )
+                pipe.write("e\ne\n")
+            else:
+                np.savetxt( pipe,
+                            np.vstack(curve['_data']).transpose(),
+                            '%s' )
                 pipe.write("e\n")
+
         else:
             np.vstack(curve['_data']).transpose().tofile(pipe)
 
