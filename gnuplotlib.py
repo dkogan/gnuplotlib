@@ -14,11 +14,11 @@ knownPlotOptions = frozenset(('3d', 'dump', 'ascii', 'log',
                               'extracmds', 'nogrid', 'square', 'square_xy', 'title',
                               'hardcopy', 'terminal', 'output',
                               'with',
-                              'xlabel', 'xmax', 'xmin',
-                              'y2label', 'y2max', 'y2min',
-                              'ylabel', 'ymax', 'ymin',
-                              'zlabel', 'zmax', 'zmin',
-                              'cbmin', 'cbmax'))
+                              'xmax',  'xmin',  'xrange',  'xlabel',
+                              'y2max', 'y2min', 'y2range', 'y2label',
+                              'ymax',  'ymin',  'yrange',  'ylabel',
+                              'zmax',  'zmin',  'zrange',  'zlabel',
+                              'cbmin', 'cbmax', 'cbrange'))
 
 knownCurveOptions = frozenset(('legend', 'y2', 'with', 'tuplesize'))
 
@@ -179,17 +179,23 @@ class gnuplotlib:
 
             # If a bound isn't given I want to set it to the empty string, so I can communicate it simply
             # to gnuplot
+            rangeopt = axis + 'range'
             for minmax in ('min', 'max'):
                 opt = axis + minmax
                 if not have(opt):
                     self.plotOptions[opt] = ''
                 else:
+                    if have(rangeopt):
+                        raise GnuplotlibError("Both {} and {} not allowed at the same time".format(opt,rangeopt))
                     self.plotOptions[opt] = str(self.plotOptions[opt])
 
             # if any of the ranges are given, set the range
             if len(self.plotOptions[axis + 'min'] + self.plotOptions[axis + 'max']):
                 range = '{}:{}'.format(self.plotOptions[axis + 'min'], self.plotOptions[axis + 'max'])
-                cmd += "set {}range [{}]\n".format(axis, range)
+                cmd += "set {} [{}]\n".format(rangeopt, range)
+            elif have(rangeopt):
+                range = self.plotOptions[rangeopt]
+                cmd += "set {} [{}]\n".format(rangeopt, range)
 
             # set the curve labels
             if not axis == 'cb':
