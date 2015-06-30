@@ -259,7 +259,7 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
                 self.plotOptions['extracmds'] = [self.plotOptions['extracmds']]
 
             for extracmd in self.plotOptions['extracmds']:
-                cmd += "extracmd" + "\n"
+                cmd += extracmd + "\n"
 
         return cmd
 
