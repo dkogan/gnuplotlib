@@ -245,7 +245,7 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
         if have('extracmds'):
             # if there's a single extracmds option, put it into a 1-element list to
             # make the processing work
-            if type(self.plotOptions['extracmds']) == 'str':
+            if type(self.plotOptions['extracmds']) is str:
                 self.plotOptions['extracmds'] = [self.plotOptions['extracmds']]
 
             for extracmd in self.plotOptions['extracmds']:
@@ -522,8 +522,8 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
                 curve['tuplesize'] = 3 if self._activePlotOption('3d') else 2
 
             if Ndata > curve['tuplesize']:
-                raise GnuplotlibError("Got {} tuples, but the tuplesize is {}. Giving up"). \
-                    format(Ndata, curve['tuplesize'])
+                raise GnuplotlibError("Got {} tuples, but the tuplesize is {}. Giving up". \
+                    format(Ndata, curve['tuplesize']))
 
             if Ndata < curve['tuplesize']:
 
