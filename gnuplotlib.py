@@ -389,9 +389,7 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
             return '',[]
 
         fromerr       = ''
-        err_re_result = None
-
-        while True:
+        while not fromerr.endswith(checkpoint):
             # if no data received in 5 seconds, the gnuplot process is stuck. This
             # usually happens if the gnuplot process is not in a command mode, but in
             # a data-receiving mode. I'm careful to avoid this situation, but bugs in
@@ -419,14 +417,7 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
                     r'''Gnuplot process no longer responding. This is likely a bug in gnuplotlib
 and/or gnuplot itself. Please report this as a gnuplotlib bug''')
 
-
-            err_re_result = re.search(r'\s*(.*?)\s*{}$'.format(checkpoint), fromerr, re.M + re.S)
-            if err_re_result:
-                break
-
-
-
-        fromerr = err_re_result.group(1)
+        fromerr = re.search(r'\s*(.*?)\s*{}$'.format(checkpoint), fromerr, re.M + re.S).group(1)
 
         warningre = re.compile(r'^.*(?:warning:\s*(.*?)\s*$)\n?', re.M + re.I)
         warnings  = warningre.findall(fromerr)
