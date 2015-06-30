@@ -789,12 +789,71 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
 
 
 
+globalplot = None
+
+def plot(*args, **kwargs):
+
+    r'''A simple-to-use wrapper around class gnuplotlib
+
+SYNOPSIS
+
+examples!
 
 
+class gnuplotlib provides full power and flexibility, but for simple plots a
+wrapper such as this is easier to use. plot() uses a global instance of class
+gnuplotlib, so only a single plot can be made by plot() at a time: the one plot
+window is reused.
+
+Data is passed to plot() in exactly the same way as when using class gnuplotlib.
+Unlike class gnuplotlib, both curve and plot options can be passed in the
+kwargs. Any curve options passed this way apply to ALL the curves, and can be
+overridden by each individual curve option.
+
+The rest works as with class gnuplotlib; see its documentation for more detail.
+    '''
+
+    # Collect all the passed data into a tuple of tuples, one curve per inner
+    # tuple
+    if all(type(arg) is np.ndarray for arg in args):
+        curves = (list(args),)
+    elif all(type(arg) is tuple for arg in args):
+        curves = [ list(arg) for arg in args ]
+    else:
+        raise GnuplotlibError("all args should be an ndarray (one curve) or tuples")
+
+    # pull out the options (joint curve and plot)
+    if args >= 2 and type(args[-1]) is dict:
+        if len(kwargs) != 0:
+            raise GnuplotlibError("options can be passed in a single trailing dict or in kwargs, but not both")
+
+        jointOptions = _dictDeUnderscore(args.pop())
+    else:
+        jointOptions = _dictDeUnderscore(kwargs)
 
 
+    # separate the options into plot and curve ones
+    plotOptions       = {}
+    curveOptions_base = {}
+    for opt in jointOptions:
+        if opt in knownPlotOptions:
+            plotOptions[opt] = jointOptions[opt]
+        elif opt in knownCurveOptions:
+            curveOptions_base[opt] = jointOptions[opt]
+        else:
+            raise GnuplotlibError("Option '{}' not a known curve or plot option".format(opt))
 
+    # apply the base curve options to each curve
+    for curve in curves:
+        if not type(curve[-1]) is dict:
+            curve.append({})
+        curve[-1].update(curveOptions_base)
 
+    # I make a brand new gnuplot process each time (killing the previous one).
+    # Good enough for now
+    global globalplot
+    globalplot = gnuplotlib(**plotOptions)
+    globalplot.plot(*curves)
 
 
 
