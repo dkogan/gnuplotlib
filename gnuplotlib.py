@@ -499,17 +499,17 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         if self._activePlotOption('ascii'):
             if _active('matrix',curve):
                 np.savetxt( pipe,
-                            np.vstack(curve['_data']),
+                            np.vstack(curve['_data']).astype(np.float64,copy=False),
                             '%s' )
                 pipe.write("e\ne\n")
             else:
                 np.savetxt( pipe,
-                            np.vstack(curve['_data']).transpose(),
+                            np.vstack(curve['_data']).transpose().astype(np.float64,copy=False),
                             '%s' )
                 pipe.write("e\n")
 
         else:
-            np.vstack(curve['_data']).transpose().tofile(pipe)
+            np.vstack(curve['_data']).transpose().astype(np.float64,copy=False).tofile(pipe)
 
 
     def _getPlotCmd(self, curves):
