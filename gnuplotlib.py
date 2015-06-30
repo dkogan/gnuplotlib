@@ -493,95 +493,6 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
                file=sys.stderr )
 
 
-    def _massageAndValidateArgs(self, curves):
-
-        # first off, I convert the curve definition from a list of
-        #    (data, data, data, ..., {options})
-        # to a dict
-        #    {options, '_data': (data, data, data, ....)}
-        #
-        # The former is nicer as a user interface, but the latter is easier for
-        # the programmer (me!) to deal with
-        def reformat(curve):
-            d          = _dictDeUnderscore(curve[-1])
-            d['_data'] = list(curve[0:-1])
-            return d
-
-        curves = [ reformat(curve) for curve in curves ]
-
-
-
-        for curve in curves:
-
-            # tuplesize is either given explicitly, or taken from the '3d' plot
-            # option. 2d plots default to tuplesize=2 and 3d plots to
-            # tuplesize=3. This means that the tuplesize can be omitted for
-            # basic plots but MUST be given for anything fancy
-            Ndata = len(curve['_data'])
-            if not 'tuplesize' in curve:
-                curve['tuplesize'] = 3 if self._activePlotOption('3d') else 2
-
-            if Ndata > curve['tuplesize']:
-                raise GnuplotlibError("Got {} tuples, but the tuplesize is {}. Giving up". \
-                    format(Ndata, curve['tuplesize']))
-
-            if Ndata < curve['tuplesize']:
-
-                # I got fewer data elements than I expected. Set up the implicit
-                # domain if that makes sense
-
-                if Ndata+1 == curve['tuplesize']:
-
-                    # A plot is one data element short. Fill in a sequential
-                    # domain 0,1,2,...
-                    curve['_data'].insert(0, np.arange(curve['_data'][0].shape[-1]))
-
-                elif Ndata+2 == curve['tuplesize']:
-                    # a plot is 2 elements short. Use a grid as a domain. I simply set the
-                    # 'matrix' flag and have gnuplot deal with it later
-                    if self._activePlotOption('ascii') and curve['tuplesize'] > 3:
-                        raise GnuplotlibError( \
-                            "Can't make more than 3-dimensional plots on a implicit 2D domain\n" + \
-                            "when sending ASCII data. I don't think gnuplot supports this. Use binary data\n" + \
-                            "or explicitly specify the domain\n" )
-
-                    curve['matrix'] = True
-
-                else:
-                    raise GnuplotlibError( \
-                        "plot() needed {} data piddles, but only got {}".format(curve['tuplesize'],Ndata))
-
-
-
-            # The curve is now set up. I look at the input matrices to make sure
-            # the dimensions line up
-
-            # Make sure the domain and ranges describe the same number of data points
-            dim01 = [None, None]
-            for datum in curve['_data']:
-
-                if _active('matrix', curve) and datum.ndim < 2:
-                    raise GnuplotlibError("Tried to plot against an implicit 2D domain, but was given less than 2D data")
-
-                def checkdim(idim):
-                    dim_here = datum.shape[-1 - idim]
-                    if dim01[idim]:
-                        if dim_here != dim01[idim]:
-                            raise GnuplotlibError("plot() was given mismatched tuples to plot. {} vs {}". \
-                                                  format(dim01[idim], dim_here))
-                    else:
-                        dim01[idim] = dim_here
-
-                checkdim(0)
-
-                if _active('matrix', curve):
-                    checkdim(1)
-
-
-        return curves
-
-
-
     def _sendCurve(self, curve):
 
         pipe = self._gnuplotStdin()
@@ -747,10 +658,110 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
         return (cmd, cmdMinimal, testData)
 
 
-    def plot(self, *curves):
-        """Main gnuplotlib API entry point"""
+    def _massageAndValidateArgs(self, curves, curveOptions_base):
 
-        curves = self._massageAndValidateArgs(curves)
+        # Collect all the passed data into a tuple of lists, one curve per list
+        if all(type(curve) is np.ndarray for curve in curves):
+            curves = (list(curves),)
+        elif all(type(curve) is tuple for curve in curves):
+            curves = [ list(curve) for curve in curves ]
+        else:
+            raise GnuplotlibError("all data arguments should be of type ndarray (one curve) or  tuples")
+
+        # add an options dict if there isn't one, apply the base curve
+        # options to each curve
+        for curve in curves:
+            if not type(curve[-1]) is dict:
+                curve.append({})
+            curve[-1].update(curveOptions_base)
+
+        # I convert the curve definition from a list of
+        #    (data, data, data, ..., {options})
+        # to a dict
+        #    {options, '_data': (data, data, data, ....)}
+        #
+        # The former is nicer as a user interface, but the latter is easier for
+        # the programmer (me!) to deal with
+        def reformat(curve):
+            d          = _dictDeUnderscore(curve[-1])
+            d['_data'] = list(curve[0:-1])
+            return d
+        curves = [ reformat(curve) for curve in curves ]
+
+
+        for curve in curves:
+
+            # tuplesize is either given explicitly, or taken from the '3d' plot
+            # option. 2d plots default to tuplesize=2 and 3d plots to
+            # tuplesize=3. This means that the tuplesize can be omitted for
+            # basic plots but MUST be given for anything fancy
+            Ndata = len(curve['_data'])
+            if not 'tuplesize' in curve:
+                curve['tuplesize'] = 3 if self._activePlotOption('3d') else 2
+
+            if Ndata > curve['tuplesize']:
+                raise GnuplotlibError("Got {} tuples, but the tuplesize is {}. Giving up". \
+                    format(Ndata, curve['tuplesize']))
+
+            if Ndata < curve['tuplesize']:
+
+                # I got fewer data elements than I expected. Set up the implicit
+                # domain if that makes sense
+
+                if Ndata+1 == curve['tuplesize']:
+
+                    # A plot is one data element short. Fill in a sequential
+                    # domain 0,1,2,...
+                    curve['_data'].insert(0, np.arange(curve['_data'][0].shape[-1]))
+
+                elif Ndata+2 == curve['tuplesize']:
+                    # a plot is 2 elements short. Use a grid as a domain. I simply set the
+                    # 'matrix' flag and have gnuplot deal with it later
+                    if self._activePlotOption('ascii') and curve['tuplesize'] > 3:
+                        raise GnuplotlibError( \
+                            "Can't make more than 3-dimensional plots on a implicit 2D domain\n" + \
+                            "when sending ASCII data. I don't think gnuplot supports this. Use binary data\n" + \
+                            "or explicitly specify the domain\n" )
+
+                    curve['matrix'] = True
+
+                else:
+                    raise GnuplotlibError( \
+                        "plot() needed {} data piddles, but only got {}".format(curve['tuplesize'],Ndata))
+
+
+
+            # The curve is now set up. I look at the input matrices to make sure
+            # the dimensions line up
+
+            # Make sure the domain and ranges describe the same number of data points
+            dim01 = [None, None]
+            for datum in curve['_data']:
+
+                if _active('matrix', curve) and datum.ndim < 2:
+                    raise GnuplotlibError("Tried to plot against an implicit 2D domain, but was given less than 2D data")
+
+                def checkdim(idim):
+                    dim_here = datum.shape[-1 - idim]
+                    if dim01[idim]:
+                        if dim_here != dim01[idim]:
+                            raise GnuplotlibError("plot() was given mismatched tuples to plot. {} vs {}". \
+                                                  format(dim01[idim], dim_here))
+                    else:
+                        dim01[idim] = dim_here
+
+                checkdim(0)
+
+                if _active('matrix', curve):
+                    checkdim(1)
+
+
+        return curves
+
+    def plot(self, *curves, **curveOptions_base):
+        r"""Main gnuplotlib API entry point"""
+
+        curves = self._massageAndValidateArgs(curves, curveOptions_base)
 
         # I'm now ready to send the plot command. If the plot command fails,
         # I'll get an error message; if it succeeds, gnuplot will sit there
@@ -789,7 +800,7 @@ and/or gnuplot itself. Please report this as a PDL::Graphics::Gnuplot bug.''')
 
 globalplot = None
 
-def plot(*args, **kwargs):
+def plot(*curves, **jointOptions):
 
     r'''A simple-to-use wrapper around class gnuplotlib
 
@@ -803,6 +814,7 @@ wrapper such as this is easier to use. plot() uses a global instance of class
 gnuplotlib, so only a single plot can be made by plot() at a time: the one plot
 window is reused.
 
+REWRITE THIS. IT IS NOW WRONG
 Data is passed to plot() in exactly the same way as when using class gnuplotlib.
 Unlike class gnuplotlib, both curve and plot options can be passed in the
 kwargs. Any curve options passed this way apply to ALL the curves, and can be
@@ -811,23 +823,8 @@ overridden by each individual curve option.
 The rest works as with class gnuplotlib; see its documentation for more detail.
     '''
 
-    # Collect all the passed data into a tuple of tuples, one curve per inner
-    # tuple
-    if all(type(arg) is np.ndarray for arg in args):
-        curves = (list(args),)
-    elif all(type(arg) is tuple for arg in args):
-        curves = [ list(arg) for arg in args ]
-    else:
-        raise GnuplotlibError("all args should be an ndarray (one curve) or tuples")
-
     # pull out the options (joint curve and plot)
-    if args >= 2 and type(args[-1]) is dict:
-        if len(kwargs) != 0:
-            raise GnuplotlibError("options can be passed in a single trailing dict or in kwargs, but not both")
-
-        jointOptions = _dictDeUnderscore(args.pop())
-    else:
-        jointOptions = _dictDeUnderscore(kwargs)
+    jointOptions = _dictDeUnderscore(jointOptions)
 
 
     # separate the options into plot and curve ones
@@ -841,17 +838,15 @@ The rest works as with class gnuplotlib; see its documentation for more detail.
         else:
             raise GnuplotlibError("Option '{}' not a known curve or plot option".format(opt))
 
-    # apply the base curve options to each curve
-    for curve in curves:
-        if not type(curve[-1]) is dict:
-            curve.append({})
-        curve[-1].update(curveOptions_base)
-
     # I make a brand new gnuplot process each time (killing the previous one).
     # Good enough for now
     global globalplot
     globalplot = gnuplotlib(**plotOptions)
-    globalplot.plot(*curves)
+    globalplot.plot(*curves, **curveOptions_base)
+
+
+
+
 
 
 
