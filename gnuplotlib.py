@@ -181,11 +181,15 @@ class gnuplotlib:
             # to gnuplot
             for minmax in ('min', 'max'):
                 opt = axis + minmax
-                if not have(opt): self.plotOptions[opt] = ''
+                if not have(opt):
+                    self.plotOptions[opt] = ''
+                else:
+                    self.plotOptions[opt] = str(self.plotOptions[opt])
 
             # if any of the ranges are given, set the range
             if len(self.plotOptions[axis + 'min'] + self.plotOptions[axis + 'max']):
-                cmd += "set {axis}range [{axis}min:{axis}max]\n".format(axis = axis)
+                range = '{}:{}'.format(self.plotOptions[axis + 'min'], self.plotOptions[axis + 'max'])
+                cmd += "set {}range [{}]\n".format(axis, range)
 
             # set the curve labels
             if not axis == 'cb':
