@@ -12,7 +12,7 @@ import numpy as np
 
 
 knownPlotOptions = frozenset(('3d', 'dump', 'ascii', 'log',
-                              'cmds', 'nogrid', 'square', 'square_xy', 'title',
+                              'cmds', 'set', 'unset', 'square', 'square_xy', 'title',
                               'hardcopy', 'terminal', 'output',
                               'with',
                               'xmax',  'xmin',  'xrange',  'xlabel',
@@ -168,12 +168,16 @@ class gnuplotlib:
 
 
 
-        cmd = ''
-
         # grid on by default
-        if not active('nogrid'):
-            cmd += "set grid\n"
+        cmd = 'set grid\n'
 
+        # send all set/unset as is
+        for setunset in ('set', 'unset'):
+            if have(setunset):
+                if type(self.plotOptions[setunset]) is str:
+                    self.plotOptions[setunset] = (self.plotOptions[setunset],)
+                for setting in self.plotOptions[setunset]:
+                    cmd += setunset + ' ' + setting + '\n'
 
         # set the plot bounds
 
