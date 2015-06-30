@@ -249,7 +249,7 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
 
 
         if have('terminal') and not have('output'):
-            sys.stderr.write('Warning: defined gnuplot terminal, but NOT an output file. Is this REALLY what you want?')
+            sys.stderr.write('Warning: defined gnuplot terminal, but NOT an output file. Is this REALLY what you want?\n')
 
         # add the extra global options
         if have('extracmds'):
