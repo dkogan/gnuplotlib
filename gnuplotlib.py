@@ -268,7 +268,11 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
     def __del__(self):
 
         if self.gnuplotProcess:
-            self.gnuplotProcess.kill()
+            if self.checkpoint_stuck:
+                self.gnuplotProcess.terminate()
+            else:
+                self._printGnuplotPipe( "exit\n" )
+
             self.gnuplotProcess.wait()
             self.gnuplotProcess = None
 
