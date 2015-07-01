@@ -106,15 +106,20 @@ class gnuplotlib:
     def __init__(self, **plotOptions):
 
         # some defaults
-        self.gnuplotProcess   = None
         self.plotOptions      = _dictDeUnderscore(plotOptions)
         self.t0               = time.time()
         self.checkpoint_stuck = False
 
         plotOptionsCmd = self._getPlotOptionsCmd()
 
-        self._startgnuplot()
-        self._logEvent("_startgnuplot() finished")
+        # if we already have a gnuplot process, reset it. Otherwise make a new
+        # one
+        if hasattr(self, 'gnuplotProcess') and self.gnuplotProcess:
+            self._printGnuplotPipe( "reset\n" )
+            self._checkpoint()
+        else:
+            self._startgnuplot()
+            self._logEvent("_startgnuplot() finished")
 
         self._safelyWriteToPipe(plotOptionsCmd)
 
@@ -906,10 +911,15 @@ See the documentation for class gnuplotlib for full details.
         else:
             raise GnuplotlibError("Option '{}' not a known curve or plot option".format(opt))
 
-    # I make a brand new gnuplot process each time (killing the previous one).
-    # Good enough for now
+    # I make a brand new gnuplot process if necessary. If one already exists, I
+    # re-initialize it
     global globalplot
-    globalplot = gnuplotlib(**plotOptions)
+    if not globalplot:
+        globalplot = gnuplotlib(**plotOptions)
+    else:
+        globalplot.__init__(**plotOptions)
+
+
     globalplot.plot(*curves, **curveOptions_base)
 
 
