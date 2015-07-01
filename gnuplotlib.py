@@ -1531,41 +1531,36 @@ the documentation for plot() and class gnuplotlib for full details.
 
 if __name__ == '__main__':
 
-    x = np.arange(10, dtype=float)
-    y = x ** 2
+    import numpy      as np
+    import gnuplotlib as gp
+    from scipy.constants import pi
+    import time
 
-    g = gnuplotlib(_with='linespoints')
-
-
-    g.plot( (y/10,{}), (y*2,x,{'legend': 'whoa'}),
-            (x/2, y/3,
-             {'legend': 'whoa',
-              'tuplesize': 3,
-              'with': 'circles'}))
-
-    time.sleep(3)
+    x = np.arange(101) - 50
+    gp.plot(x**2)
+    time.sleep(5)
 
 
+    g1 = gp.gnuplotlib(title = 'Parabola with error bars',
+                       _with = 'xyerrorbars')
+    g1.plot( x**2 * 10, np.abs(x)/10, np.abs(x)*5,
+             legend    = 'Parabola',
+             tuplesize = 4 )
+    time.sleep(5)
 
 
-# search for "pdl", PDL
-# make sure to shut down the process properly
-# use checkpoint_stuck (sub DESTROY in Gnuplot.pm)
-# can I feed the data in a SEPARATE pipe? '&5'
+    x,y = np.ogrid[-10:11,-10:11]
+    gp.plot( x**2 + y**2,
+             title     = 'Heat map',
+             cmds      = 'set view map',
+             _with     = 'image',
+             tuplesize = 3)
+    time.sleep(5)
 
-# makeCurve and friends: do I really need chunks? As it is, I process the
-# options and the data in completely different places, so I can just keep them
-# where they are
 
-# new option parsing: omitted curve options
-#   packed data
-#   matrices
-#   plot( x,y ) should work (note not a list of tuples)
-
-# find && ||
-
-# gnuplot binary types. assume float64/double for now
-
-# non-copying binary
-
-# document _ leading options
+    theta = np.linspace(0, 6*pi, 200)
+    z     = np.linspace(0, 5,    200)
+    g2 = gp.gnuplotlib(_3d = True)
+    g2.plot( (np.cos(theta),  np.sin(theta), z),
+             (np.cos(theta), -np.sin(theta), z))
+    time.sleep(60)
