@@ -115,9 +115,10 @@ class gnuplotlib:
         # if we already have a gnuplot process, reset it. Otherwise make a new
         # one
         if hasattr(self, 'gnuplotProcess') and self.gnuplotProcess:
-            self._printGnuplotPipe( "reset\n" )
+            self._printGnuplotPipe( "reset\nset output\n" )
             self._checkpoint()
         else:
+            self.gnuplotProcess = None
             self._startgnuplot()
             self._logEvent("_startgnuplot() finished")
 
@@ -128,15 +129,17 @@ class gnuplotlib:
 
         self._logEvent("_startgnuplot()")
 
-        if self._activePlotOption('dump'):
-            return
+        if not self._activePlotOption('dump'):
 
-        cmd = ['gnuplot']
-        if 'persist' in features:
-            cmd += ['--persist']
+            cmd = ['gnuplot']
+            if 'persist' in features:
+                cmd += ['--persist']
 
-        self.fdDupSTDOUT = os.dup(sys.stdout.fileno())
-        self.gnuplotProcess = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.fdDupSTDOUT = os.dup(sys.stdout.fileno())
+            self.gnuplotProcess = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        # save the default terminal
+        self._safelyWriteToPipe("set terminal push", 'terminal')
 
 
     def _getPlotOptionsCmd(self):
@@ -358,7 +361,6 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
     # I test the plot command by making a dummy plot with the test command.
     def _testPlotcmd(self, cmd, data):
 
-        self._printGnuplotPipe( "set terminal push\n" )
         self._printGnuplotPipe( "set output\n" )
         self._printGnuplotPipe( "set terminal dumb\n" )
 
@@ -377,8 +379,6 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
             if warnings:
                 barfmsg += "Warnings:\n" + "\n".join(warnings)
             raise GnuplotlibError(barfmsg)
-
-        self._printGnuplotPipe( "set terminal pop\n" )
 
 
     # syncronizes the child and parent processes. After _checkpoint() returns, I
@@ -790,6 +790,10 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         self._testPlotcmd(testcmd, testdata)
 
         # tests ok. Now set the terminal and actually make the plot!
+
+        # select the default terminal in case that's what we want
+        self._safelyWriteToPipe("set terminal pop; set terminal push", 'terminal')
+
         if self._havePlotOption('terminal'):
             self._safelyWriteToPipe("set terminal {}\n".format(self.plotOptions['terminal']),
                                     'terminal')
