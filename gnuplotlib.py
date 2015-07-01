@@ -112,6 +112,10 @@ argument list each tuple element must be passed separately. If we're making
 anything fancier than a simple 2D or 3D plot (2- and 3- tuples respectively)
 then the 'tuplesize' curve option MUST be passed in.
 
+Currently each array is assumed to be 1D for normal plots and 2D for matrix
+plots. At some point I'll implement broadcasting to allow packed arrays, but not
+yet (numpy is missing thread_define from PDL)
+
 *** Implicit domains
 
 When a particular tuplesize is specified, gnuplotlib will attempt to read that
