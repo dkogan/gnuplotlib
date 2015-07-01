@@ -14,10 +14,11 @@ import numpy as np
 knownPlotOptions = frozenset(('3d', 'dump', 'ascii', 'log',
                               'cmds', 'set', 'unset', 'square', 'square_xy', 'title',
                               'hardcopy', 'terminal', 'output',
-                              'with', 'xmax',  'xmin',  'xrange',  'xlabel',
-                              'y2max', 'y2min', 'y2range', 'y2label',
-                              'ymax',  'ymin',  'yrange',  'ylabel',
-                              'zmax',  'zmin',  'zrange',  'zlabel',
+                              'with',
+                              'xmax',  'xmin',  'xrange',  'xinv',  'xlabel',
+                              'y2max', 'y2min', 'y2range', 'y2inv', 'y2label',
+                              'ymax',  'ymin',  'yrange',  'yinv',  'ylabel',
+                              'zmax',  'zmin',  'zrange',  'zinv',  'zlabel',
                               'cbmin', 'cbmax', 'cbrange'))
 
 knownCurveOptions = frozenset(('legend', 'y2', 'with', 'tuplesize'))
@@ -190,25 +191,40 @@ class gnuplotlib:
 
         for axis in ('x', 'y', 'y2', 'z', 'cb'):
 
+            # if we have min AND max AND inv, I make sure that min>max, and
+            # suppress the inv. This is because in gnuplot 'plot [min:max]
+            # reverse' ingores the 'reverse' if both min and max are given
+            if have(axis + 'min') and \
+               have(axis + 'max') and \
+               active(axis + 'inv'):
+                minval = min(self.plotOptions[axis + 'min'], self.plotOptions[axis + 'max'])
+                maxval = max(self.plotOptions[axis + 'min'], self.plotOptions[axis + 'max'])
+                self.plotOptions[axis + 'min'] = maxval
+                self.plotOptions[axis + 'max'] = minval
+                self.plotOptions[axis + 'inv'] = False
+
             # If a bound isn't given I want to set it to the empty string, so I can communicate it simply
             # to gnuplot
-            rangeopt = axis + 'range'
+            rangeopt_name = axis + 'range'
             for minmax in ('min', 'max'):
                 opt = axis + minmax
                 if not have(opt):
                     self.plotOptions[opt] = ''
                 else:
-                    if have(rangeopt):
-                        raise GnuplotlibError("Both {} and {} not allowed at the same time".format(opt,rangeopt))
+                    if have(rangeopt_name):
+                        raise GnuplotlibError("Both {} and {} not allowed at the same time".format(opt,rangeopt_name))
                     self.plotOptions[opt] = str(self.plotOptions[opt])
 
             # if any of the ranges are given, set the range
             if len(self.plotOptions[axis + 'min'] + self.plotOptions[axis + 'max']):
-                range = '{}:{}'.format(self.plotOptions[axis + 'min'], self.plotOptions[axis + 'max'])
-                cmd += "set {} [{}]\n".format(rangeopt, range)
-            elif have(rangeopt):
-                range = self.plotOptions[rangeopt]
-                cmd += "set {} [{}]\n".format(rangeopt, range)
+                rangeopt_val = ':'.join((self.plotOptions[axis + 'min'], self.plotOptions[axis + 'max']))
+            elif have(rangeopt_name):
+                rangeopt_val = self.plotOptions[rangeopt_name]
+            else:
+                rangeopt_val = ''
+            cmd += "set {} [{}] {}\n".format(rangeopt_name,
+                                             rangeopt_val,
+                                             'reverse' if active(axis + 'inv') else '')
 
             # set the curve labels
             if not axis == 'cb':
