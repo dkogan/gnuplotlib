@@ -694,6 +694,13 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
 
         for curve in curves:
 
+            # make sure all the curve options are valid
+            for opt in curve:
+                if opt == '_data':
+                    continue
+                if not opt in knownCurveOptions:
+                    raise GnuplotlibError("'{}' not a known curve option".format(opt))
+
             # tuplesize is either given explicitly, or taken from the '3d' plot
             # option. 2d plots default to tuplesize=2 and 3d plots to
             # tuplesize=3. This means that the tuplesize can be omitted for
