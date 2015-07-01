@@ -316,7 +316,7 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
             if re.match(r'''(?: .*;)?       # optionally wait for a semicolon
                             \s*
                             set\s+terminal\b''',
-                        line, re.X) and not re.match('terminal', flags):
+                        line, re.X) and flags != 'terminal':
                 raise GnuplotlibError("Please do not 'set terminal' manually. Use the 'terminal' plot option instead")
 
             if re.match(r'''(?: .*;)?       # optionally wait for a semicolon
