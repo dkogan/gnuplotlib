@@ -559,24 +559,15 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
                 fmt += ' format="' + ('%double' * tuplesize) + '"'
 
 
-            # when doing fancy things, gnuplot can get confused if I don't explicitly
-            # tell it the tuplesize. It has its own implicit-tuples logic that I don't
-            # want kicking in. As an example, the following simple plot doesn't work
-            # in binary without telling it 'using':
-            #   plot3d(binary => 1, with => 'image', sequence(5,5))
+            # when doing fancy things, gnuplot can get confused if I don't
+            # explicitly tell it the tuplesize. It has its own implicit-tuples
+            # logic that I don't want kicking in. For instance, 3d matrix plots
+            # with image do not work in binary without 'using':
             using_Ncolumns = tuplesize
             if _active('matrix', curve):
                 using_Ncolumns -= 2
 
-            using = ' using ' + ':'.join( str(x+1) for x in range(using_Ncolumns) )
-
-            # When plotting in binary, gnuplot gets confused if I don't explicitly
-            # tell it the tuplesize. It's got its own implicit-tuples logic that I
-            # don't want kicking in. As an example, the following simple plot doesn't
-            # work in binary without this extra line:
-            # plot3d(binary => 1,
-            #        with => 'image', sequence(5,5))
-            fmt += ' ' + using
+            fmt += ' using ' + ':'.join( str(x+1) for x in range(using_Ncolumns) )
 
             # to test the plot I plot a single record
             fmtTest = fmt
@@ -816,25 +807,81 @@ globalplot = None
 
 def plot(*curves, **jointOptions):
 
-    r'''A simple-to-use wrapper around class gnuplotlib
+    r'''A simple wrapper around class gnuplotlib
 
 SYNOPSIS
 
-examples!
+ import numpy as np
+ import gnuplotlib as gp
+
+ x = np.linspace(-5,5,100)
+
+ gp.plot( x, np.sin(x) )
+ [ graphical plot pops up showing a simple sinusoid ]
 
 
-class gnuplotlib provides full power and flexibility, but for simple plots a
-wrapper such as this is easier to use. plot() uses a global instance of class
-gnuplotlib, so only a single plot can be made by plot() at a time: the one plot
-window is reused.
+ gp.plot( (x, np.sin(x), {'with': 'boxes'}),
+          (x, np.cos(x), {'legend': 'cosine'}),
 
-REWRITE THIS. IT IS NOW WRONG
+          _with    = 'lines',
+          terminal = 'dumb 80,40',
+          output   = '*STDOUT',
+          unset    = 'grid')
+
+ [ ascii plot printed on STDOUT]
+    1 +-+---------+----------+-----------+-----------+----------+---------+-+
+      +     +|||+ +          +         +++++   +++|||+          +           +
+      |     |||||+                    +     +  +||||||       cosine +-----+ |
+  0.8 +-+   ||||||                    +     + ++||||||+                   +-+
+      |     ||||||+                  +       ++||||||||+                    |
+      |     |||||||                  +       ++|||||||||                    |
+      |     |||||||+                +        |||||||||||                    |
+  0.6 +-+   ||||||||               +         +||||||||||+                 +-+
+      |     ||||||||+              |        ++|||||||||||                   |
+      |     |||||||||              +        |||||||||||||                   |
+  0.4 +-+   |||||||||              |       ++||||||||||||+                +-+
+      |     |||||||||             +        +||||||||||||||                  |
+      |     |||||||||+            +        |||||||||||||||                  |
+      |     ||||||||||+           |       ++||||||||||||||+           +     |
+  0.2 +-+   |||||||||||          +        |||||||||||||||||           +   +-+
+      |     |||||||||||          |        +||||||||||||||||+          |     |
+      |     |||||||||||         +         ||||||||||||||||||         +      |
+    0 +-+   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++   +-+
+      |       +        ||||||||||||||||||+         |       ++||||||||||     |
+      |       |        +|||||||||||||||||          +        |||||||||||     |
+      |       +        ++||||||||||||||||          |        +||||||||||     |
+ -0.2 +-+      +        |||||||||||||||||          +        |||||||||||   +-+
+      |        |        ++||||||||||||||+           |       ++|||||||||     |
+      |        +         |||||||||||||||            +        ++||||||||     |
+      |         |        +||||||||||||||            +         |||||||||     |
+ -0.4 +-+       +        ++||||||||||||+             |        +||||||||   +-+
+      |          +        |||||||||||||              +        |||||||||     |
+      |          |        +|||||||||||+               +       ++|||||||     |
+ -0.6 +-+        +        ++||||||||||                |        +|||||||   +-+
+      |           +        |||||||||||                +        ++||||||     |
+      |           +        +|||||||||+                 +        |||||||     |
+      |            +       ++||||||||                  +       +++|||||     |
+ -0.8 +-+          +      + ++||||||+                   +      + +|||||   +-+
+      |             +    +   +||||||                     +    +  ++||||     |
+      +           +  +  ++   ++|||++     +           +   ++  +  + ++|||     +
+   -1 +-+---------+----------+-----------+-----------+----------+---------+-+
+     -6          -4         -2           0           2          4           6
+
+
+DESCRIPTION
+
+class gnuplotlib provides full power and flexibility, but for simple plots this
+wrapper is easier to use. plot() uses a global instance of class gnuplotlib, so
+only a single plot can be made by plot() at a time: the one plot window is
+reused.
+
 Data is passed to plot() in exactly the same way as when using class gnuplotlib.
-Unlike class gnuplotlib, both curve and plot options can be passed in the
-kwargs. Any curve options passed this way apply to ALL the curves, and can be
-overridden by each individual curve option.
+The kwargs passed to this function are a combination of curve options and plot
+options. The curve options passed here are defaults for all the curves. Any
+specific options specified in each curve override the defaults given in the
+kwargs.
 
-The rest works as with class gnuplotlib; see its documentation for more detail.
+See the documentation for class gnuplotlib for full details.
     '''
 
     # pull out the options (joint curve and plot)
@@ -858,6 +905,32 @@ The rest works as with class gnuplotlib; see its documentation for more detail.
     globalplot = gnuplotlib(**plotOptions)
     globalplot.plot(*curves, **curveOptions_base)
 
+
+def plot3d(*curves, **jointOptions):
+
+    r'''A simple wrapper around class gnuplotlib to make 3d plots
+
+SYNOPSIS
+
+ import numpy as np
+ import gnuplotlib as gp
+
+ th = np.linspace(0,10,1000)
+ x  = np.cos(np.linspace(0,10,1000))
+ y  = np.sin(np.linspace(0,10,1000))
+
+ gp.plot3d( x, y, th )
+ [ an interactive, graphical plot of a spiral pops up]
+
+DESCRIPTION
+
+class gnuplotlib provides full power and flexibility, but for simple 3d plots
+this wrapper is easier to use. plot3d() simply calls plot(..., _3d=True). See
+the documentation for plot() and class gnuplotlib for full details.
+
+    '''
+    jointOptions['3d'] = True
+    plot(*curves, **jointOptions)
 
 
 
