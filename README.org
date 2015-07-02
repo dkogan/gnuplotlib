@@ -1,0 +1,554 @@
+gnuplotlib: a gnuplot-based plotting backend for numpy
+* SYNOPSIS
+
+ import numpy      as np
+ import gnuplotlib as gp
+ from scipy.constants import pi
+
+ x = np.arange(101) - 50
+ gp.plot(x**2)
+ [ basic parabola plot pops up ]
+
+
+ g1 = gp.gnuplotlib(title = 'Parabola with error bars',
+                    _with = 'xyerrorbars')
+ g1.plot( x**2 * 10, np.abs(x)/10, np.abs(x)*5,
+          legend    = 'Parabola',
+          tuplesize = 4 )
+ [ parabola with x,y errobars pops up in a new window ]
+
+
+ x,y = np.ogrid[-10:11,-10:11]
+ gp.plot( x**2 + y**2,
+          title     = 'Heat map',
+          cmds      = 'set view map',
+          _with     = 'image',
+          tuplesize = 3)
+ [ Heat map pops up where first parabola used to be ]
+
+
+ theta = np.linspace(0, 6*pi, 200)
+ z     = np.linspace(0, 5,    200)
+ g2 = gp.gnuplotlib(_3d = True)
+ g2.plot( (np.cos(theta),  np.sin(theta), z),
+          (np.cos(theta), -np.sin(theta), z))
+ [ Two 3D curves together in a new window: spirals ]
+
+
+* DESCRIPTION
+
+This module allows numpy data to be plotted using Gnuplot as a backend. As much
+as was possible, this module acts as a passive pass-through to Gnuplot, thus
+making available the full power and flexibility of the Gnuplot backend. Gnuplot
+is described in great detail at its upstream website: http://www.gnuplot.info
+
+gnuplotlib has an object-oriented interface (via class gnuplotlib) and a few
+helper class-less functions (plot() and plot3d()). Each instance of class
+gnuplotlib has a gnuplot process associated with it, which has (usually) a plot
+window to go with it. If multiple simultaneous plot windows are desired, create
+a separate class gnuplotlib object for each.
+
+The helper functions reuse a single global gnuplotlib instance, so each such
+invocation rewrites over the previous gnuplot window.
+
+When making a plot with the object-oriented interface, the gnuplotlib object is
+created with a set of plot options, then the plot is made by passing it curves,
+possibly with some curve options per curve. Something like this:
+
+ import gnuplotlib as gp
+ g = gp.gnuplotlib(plot_options)
+ g.plot( curve, curve, .... )
+
+A call to plot(...) is simpler:
+
+ import gnuplotlib as gp
+ gp.plot( curve, curve, ...., plot_and_default_curve_options )
+
+plot3d(...) simply calls plot(...) with an extra plot option _3d=True.
+
+If just a single curve is plotted, 'curve' can simply be a sequence of numpy
+arrays representing coordinates of each point. For instance:
+
+ plot( x, y )
+
+If multiple curves are to be drawn on the same plot, then each 'curve' must live
+in a separate tuple. The last element of any such tuple can be a dict of curve
+options, if desired. For instance:
+
+ plot( (x1,y1),
+       (x2,y2, {'legend'='Second curve'}) )
+
+The plot_and_default_curve_options passed to plot(...) are kwargs. The curve
+options present here are used as defaults for each curve; these defaults can be
+overriden as desired. For instance:
+
+ plot( (x1,y1),
+       (x2,y2, {'with':'points'}),
+       _with='lines')
+
+would plot the first curve with lines, but the second with points.
+
+** Options arguments
+
+Plot generation is controlled by two sets of options:
+
+- Plot options: parameters that affect the whole plot, like the title of the
+plot, the axis labels, the extents, 2d/3d selection, etc. All the plot options
+are described below in "Plot options".
+
+- Curve options: parameters that affect only a single curve
+
+** Data arguments
+
+The 'curves' arguments in the plot(...) argument list represent the actual data
+being plotted. Each output data point is a tuple whose size varies depending on
+what is being plotted. For example if we're making a simple 2D x-y plot, each
+tuple has 2 values; if we're making a 3d plot with each point having variable
+size and color, each tuple has 5 values (x,y,z,size,color). In the plot(...)
+argument list each tuple element must be passed separately. If we're making
+anything fancier than a simple 2D or 3D plot (2- and 3- tuples respectively)
+then the 'tuplesize' curve option MUST be passed in.
+
+Currently each array is assumed to be 1D for normal plots and 2D for matrix
+plots. At some point I'll implement broadcasting to allow packed arrays, but not
+yet (numpy is missing thread_define from PDL)
+
+*** Implicit domains
+
+When a particular tuplesize is specified, gnuplotlib will attempt to read that
+many arrays. If there aren't enough arrays available, gnuplotlib will throw an
+error, unless an implicit domain can be used. This happens if we are EXACTLY 1
+or 2 arrayss short (usually when making 2D and 3D plots respectively).
+
+When making a simple 2D plot, if exactly 1 dimension is missing, gnuplotlib will
+use numpy.arange(N) as the domain. This is why code like
+
+ plot(numpy.array([1,5,3,4,4]))
+
+works. Only one array is given here, but a default tuplesize of 2 is active, and
+we are thus exactly 1 array short. This is thus equivalent to
+
+ plot(numpy.arange(5), numpy.array([1,5,3,4,4]) )
+
+If plotting in 3D, an implicit domain will be used if we are exactly 2 arrayss
+short. In this case, gnuplotlib will use a 2D grid as a domain. Example:
+
+ xy = numpy.arange(21*21).reshape(21*21)
+ plot3d( xy, _with = 'points')
+
+Here the only given array has dimensions (21,21). This is a 3D plot, so we are
+exactly 2 arrays short. Thus, gnuplotlib generates an implicit domain,
+corresponding to a 21-by-21 grid.
+
+Note that while the DEFAULT tuplesize depends on whether we're making a 3d plot,
+once we have a tuplesize, the logic doesn't care if a 3d plot is being made. It
+can make sense to have a 2D implicit domain when making 2D plots. For example,
+one can be plotting a color map:
+
+ x,y = np.ogrid[-10:11,-10:11]
+ gp.plot( x**2 + y**2,
+          title     = 'Heat map',
+          cmds      = 'set view map',
+          _with     = 'image',
+          tuplesize = 3)
+
+Also note that the 'tuplesize' curve option is independent of implicit domains.
+This option specifies not how many data arrays we have, but how many values
+represent each data point. For example, if we want a 2D line plot with varying
+colors plotted with an implicit domain, set tuplesize=3 as before (x,y,color),
+but pass in only 2 arrays (y, color).
+
+** Interactivity
+
+The graphical backends of Gnuplot are interactive, allowing the user to pan,
+zoom, rotate and measure the data in the plot window. See the Gnuplot
+documentation for details about how to do this. Some terminals (such as wxt) are
+persistently interactive, and the rest of this section does not apply to them.
+Other terminals (such as x11) have the downside described here.
+
+When using an affected terminal, interactivity is only possible if the gnuplot
+process is running. As long as the python program calling gnuplotlib is running,
+the plots are interactive, but once it exits, the child gnuplot process will
+exit also. This will keep the plot windows up, but the interactivity will be
+lost. So if the python program makes a plot and exits, the plot will NOT be
+interactive.
+
+
+* OPTIONS
+
+** Plot options
+
+The plot options are a dictionary, passed as the keyword arguments to the global
+plot() function or as the only arguments to the gnuplotlib contructor. The
+supported keys of this dict are as follows:
+
+- title
+
+Specifies the title of the plot
+
+- 3d
+
+If true, a 3D plot is constructed. This changes the default tuple size from 2 to
+3
+
+- _3d
+
+Identical to '3d'. In python, keyword argument keys cannot start with a number,
+so '_3d' is accepted for that purpose. Same issue exists with with/_with
+
+- set/unset
+
+These take either a string of a list. If given a string, a set or unset gnuplot
+command is executed with that argument. If given a list, elements of that list
+are set/unset separately. Example:
+
+ plot(..., set='grid', unset=['xtics', 'ytics])
+ [ turns on the grid, turns off the x and y axis tics ]
+
+- with
+
+If no 'with' curve option is given, use this as a default. See the description
+of the 'with' curve option for more detail
+
+- _with
+
+Identical to 'with'. In python 'with' is a reserved word so it is illegal to use
+it as a keyword arg key, so '_with' exists as an alias. Same issue exists with
+3d/_3d
+
+- square, square_xy
+
+If true, these request a square aspect ratio. For 3D plots, square_xy plots with
+a square aspect ratio in x and y, but scales z. Using either of these in 3D
+requires Gnuplot >= 4.4
+
+- {x,y,y2,z,cb}{min,max,range,inv}
+
+If given, these set the extents of the plot window for the requested axes.
+Either min/max or range can be given but not both. min/max are numerical values.
+'*range' is a string 'min:max' with either one allowed to be omitted. '*inv' is
+a boolean that reverses this axis. If the bounds are known, this can also be
+accomplished by setting max < min.
+
+The y2 axis is the secondary y-axis that is enabled by the 'y2' curve option.
+The 'cb' axis represents the color axis, used when color-coded plots are being
+generated
+
+- xlabel, ylabel, zlabel, y2label
+
+These specify axis labels
+
+- hardcopy
+
+Instead of drawing a plot on screen, plot into a file instead. The output
+filename is the value associated with this key. The output format is inferred
+from the filename. Currently only eps, ps, pdf, png are supported with some
+default sets of options. This option is simply a shorthand for the 'terminal'
+and 'output' options. If the defaults provided by the 'hardcopy' option are
+insufficient, use 'terminal' and 'output' manually. Example:
+
+ plot(..., hardcopy="plot.pdf")
+ [ Plots into that file ]
+
+- terminal
+
+Selects the gnuplot terminal (backend). This determines how Gnuplot generates
+its output. Common terminals are 'x11', 'qt', 'pdf', 'dumb' and so on. See the
+Gnuplot docs for all the details.
+
+- output
+
+Sets the plot output file. You generally only need to set this if you're
+generating a hardcopy, such as a PDF.
+
+A magic output value of '*STDOUT' is accepted to send the plot output to
+standard output. The special syntax is required because the standard output of
+gnuplot is connected to gnuplotlib, and we want a way to send the output to
+gnuplotlib's STDOUT. This is useful for instance with the dumb terminal:
+
+  gp.plot( np.linspace(-5,5,30)**2,
+            unset='grid', terminal='dumb 80 40', output='*STDOUT' )
+
+  25 A-+---------+-----------+-----------+----------+-----------+---------A-+
+     *           +           +           +          +           +        *  +
+     |*                                                                  *  |
+     |*                                                                 *   |
+     | *                                                                *   |
+     | A                                                               A    |
+     |  *                                                              *    |
+  20 +-+ *                                                            *   +-+
+     |   *                                                            *     |
+     |    A                                                          A      |
+     |     *                                                         *      |
+     |     *                                                        *       |
+     |      *                                                       *       |
+     |      A                                                      A        |
+  15 +-+     *                                                    *       +-+
+     |       *                                                    *         |
+     |        *                                                  *          |
+     |        A                                                 A           |
+     |         *                                               *            |
+     |          *                                              *            |
+     |           A                                            A             |
+  10 +-+          *                                          *            +-+
+     |            *                                         *               |
+     |             A                                       A                |
+     |              *                                     *                 |
+     |               *                                    *                 |
+     |                A                                  A                  |
+     |                 *                                *                   |
+   5 +-+                A                              A                  +-+
+     |                   *                           **                     |
+     |                    A**                       A                       |
+     |                                             *                        |
+     |                       A*                  *A                         |
+     |                         A*              *A                           |
+     +           +           +   A**     +  *A*     +           +           +
+   0 +-+---------+-----------+------A*A**A*A--------+-----------+---------+-+
+     0           5           10          15         20          25          30
+
+- cmds
+
+Arbitrary extra commands to pass to gnuplot before the plots are created. These
+are passed directly to gnuplot, without any validation. The value is either a
+string of a list of strings, one per command
+
+- dump
+
+Used for debugging. If true, writes out the gnuplot commands to STDOUT instead
+of writing to a gnuplot process. Useful to see what commands would be sent to
+gnuplot. This is a dry run. Note that this dump will contain binary data unless
+ascii-only plotting is enabled (see below). This is also useful to generate
+gnuplot scripts since the dumped output can be sent to gnuplot later, manually
+if desired.
+
+- log
+
+Used for debugging. If true, writes out the gnuplot commands and various
+progress logs to STDERR in addition to writing to a gnuplot process. This is NOT
+a dry run: data is sent to gnuplot AND to the log. Useful for debugging I/O
+issues. Note that this log will contain binary data unless ascii-only plotting
+is enabled (see below)
+
+- ascii
+
+If set, ASCII data is passed to gnuplot instead of binary data. Binary is the
+default because it is much more efficient (and thus faster). Binary input works
+for most plots, but not for all of them. An example where binary plotting
+doesn't work is 'with labels', and this option exists to force ASCII
+communication
+
+
+** Curve options
+
+The curve options describe details of specific curves. They are in a dict, whose
+keys are as follows:
+
+- legend
+
+Specifies the legend label for this curve
+
+- with
+
+Specifies the style for this curve. The value is passed to gnuplot using its
+'with' keyword, so valid values are whatever gnuplot supports. Read the gnuplot
+documentation for the 'with' keyword for more information
+
+- _with
+
+Identical to 'with'. In python 'with' is a reserved word so it is illegal to use
+it as a keyword arg key, so '_with' exists as an alias
+
+- y2
+
+If true, requests that this curve be plotted on the y2 axis instead of the main y axis
+
+- tuplesize
+
+Specifies how many values represent each data point. For 2D plots this defaults
+to 2; for 3D plots this defaults to 3. These defaults are correct for simple
+plots
+
+
+* INTERFACE
+
+** class gnuplotlib
+
+A gnuplotlib object abstracts a gnuplot process and a plot window. Invocation:
+
+ import gnuplotlib as gp
+ g = gp.gnuplotlib(plot_options)
+ g.plot( curve, curve, .... )
+
+The plot options are passed into the constructor; the curve options and the data
+are passed into the plot() method. One advantage of making plots this way is
+that there's a gnuplot process associated with each gnuplotlib instance, so as
+long as the object exists, the plot will be interactive. Calling 'g.plot()'
+multiple times reuses the plot window instead of creating a new one.
+
+** global plot()
+
+The convenience plotting routine in gnuplotlib. Invocation:
+
+ import gnuplotlib as gp
+ gp.plot( curve, curve, ...., plot_and_default_curve_options )
+
+Each 'plot()' call reuses the same window.
+
+** plot3d
+
+Generates 3D plots. Shorthand for 'plot(..., _3d=True)'
+
+
+* RECIPES
+
+Most of these come directly from Gnuplot commands. See the Gnuplot docs for
+details.
+
+** 2D plotting
+
+If we're plotting y-values sequentially (implicit domain), all you need is
+
+  plot(y)
+
+If we also have a corresponding x domain, we can plot y vs. x with
+
+  plot(x, y)
+
+*** Simple style control
+
+To change line thickness:
+
+  plot(x,y, _with='lines linewidth 3')
+
+To change point size and point type:
+
+  gp.plot(x,y, _with='points pointtype 4 pointsize 8')
+
+*** Errorbars
+
+To plot errorbars that show y +- 1, plotted with an implicit domain
+
+  plot( y, np.ones(y.shape), _with = 'yerrorbars', tuplesize = 3 )
+
+Same with an explicit x domain:
+
+  plot( x, y, np.ones(y.shape), _with = 'yerrorbars', tuplesize = 3 )
+
+Symmetric errorbars on both x and y. x +- 1, y +- 2:
+
+  plot( x, y, np.ones(x.shape), 2*np.ones(y.shape), _with = 'xyerrorbars', tuplesize = 4 )
+
+To plot asymmetric errorbars that show the range y-1 to y+2 (note that here you
+must specify the actual errorbar-end positions, NOT just their deviations from
+the center; this is how Gnuplot does it)
+
+  plot( y, y - np.ones(y.shape), y + 2*np.ones(y.shape),
+       _with = 'yerrorbars', tuplesize = 4 )
+
+*** More multi-value styles
+
+Plotting with variable-size circles (size given in plot units, requires Gnuplot >= 4.4)
+
+  plot(x, y, radii,
+       _with = 'circles', tuplesize = 3)
+
+Plotting with an variably-sized arbitrary point type (size given in multiples of
+the "default" point size)
+
+  plot(x, y, sizes,
+       _with = 'points pointtype 7 pointsize variable', tuplesize = 3 )
+
+Color-coded points
+
+  plot(x, y, colors,
+       _with = 'points palette', tuplesize = 3 )
+
+Variable-size AND color-coded circles. A Gnuplot (4.4.0) quirk makes it
+necessary to specify the color range here
+
+  plot(x, y, radii, colors,
+       cbmin = mincolor, cbmax = maxcolor,
+       _with = 'circles palette', tuplesize = 4 )
+
+** 3D plotting
+
+General style control works identically for 3D plots as in 2D plots.
+
+To plot a set of 3d points, with a square aspect ratio (squareness requires
+Gnuplot >= 4.4):
+
+  plot3d(x, y, z, square = 1)
+
+If xy is a 2D array, we can plot it as a height map on an implicit domain
+
+  plot3d(xy)
+
+Complicated 3D plot with fancy styling:
+
+  th    = np.linspace(0, 6*pi, 200)
+  z     = np.linspace(0, 5,    200)
+  size  = 0.5 + np.abs(np.cos(th))
+  color = np.sin(2*th)
+
+  plot3d( ( np.cos(th),  np.sin(th), z, size, color, {'legend': "spiral 1"}),
+          (-np.cos(th), -np.sin(th), z, size, color, {'legend': "spiral 2"}),
+
+          title     = 'double helix',
+          tuplesize = 5,
+          _with = 'points pointsize variable pointtype 7 palette' )
+
+
+Image arrays plots can be plotted as a heat map:
+
+   x,y = np.ogrid[-10:11,-10:11]
+   gp.plot( x**2 + y**2,
+            title     = 'Heat map',
+            cmds      = 'set view map',
+            _with     = 'image',
+            tuplesize = 3)
+
+** Hardcopies
+
+To send any plot to a file, instead of to the screen, one can simply do
+
+  plot(x, y,
+       hardcopy = 'output.pdf')
+
+The 'hardcopy' option is a shorthand for the 'terminal' and 'output'
+options. If more control is desired, the latter can be used. For example to
+generate a PDF of a particular size with a particular font size for the text,
+one can do
+
+  plot(x, y,
+       terminal = 'pdfcairo solid color font ",10" size 11in,8.5in',
+       output   = 'output.pdf')
+
+This command is equivalent to the 'hardcopy' shorthand used previously, but the
+fonts and sizes can be changed.
+
+
+* COMPATIBILITY
+
+Everything should work on all platforms that support Gnuplot and Python. That
+said, only Debian GNU/Linux has been tested at this point. Comments and/or
+patches are welcome.
+
+* REPOSITORY
+
+https://github.com/dkogan/gnuplotlib
+
+* AUTHOR
+
+Dima Kogan <dima@secretsauce.net>
+
+* LICENSE AND COPYRIGHT
+
+Copyright 2015 Dima Kogan.
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License (any version) as published by
+the Free Software Foundation
+
+See https://www.gnu.org/licenses/lgpl.html
+
