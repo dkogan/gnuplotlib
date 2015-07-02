@@ -1093,7 +1093,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
                 np.savetxt( pipe,
                             np.vstack(curve['_data']).astype(np.float64,copy=False),
                             '%s' )
-                pipe.write("e\ne\n")
+                pipe.write("\ne\n")
             else:
                 np.savetxt( pipe,
                             np.vstack(curve['_data']).transpose().astype(np.float64,copy=False),
@@ -1226,7 +1226,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
 
                 testData_curve = ''
                 if _active('matrix', curve):
-                    testmatrix = "{0} {0}\n" + "{0} {0}\n" + "e\ne\n"
+                    testmatrix = "{0} {0}\n" + "{0} {0}\n" + "\ne\n"
                     testData_curve = testmatrix.format(testdataunit_ascii) * (curve['tuplesize'] - 2)
                 else:
                     testData_curve = ' '.join( ['{}'.format(testdataunit_ascii)] * curve['tuplesize']) + \
