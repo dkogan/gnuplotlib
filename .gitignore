@@ -1,2 +1,5 @@
 *.pyc
 *~
+debian/*.log
+dist/
+MANIFEST
