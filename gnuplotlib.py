@@ -4,6 +4,7 @@ r'''gnuplotlib: a gnuplot-based plotting backend for numpy
 
 * SYNOPSIS
 
+#+BEGIN_SRC python
  import numpy      as np
  import gnuplotlib as gp
  from scipy.constants import pi
@@ -36,6 +37,7 @@ r'''gnuplotlib: a gnuplot-based plotting backend for numpy
  g2.plot( (np.cos(theta),  np.sin(theta), z),
           (np.cos(theta), -np.sin(theta), z))
  [ Two 3D curves together in a new window: spirals ]
+#+END_SRC python
 
 
 * DESCRIPTION
@@ -58,36 +60,46 @@ When making a plot with the object-oriented interface, the gnuplotlib object is
 created with a set of plot options, then the plot is made by passing it curves,
 possibly with some curve options per curve. Something like this:
 
+#+BEGIN_SRC python
  import gnuplotlib as gp
  g = gp.gnuplotlib(plot_options)
  g.plot( curve, curve, .... )
+#+END_SRC python
 
 A call to plot(...) is simpler:
 
+#+BEGIN_SRC python
  import gnuplotlib as gp
  gp.plot( curve, curve, ...., plot_and_default_curve_options )
+#+END_SRC python
 
 plot3d(...) simply calls plot(...) with an extra plot option _3d=True.
 
 If just a single curve is plotted, 'curve' can simply be a sequence of numpy
 arrays representing coordinates of each point. For instance:
 
+#+BEGIN_SRC python
  plot( x, y )
+#+END_SRC python
 
 If multiple curves are to be drawn on the same plot, then each 'curve' must live
 in a separate tuple. The last element of any such tuple can be a dict of curve
 options, if desired. For instance:
 
+#+BEGIN_SRC python
  plot( (x1,y1),
        (x2,y2, {'legend'='Second curve'}) )
+#+END_SRC python
 
 The plot_and_default_curve_options passed to plot(...) are kwargs. The curve
 options present here are used as defaults for each curve; these defaults can be
 overriden as desired. For instance:
 
+#+BEGIN_SRC python
  plot( (x1,y1),
        (x2,y2, {'with':'points'}),
        _with='lines')
+#+END_SRC python
 
 would plot the first curve with lines, but the second with points.
 
@@ -96,8 +108,8 @@ would plot the first curve with lines, but the second with points.
 Plot generation is controlled by two sets of options:
 
 - Plot options: parameters that affect the whole plot, like the title of the
-plot, the axis labels, the extents, 2d/3d selection, etc. All the plot options
-are described below in "Plot options".
+  plot, the axis labels, the extents, 2d/3d selection, etc. All the plot options
+  are described below in "Plot options".
 
 - Curve options: parameters that affect only a single curve
 
@@ -126,18 +138,24 @@ or 2 arrayss short (usually when making 2D and 3D plots respectively).
 When making a simple 2D plot, if exactly 1 dimension is missing, gnuplotlib will
 use numpy.arange(N) as the domain. This is why code like
 
+#+BEGIN_SRC python
  plot(numpy.array([1,5,3,4,4]))
+#+END_SRC python
 
 works. Only one array is given here, but a default tuplesize of 2 is active, and
 we are thus exactly 1 array short. This is thus equivalent to
 
+#+BEGIN_SRC python
  plot(numpy.arange(5), numpy.array([1,5,3,4,4]) )
+#+END_SRC python
 
 If plotting in 3D, an implicit domain will be used if we are exactly 2 arrayss
 short. In this case, gnuplotlib will use a 2D grid as a domain. Example:
 
+#+BEGIN_SRC python
  xy = numpy.arange(21*21).reshape(21*21)
  plot3d( xy, _with = 'points')
+#+END_SRC python
 
 Here the only given array has dimensions (21,21). This is a 3D plot, so we are
 exactly 2 arrays short. Thus, gnuplotlib generates an implicit domain,
@@ -148,12 +166,14 @@ once we have a tuplesize, the logic doesn't care if a 3d plot is being made. It
 can make sense to have a 2D implicit domain when making 2D plots. For example,
 one can be plotting a color map:
 
+#+BEGIN_SRC python
  x,y = np.ogrid[-10:11,-10:11]
  gp.plot( x**2 + y**2,
           title     = 'Heat map',
           cmds      = 'set view map',
           _with     = 'image',
           tuplesize = 3)
+#+END_SRC python
 
 Also note that the 'tuplesize' curve option is independent of implicit domains.
 This option specifies not how many data arrays we have, but how many values
@@ -205,8 +225,10 @@ These take either a string of a list. If given a string, a set or unset gnuplot
 command is executed with that argument. If given a list, elements of that list
 are set/unset separately. Example:
 
+#+BEGIN_SRC python
  plot(..., set='grid', unset=['xtics', 'ytics])
  [ turns on the grid, turns off the x and y axis tics ]
+#+END_SRC python
 
 - with
 
@@ -250,8 +272,10 @@ default sets of options. This option is simply a shorthand for the 'terminal'
 and 'output' options. If the defaults provided by the 'hardcopy' option are
 insufficient, use 'terminal' and 'output' manually. Example:
 
+#+BEGIN_SRC python
  plot(..., hardcopy="plot.pdf")
  [ Plots into that file ]
+#+END_SRC python
 
 - terminal
 
@@ -269,9 +293,12 @@ standard output. The special syntax is required because the standard output of
 gnuplot is connected to gnuplotlib, and we want a way to send the output to
 gnuplotlib's STDOUT. This is useful for instance with the dumb terminal:
 
+#+BEGIN_SRC python
   gp.plot( np.linspace(-5,5,30)**2,
             unset='grid', terminal='dumb 80 40', output='*STDOUT' )
+#+END_SRC python
 
+#+BEGIN_EXAMPLE
   25 A-+---------+-----------+-----------+----------+-----------+---------A-+
      *           +           +           +          +           +        *  +
      |*                                                                  *  |
@@ -309,6 +336,7 @@ gnuplotlib's STDOUT. This is useful for instance with the dumb terminal:
      +           +           +   A**     +  *A*     +           +           +
    0 +-+---------+-----------+------A*A**A*A--------+-----------+---------+-+
      0           5           10          15         20          25          30
+#+END_EXAMPLE
 
 - cmds
 
@@ -379,9 +407,11 @@ plots
 
 A gnuplotlib object abstracts a gnuplot process and a plot window. Invocation:
 
+#+BEGIN_SRC python
  import gnuplotlib as gp
  g = gp.gnuplotlib(plot_options)
  g.plot( curve, curve, .... )
+#+END_SRC python
 
 The plot options are passed into the constructor; the curve options and the data
 are passed into the plot() method. One advantage of making plots this way is
@@ -393,8 +423,10 @@ multiple times reuses the plot window instead of creating a new one.
 
 The convenience plotting routine in gnuplotlib. Invocation:
 
+#+BEGIN_SRC python
  import gnuplotlib as gp
  gp.plot( curve, curve, ...., plot_and_default_curve_options )
+#+END_SRC python
 
 Each 'plot()' call reuses the same window.
 
@@ -412,67 +444,91 @@ details.
 
 If we're plotting y-values sequentially (implicit domain), all you need is
 
+#+BEGIN_SRC python
   plot(y)
+#+END_SRC python
 
 If we also have a corresponding x domain, we can plot y vs. x with
 
+#+BEGIN_SRC python
   plot(x, y)
+#+END_SRC python
 
 *** Simple style control
 
 To change line thickness:
 
+#+BEGIN_SRC python
   plot(x,y, _with='lines linewidth 3')
+#+END_SRC python
 
 To change point size and point type:
 
+#+BEGIN_SRC python
   gp.plot(x,y, _with='points pointtype 4 pointsize 8')
+#+END_SRC python
 
 *** Errorbars
 
 To plot errorbars that show y +- 1, plotted with an implicit domain
 
+#+BEGIN_SRC python
   plot( y, np.ones(y.shape), _with = 'yerrorbars', tuplesize = 3 )
+#+END_SRC python
 
 Same with an explicit x domain:
 
+#+BEGIN_SRC python
   plot( x, y, np.ones(y.shape), _with = 'yerrorbars', tuplesize = 3 )
+#+END_SRC python
 
 Symmetric errorbars on both x and y. x +- 1, y +- 2:
 
+#+BEGIN_SRC python
   plot( x, y, np.ones(x.shape), 2*np.ones(y.shape), _with = 'xyerrorbars', tuplesize = 4 )
+#+END_SRC python
 
 To plot asymmetric errorbars that show the range y-1 to y+2 (note that here you
 must specify the actual errorbar-end positions, NOT just their deviations from
 the center; this is how Gnuplot does it)
 
+#+BEGIN_SRC python
   plot( y, y - np.ones(y.shape), y + 2*np.ones(y.shape),
        _with = 'yerrorbars', tuplesize = 4 )
+#+END_SRC python
 
 *** More multi-value styles
 
 Plotting with variable-size circles (size given in plot units, requires Gnuplot >= 4.4)
 
+#+BEGIN_SRC python
   plot(x, y, radii,
        _with = 'circles', tuplesize = 3)
+#+END_SRC python
 
 Plotting with an variably-sized arbitrary point type (size given in multiples of
 the "default" point size)
 
+#+BEGIN_SRC python
   plot(x, y, sizes,
        _with = 'points pointtype 7 pointsize variable', tuplesize = 3 )
+#+END_SRC python
 
 Color-coded points
 
+#+BEGIN_SRC python
   plot(x, y, colors,
        _with = 'points palette', tuplesize = 3 )
+#+END_SRC python
 
 Variable-size AND color-coded circles. A Gnuplot (4.4.0) quirk makes it
 necessary to specify the color range here
 
+#+BEGIN_SRC python
   plot(x, y, radii, colors,
        cbmin = mincolor, cbmax = maxcolor,
        _with = 'circles palette', tuplesize = 4 )
+#+END_SRC python
 
 ** 3D plotting
 
@@ -481,14 +537,19 @@ General style control works identically for 3D plots as in 2D plots.
 To plot a set of 3d points, with a square aspect ratio (squareness requires
 Gnuplot >= 4.4):
 
+#+BEGIN_SRC python
   plot3d(x, y, z, square = 1)
+#+END_SRC python
 
 If xy is a 2D array, we can plot it as a height map on an implicit domain
 
+#+BEGIN_SRC python
   plot3d(xy)
+#+END_SRC python
 
 Complicated 3D plot with fancy styling:
 
+#+BEGIN_SRC python
   th    = np.linspace(0, 6*pi, 200)
   z     = np.linspace(0, 5,    200)
   size  = 0.5 + np.abs(np.cos(th))
@@ -500,32 +561,38 @@ Complicated 3D plot with fancy styling:
           title     = 'double helix',
           tuplesize = 5,
           _with = 'points pointsize variable pointtype 7 palette' )
-
+#+END_SRC python
 
 Image arrays plots can be plotted as a heat map:
 
+#+BEGIN_SRC python
    x,y = np.ogrid[-10:11,-10:11]
    gp.plot( x**2 + y**2,
             title     = 'Heat map',
             cmds      = 'set view map',
             _with     = 'image',
             tuplesize = 3)
+#+END_SRC python
 
 ** Hardcopies
 
 To send any plot to a file, instead of to the screen, one can simply do
 
+#+BEGIN_SRC python
   plot(x, y,
        hardcopy = 'output.pdf')
+#+END_SRC python
 
 The 'hardcopy' option is a shorthand for the 'terminal' and 'output'
 options. If more control is desired, the latter can be used. For example to
 generate a PDF of a particular size with a particular font size for the text,
 one can do
 
+#+BEGIN_SRC python
   plot(x, y,
        terminal = 'pdfcairo solid color font ",10" size 11in,8.5in',
        output   = 'output.pdf')
+#+END_SRC python
 
 This command is equivalent to the 'hardcopy' shorthand used previously, but the
 fonts and sizes can be changed.
@@ -554,7 +621,6 @@ the terms of the GNU Lesser General Public License (any version) as published by
 the Free Software Foundation
 
 See https://www.gnu.org/licenses/lgpl.html
-
 '''
 
 
