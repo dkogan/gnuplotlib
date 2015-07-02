@@ -1101,7 +1101,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
                 pipe.write("e\n")
 
         else:
-            np.vstack(curve['_data']).transpose().astype(np.float64,copy=False).tofile(pipe)
+            np.dstack(curve['_data']).astype(np.float64,copy=False).tofile(pipe)
 
 
     def _getPlotCmd(self, curves):
@@ -1132,7 +1132,6 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
             if _active('matrix', curve):
                 fmt += 'binary array=({},{})'.format(curve['_data'][0].shape[-1],
                                                      curve['_data'][0].shape[-2])
-                fmt += ' transpose'
                 fmt += ' format="' + ('%double' * (tuplesize-2)) + '"'
             else:
                 fmt += 'binary record=' + str(curve['_data'][0].shape[-1])
