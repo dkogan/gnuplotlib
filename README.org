@@ -614,7 +614,7 @@ Dima Kogan <dima@secretsauce.net>
 Copyright 2015 Dima Kogan.
 
 This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU Lesser General Public License (any version) as published by
-the Free Software Foundation
+the terms of the GNU Lesser General Public License (version 3 or higher) as
+published by the Free Software Foundation
 
 See https://www.gnu.org/licenses/lgpl.html

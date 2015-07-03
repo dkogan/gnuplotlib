@@ -8,5 +8,5 @@ setup(name         = 'gnuplotlib',
       author_email = 'dima@secretsauce.net',
       url          = 'http://github.com/dkogan/gnuplotlib',
       description  = 'Gnuplot-based plotting for numpy',
-      license      = 'LGPL (any version)',
+      license      = 'LGPL-3+',
       py_modules   = ['gnuplotlib'] )
