@@ -5,12 +5,12 @@ Upstream-Name: gnuplotlib
 
 Files: *
 Copyright: 2015, Dima Kogan <dima@secretsauce.net>
-License: LGPL
+License: LGPL-3+
 
-License: LGPL
+License: LGPL-3+
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Lesser General Public License as published by the Free
- Software Foundation (any version)
+ Software Foundation; either version 3, or (at your option) any later version.
  .
  On Debian GNU/Linux systems, the complete text of the Lesser General Public
  License can be found in `/usr/share/common-licenses/LGPL-3'.
