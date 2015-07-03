@@ -1,7 +1,7 @@
 Source: python-gnuplotlib
 Section: python
 Priority: optional
-Build-Depends: debhelper (>= 9), dh-python, python-all, python3-all
+Build-Depends: debhelper (>= 9), dh-python, python-all
 Maintainer: Dima Kogan <dima@secretsauce.net>
 Standards-Version: 3.9.6
 Homepage: http://github.com/dkogan/gnuplotlib
@@ -16,14 +16,3 @@ Description: Gnuplot-based plotter for numpy
  gnuplotlib allows numpy data to be plotted using Gnuplot as a backend. As much
  as was possible, this module acts as a passive pass-through to Gnuplot, thus
  making available the full power and flexibility of the Gnuplot backend.
-
-Package: python3-gnuplotlib
-Architecture: all
-Depends: ${misc:Depends}, ${python3:Depends},
-         gnuplot-qt | gnuplot-x11 | gnuplot-nox | gnuplot5-qt | gnuplot5-x11 | gnuplot5-nox | gnuplot
-Description: Gnuplot-based plotter for numpy
- gnuplotlib allows numpy data to be plotted using Gnuplot as a backend. As much
- as was possible, this module acts as a passive pass-through to Gnuplot, thus
- making available the full power and flexibility of the Gnuplot backend.
- .
- This package contains the Python 3 version of the library.
