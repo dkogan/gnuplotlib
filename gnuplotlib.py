@@ -708,7 +708,7 @@ and '3d'), so the user passes in '_with' and '_3d', which ARE legal
     """
     d2 = {}
     for key in d:
-        if type(key) is str and key[0] == '_':
+        if isinstance(key, (str, bytes)) and key[0] == '_':
             d2[key[1:]] = d[key]
         else:
             d2[key] = d[key]
@@ -736,7 +736,7 @@ class gnuplotlib:
         self.t0               = time.time()
         self.checkpoint_stuck = False
 
-        plotOptionsCmd = self._getPlotOptionsCmd()
+        plotOptionsCmds = self._getPlotOptionsCmds()
 
         # if we already have a gnuplot process, reset it. Otherwise make a new
         # one
@@ -748,7 +748,7 @@ class gnuplotlib:
             self._startgnuplot()
             self._logEvent("_startgnuplot() finished")
 
-        self._safelyWriteToPipe(plotOptionsCmd)
+        self._safelyWriteToPipe(plotOptionsCmds)
 
 
     def _startgnuplot(self):
@@ -768,7 +768,7 @@ class gnuplotlib:
         self._safelyWriteToPipe("set terminal push", 'terminal')
 
 
-    def _getPlotOptionsCmd(self):
+    def _getPlotOptionsCmds(self):
 
         def have(opt):   return self._havePlotOption(opt)
         def active(opt): return self._activePlotOption(opt)
@@ -802,15 +802,15 @@ class gnuplotlib:
 
 
         # grid on by default
-        cmd = 'set grid\n'
+        cmds = ['set grid']
 
         # send all set/unset as is
         for setunset in ('set', 'unset'):
             if have(setunset):
-                if type(self.plotOptions[setunset]) is str:
-                    self.plotOptions[setunset] = (self.plotOptions[setunset],)
-                for setting in self.plotOptions[setunset]:
-                    cmd += setunset + ' ' + setting + '\n'
+                if isinstance(self.plotOptions[setunset], (list, tuple)):
+                    cmds += [ setunset + ' ' + setting for setting in self.plotOptions[setunset] ]
+                else:
+                    cmds.append(self.plotOptions[setunset])
 
         # set the plot bounds
 
@@ -847,33 +847,33 @@ class gnuplotlib:
                 rangeopt_val = self.plotOptions[rangeopt_name]
             else:
                 rangeopt_val = ''
-            cmd += "set {} [{}] {}\n".format(rangeopt_name,
-                                             rangeopt_val,
-                                             'reverse' if active(axis + 'inv') else '')
+                cmds.append( "set {} [{}] {}".format(rangeopt_name,
+                                                     rangeopt_val,
+                                                     'reverse' if active(axis + 'inv') else ''))
 
             # set the curve labels
             if not axis == 'cb':
                 if have(axis + 'label'):
-                    cmd += 'set {axis}label "{label}"\n'.format(axis = axis,
-                                                                label = self.plotOptions[axis + 'label'])
+                    cmds.append('set {axis}label "{label}"'.format(axis = axis,
+                                                                   label = self.plotOptions[axis + 'label']))
 
 
 
         # set the title
         if have('title'):
-            cmd += 'set title "{}"\n'.format(self.plotOptions['title'])
+            cmds.append('set title "' + self.plotOptions['title'] + '"')
 
 
         # handle a requested square aspect ratio
         # set a square aspect ratio. Gnuplot does this differently for 2D and 3D plots
         if active('3d'):
             if active('square'):
-                cmd += "set view equal xyz\n"
+                cmds.append("set view equal xyz")
             elif active('square_xy'):
-                cmd += "set view equal xy\n"
+                cmds.append("set view equal xy")
         else:
             if active('square'):
-                cmd += "set size ratio -1\n"
+                cmds.append("set size ratio -1")
 
         # handle 'hardcopy'. This simply ties in to 'output' and 'terminal', handled
         # later
@@ -909,13 +909,12 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
         if have('cmds'):
             # if there's a single cmds option, put it into a 1-element list to
             # make the processing work
-            if type(self.plotOptions['cmds']) is str:
-                self.plotOptions['cmds'] = [self.plotOptions['cmds']]
+            if isinstance(self.plotOptions['cmds'], (list, tuple)):
+                cmds += self.plotOptions['cmds']
+            else:
+                cmds.append(self.plotOptions['cmds'])
 
-            for extracmd in self.plotOptions['cmds']:
-                cmd += extracmd + "\n"
-
-        return cmd
+        return cmds
 
 
 
@@ -936,7 +935,7 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
 
 
 
-    def _safelyWriteToPipe(self, string, flags=''):
+    def _safelyWriteToPipe(self, input, flags=''):
 
         def barfOnDisallowedCommands(line):
             # I use STDERR as the backchannel, so I don't allow any "set print"
@@ -969,18 +968,17 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
 
 
 
-        for line in string.splitlines():
-            line = line.strip()
-            if not line:
-                continue
+        if not isinstance(input, (list,tuple)):
+            input = (input,)
 
-            barfOnDisallowedCommands(line)
+        for cmd in input:
+            barfOnDisallowedCommands(cmd)
 
-            self._printGnuplotPipe( line + '\n' )
+            self._printGnuplotPipe( cmd + '\n' )
 
             errorMessage, warnings = self._checkpoint('printwarnings')
             if errorMessage:
-                barfmsg = "Gnuplot error: '\n{}\n' while sending line '{}'\n".format(errorMessage, line)
+                barfmsg = "Gnuplot error: '\n{}\n' while sending cmd '{}'\n".format(errorMessage, cmd)
                 if warnings:
                     barfmsg += "Warnings:\n" + str(warnings)
                 raise GnuplotlibError(barfmsg)
@@ -1435,13 +1433,13 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         self._safelyWriteToPipe("set terminal pop; set terminal push", 'terminal')
 
         if self._havePlotOption('terminal'):
-            self._safelyWriteToPipe("set terminal {}\n".format(self.plotOptions['terminal']),
+            self._safelyWriteToPipe("set terminal " + self.plotOptions['terminal'],
                                     'terminal')
 
         if self._havePlotOption('output'):
             if hasattr(self,'fdDupSTDOUT') and self.plotOptions['output'] == '*STDOUT':
                 self.plotOptions['output'] = '/dev/fd/' + str(self.fdDupSTDOUT)
-            self._safelyWriteToPipe('set output "{}"\n'.format(self.plotOptions['output']),
+            self._safelyWriteToPipe('set output "' + self.plotOptions['output'] + '"',
                                     'output')
 
         # all done. make the plot
