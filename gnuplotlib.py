@@ -419,7 +419,7 @@ that there's a gnuplot process associated with each gnuplotlib instance, so as
 long as the object exists, the plot will be interactive. Calling 'g.plot()'
 multiple times reuses the plot window instead of creating a new one.
 
-** global plot()
+** global plot(...)
 
 The convenience plotting routine in gnuplotlib. Invocation:
 
@@ -430,7 +430,7 @@ The convenience plotting routine in gnuplotlib. Invocation:
 
 Each 'plot()' call reuses the same window.
 
-** plot3d
+** global plot3d(...)
 
 Generates 3D plots. Shorthand for 'plot(..., _3d=True)'
 
@@ -600,6 +600,9 @@ fonts and sizes can be changed.
 
 * COMPATIBILITY
 
+Only python 2 is supported. I have no plans to support python 3 (forcing me to
+care about unicode is stupid), but patches are welcome.
+
 Everything should work on all platforms that support Gnuplot and Python. That
 said, only Debian GNU/Linux has been tested at this point. Comments and/or
 patches are welcome.
@@ -621,6 +624,7 @@ the terms of the GNU Lesser General Public License (version 3 or higher) as
 published by the Free Software Foundation
 
 See https://www.gnu.org/licenses/lgpl.html
+
 '''
 
 
