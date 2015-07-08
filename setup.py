@@ -9,7 +9,7 @@ subprocess.call( ['make', 'README', 'README.org'] )
 
 
 setup(name         = 'gnuplotlib',
-      version      = '0.2',
+      version      = '0.3',
       author       = 'Dima Kogan',
       author_email = 'dima@secretsauce.net',
       url          = 'http://github.com/dkogan/gnuplotlib',
