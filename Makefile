@@ -21,6 +21,8 @@ endef
 README.org: gnuplotlib.py
 	$(extract_docstring) < $^ > $@
 
+README: README.org
+	ln -fs $^ $@
 clean:
 	rm -f README.org
 .PHONY: clean
