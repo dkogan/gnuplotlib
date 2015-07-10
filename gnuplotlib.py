@@ -1143,7 +1143,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
     def _logEvent(self, event):
 
         # only log when asked
-        if not 'log' in self.plotOptions:
+        if not self._activePlotOption('log'):
             return
 
         t = time.time() - self.t0
