@@ -814,7 +814,7 @@ class gnuplotlib:
                 if isinstance(self.plotOptions[setunset], (list, tuple)):
                     cmds += [ setunset + ' ' + setting for setting in self.plotOptions[setunset] ]
                 else:
-                    cmds.append(self.plotOptions[setunset])
+                    cmds.append(setunset + ' ' + self.plotOptions[setunset])
 
         # set the plot bounds
 
