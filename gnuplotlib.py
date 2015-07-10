@@ -1004,7 +1004,13 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
     # I test the plot command by making a dummy plot with the test command.
     def _testPlotcmd(self, cmd, data):
 
-        self._printGnuplotPipe( "set output\n" )
+        # I don't actually want to see the plot, I just want to make sure that
+        # no errors are thrown. I thus send the output to /dev/null. Note that I
+        # never actually read stdout, so if this test plot goes to the default
+        # stdout output, then eventually the buffer fills up and gnuplot blocks.
+        # So keep it going to /dev/null, or make sure to read the test plot from
+        # stdout
+        self._printGnuplotPipe( "set output '/dev/null'\n" )
         self._printGnuplotPipe( "set terminal dumb\n" )
 
         # I send a test plot command. Gnuplot implicitly uses && if multiple
