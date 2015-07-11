@@ -739,6 +739,7 @@ class gnuplotlib:
         self.plotOptions      = _dictDeUnderscore(plotOptions)
         self.t0               = time.time()
         self.checkpoint_stuck = False
+        self.sync_count       = 1
 
         plotOptionsCmds = self._getPlotOptionsCmds()
 
@@ -1040,7 +1041,8 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
         # yet arrived. I thus print out a checkpoint message and keep reading the
         # child's STDERR pipe until I get that message back. Any errors would have
         # been printed before this
-        checkpoint = "xxxxxxx Syncronizing gnuplot i/o xxxxxxx"
+        checkpoint = "gpsync{}xxx".format(self.sync_count)
+        self.sync_count += 1
 
         self._printGnuplotPipe( 'print "{}"\n'.format(checkpoint) )
 
