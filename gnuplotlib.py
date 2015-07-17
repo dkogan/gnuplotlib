@@ -1566,9 +1566,11 @@ See the documentation for class gnuplotlib for full details.
             raise GnuplotlibError("Option '{}' not a known curve or plot option".format(opt))
 
     # I make a brand new gnuplot process if necessary. If one already exists, I
-    # re-initialize it
+    # re-initialize it. If we're doing a data dump then I also create a new
+    # object. There's no gnuplot session to reuse in that case, and otherwise
+    # the dumping won't get activated
     global globalplot
-    if not globalplot:
+    if not globalplot or _active('dump', plotOptions):
         globalplot = gnuplotlib(**plotOptions)
     else:
         globalplot.__init__(**plotOptions)
