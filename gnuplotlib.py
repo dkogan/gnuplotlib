@@ -251,9 +251,9 @@ requires Gnuplot >= 4.4
 
 If given, these set the extents of the plot window for the requested axes.
 Either min/max or range can be given but not both. min/max are numerical values.
-'*range' is a string 'min:max' with either one allowed to be omitted. '*inv' is
-a boolean that reverses this axis. If the bounds are known, this can also be
-accomplished by setting max < min.
+'*range' is a string 'min:max' with either one allowed to be omitted; it can
+also be a [min,max] tuple or list. '*inv' is a boolean that reverses this axis.
+If the bounds are known, this can also be accomplished by setting max < min.
 
 The y2 axis is the secondary y-axis that is enabled by the 'y2' curve option.
 The 'cb' axis represents the color axis, used when color-coded plots are being
@@ -849,7 +849,11 @@ class gnuplotlib:
             if len(self.plotOptions[axis + 'min'] + self.plotOptions[axis + 'max']):
                 rangeopt_val = ':'.join((self.plotOptions[axis + 'min'], self.plotOptions[axis + 'max']))
             elif have(rangeopt_name):
+                # A range was given. If it's a string, just take it. It can also
+                # be a two-value list for the min/max
                 rangeopt_val = self.plotOptions[rangeopt_name]
+                if isinstance(rangeopt_val, (list, tuple)):
+                    rangeopt_val = ':'.join(str(x) for x in rangeopt_val)
             else:
                 rangeopt_val = ''
 
