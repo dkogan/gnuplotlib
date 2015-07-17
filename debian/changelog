@@ -1,3 +1,14 @@
+python-gnuplotlib (0.4-1) unstable; urgency=medium
+
+  * removed python3 packages; too much pain to support it
+  * license: LGPL 3 or higher
+  * fixed 'unset=xxx' with a non-list xxx
+  * more precise handling of the 'log' plot option
+  * The test plots now go to /dev/null, preventing write-buffer-full issues
+  * much shorter checkpoint string
+
+ -- Dima Kogan <dima@secretsauce.net>  Thu, 16 Jul 2015 21:49:29 -0700
+
 python-gnuplotlib (0.1-1) unstable; urgency=low
 
   * Initial release
