@@ -852,9 +852,10 @@ class gnuplotlib:
                 rangeopt_val = self.plotOptions[rangeopt_name]
             else:
                 rangeopt_val = ''
-                cmds.append( "set {} [{}] {}".format(rangeopt_name,
-                                                     rangeopt_val,
-                                                     'reverse' if active(axis + 'inv') else ''))
+
+            cmds.append( "set {} [{}] {}".format(rangeopt_name,
+                                                 rangeopt_val,
+                                                 'reverse' if active(axis + 'inv') else ''))
 
             # set the curve labels
             if not axis == 'cb':
