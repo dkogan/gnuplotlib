@@ -1,4 +1,4 @@
-python-gnuplotlib (0.4-1) unstable; urgency=medium
+python-gnuplotlib (0.5-1) unstable; urgency=medium
 
   * removed python3 packages; too much pain to support it
   * license: LGPL 3 or higher
