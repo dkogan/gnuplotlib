@@ -24,6 +24,6 @@ README.org: gnuplotlib.py
 README: README.org
 	ln -fs $^ $@
 clean:
-	rm -f README.org
+	rm -f README.org README
 .PHONY: clean
 
