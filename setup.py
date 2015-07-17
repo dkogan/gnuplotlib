@@ -1,9 +1,15 @@
 #!/usr/bin/python
 
 from distutils.core import setup
+import subprocess
+
+subprocess.call( ['make', 'README', 'README.org'] )
+
+
+
 
 setup(name         = 'gnuplotlib',
-      version      = '0.1',
+      version      = '0.3',
       author       = 'Dima Kogan',
       author_email = 'dima@secretsauce.net',
       url          = 'http://github.com/dkogan/gnuplotlib',
