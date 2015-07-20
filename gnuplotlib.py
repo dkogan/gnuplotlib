@@ -25,6 +25,7 @@ r'''gnuplotlib: a gnuplot-based plotting backend for numpy
  x,y = np.ogrid[-10:11,-10:11]
  gp.plot( x**2 + y**2,
           title     = 'Heat map',
+          unset     = 'grid',
           cmds      = 'set view map',
           _with     = 'image',
           tuplesize = 3)
@@ -133,7 +134,7 @@ yet (numpy is missing thread_define from PDL)
 When a particular tuplesize is specified, gnuplotlib will attempt to read that
 many arrays. If there aren't enough arrays available, gnuplotlib will throw an
 error, unless an implicit domain can be used. This happens if we are EXACTLY 1
-or 2 arrayss short (usually when making 2D and 3D plots respectively).
+or 2 arrays short (usually when making 2D and 3D plots respectively).
 
 When making a simple 2D plot, if exactly 1 dimension is missing, gnuplotlib will
 use numpy.arange(N) as the domain. This is why code like
@@ -142,8 +143,8 @@ use numpy.arange(N) as the domain. This is why code like
  plot(numpy.array([1,5,3,4,4]))
 #+END_SRC
 
-works. Only one array is given here, but a default tuplesize of 2 is active, and
-we are thus exactly 1 array short. This is thus equivalent to
+works. Only one array is given here, but the default tuplesize is 2, and we are
+thus exactly 1 array short. This is thus equivalent to
 
 #+BEGIN_SRC python
  plot(numpy.arange(5), numpy.array([1,5,3,4,4]) )
@@ -154,7 +155,7 @@ short. In this case, gnuplotlib will use a 2D grid as a domain. Example:
 
 #+BEGIN_SRC python
  xy = numpy.arange(21*21).reshape(21*21)
- plot3d( xy, _with = 'points')
+ plot( xy, _with = 'points', _3d=True)
 #+END_SRC
 
 Here the only given array has dimensions (21,21). This is a 3D plot, so we are
@@ -170,7 +171,7 @@ one can be plotting a color map:
  x,y = np.ogrid[-10:11,-10:11]
  gp.plot( x**2 + y**2,
           title     = 'Heat map',
-          cmds      = 'set view map',
+          set       = 'view map',
           _with     = 'image',
           tuplesize = 3)
 #+END_SRC
@@ -569,7 +570,7 @@ Image arrays plots can be plotted as a heat map:
    x,y = np.ogrid[-10:11,-10:11]
    gp.plot( x**2 + y**2,
             title     = 'Heat map',
-            cmds      = 'set view map',
+            set       = 'view map',
             _with     = 'image',
             tuplesize = 3)
 #+END_SRC
@@ -1638,7 +1639,7 @@ if __name__ == '__main__':
     x,y = np.ogrid[-10:11,-10:11]
     gp.plot( x**2 + y**2,
              title     = 'Heat map',
-             cmds      = 'set view map',
+             set       = 'view map',
              _with     = 'image',
              tuplesize = 3)
     time.sleep(5)
