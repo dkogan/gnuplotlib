@@ -25,6 +25,7 @@ r'''gnuplotlib: a gnuplot-based plotting backend for numpy
  x,y = np.ogrid[-10:11,-10:11]
  gp.plot( x**2 + y**2,
           title     = 'Heat map',
+          unset     = 'grid',
           cmds      = 'set view map',
           _with     = 'image',
           tuplesize = 3)
@@ -48,10 +49,10 @@ making available the full power and flexibility of the Gnuplot backend. Gnuplot
 is described in great detail at its upstream website: http://www.gnuplot.info
 
 gnuplotlib has an object-oriented interface (via class gnuplotlib) and a few
-helper class-less functions (plot() and plot3d()). Each instance of class
-gnuplotlib has a gnuplot process associated with it, which has (usually) a plot
-window to go with it. If multiple simultaneous plot windows are desired, create
-a separate class gnuplotlib object for each.
+helper class-less functions (plot(), plot3d(), plotimage()). Each instance of
+class gnuplotlib has a gnuplot process associated with it, which has (usually) a
+plot window to go with it. If multiple simultaneous plot windows are desired,
+create a separate class gnuplotlib object for each.
 
 The helper functions reuse a single global gnuplotlib instance, so each such
 invocation rewrites over the previous gnuplot window.
@@ -74,6 +75,8 @@ A call to plot(...) is simpler:
 #+END_SRC
 
 plot3d(...) simply calls plot(...) with an extra plot option _3d=True.
+plotimage(...) simply calls plot(...) with extra plot options _with='image',
+tuplesize=3.
 
 If just a single curve is plotted, 'curve' can simply be a sequence of numpy
 arrays representing coordinates of each point. For instance:
@@ -133,7 +136,7 @@ yet (numpy is missing thread_define from PDL)
 When a particular tuplesize is specified, gnuplotlib will attempt to read that
 many arrays. If there aren't enough arrays available, gnuplotlib will throw an
 error, unless an implicit domain can be used. This happens if we are EXACTLY 1
-or 2 arrayss short (usually when making 2D and 3D plots respectively).
+or 2 arrays short (usually when making 2D and 3D plots respectively).
 
 When making a simple 2D plot, if exactly 1 dimension is missing, gnuplotlib will
 use numpy.arange(N) as the domain. This is why code like
@@ -142,8 +145,8 @@ use numpy.arange(N) as the domain. This is why code like
  plot(numpy.array([1,5,3,4,4]))
 #+END_SRC
 
-works. Only one array is given here, but a default tuplesize of 2 is active, and
-we are thus exactly 1 array short. This is thus equivalent to
+works. Only one array is given here, but the default tuplesize is 2, and we are
+thus exactly 1 array short. This is thus equivalent to
 
 #+BEGIN_SRC python
  plot(numpy.arange(5), numpy.array([1,5,3,4,4]) )
@@ -154,7 +157,7 @@ short. In this case, gnuplotlib will use a 2D grid as a domain. Example:
 
 #+BEGIN_SRC python
  xy = numpy.arange(21*21).reshape(21*21)
- plot3d( xy, _with = 'points')
+ plot( xy, _with = 'points', _3d=True)
 #+END_SRC
 
 Here the only given array has dimensions (21,21). This is a 3D plot, so we are
@@ -170,7 +173,7 @@ one can be plotting a color map:
  x,y = np.ogrid[-10:11,-10:11]
  gp.plot( x**2 + y**2,
           title     = 'Heat map',
-          cmds      = 'set view map',
+          set       = 'view map',
           _with     = 'image',
           tuplesize = 3)
 #+END_SRC
@@ -251,9 +254,9 @@ requires Gnuplot >= 4.4
 
 If given, these set the extents of the plot window for the requested axes.
 Either min/max or range can be given but not both. min/max are numerical values.
-'*range' is a string 'min:max' with either one allowed to be omitted. '*inv' is
-a boolean that reverses this axis. If the bounds are known, this can also be
-accomplished by setting max < min.
+'*range' is a string 'min:max' with either one allowed to be omitted; it can
+also be a [min,max] tuple or list. '*inv' is a boolean that reverses this axis.
+If the bounds are known, this can also be accomplished by setting max < min.
 
 The y2 axis is the secondary y-axis that is enabled by the 'y2' curve option.
 The 'cb' axis represents the color axis, used when color-coded plots are being
@@ -434,6 +437,10 @@ Each 'plot()' call reuses the same window.
 
 Generates 3D plots. Shorthand for 'plot(..., _3d=True)'
 
+** global plotimage(...)
+
+Generates an image plot. Shorthand for 'plot(..., _with='image', tuplesize=3)'
+
 
 * RECIPES
 
@@ -569,7 +576,7 @@ Image arrays plots can be plotted as a heat map:
    x,y = np.ogrid[-10:11,-10:11]
    gp.plot( x**2 + y**2,
             title     = 'Heat map',
-            cmds      = 'set view map',
+            set       = 'view map',
             _with     = 'image',
             tuplesize = 3)
 #+END_SRC
@@ -849,12 +856,17 @@ class gnuplotlib:
             if len(self.plotOptions[axis + 'min'] + self.plotOptions[axis + 'max']):
                 rangeopt_val = ':'.join((self.plotOptions[axis + 'min'], self.plotOptions[axis + 'max']))
             elif have(rangeopt_name):
+                # A range was given. If it's a string, just take it. It can also
+                # be a two-value list for the min/max
                 rangeopt_val = self.plotOptions[rangeopt_name]
+                if isinstance(rangeopt_val, (list, tuple)):
+                    rangeopt_val = ':'.join(str(x) for x in rangeopt_val)
             else:
                 rangeopt_val = ''
-                cmds.append( "set {} [{}] {}".format(rangeopt_name,
-                                                     rangeopt_val,
-                                                     'reverse' if active(axis + 'inv') else ''))
+
+            cmds.append( "set {} [{}] {}".format(rangeopt_name,
+                                                 rangeopt_val,
+                                                 'reverse' if active(axis + 'inv') else ''))
 
             # set the curve labels
             if not axis == 'cb':
@@ -1566,9 +1578,11 @@ See the documentation for class gnuplotlib for full details.
             raise GnuplotlibError("Option '{}' not a known curve or plot option".format(opt))
 
     # I make a brand new gnuplot process if necessary. If one already exists, I
-    # re-initialize it
+    # re-initialize it. If we're doing a data dump then I also create a new
+    # object. There's no gnuplot session to reuse in that case, and otherwise
+    # the dumping won't get activated
     global globalplot
-    if not globalplot:
+    if not globalplot or _active('dump', plotOptions):
         globalplot = gnuplotlib(**plotOptions)
     else:
         globalplot.__init__(**plotOptions)
@@ -1605,6 +1619,33 @@ the documentation for plot() and class gnuplotlib for full details.
 
 
 
+def plotimage(*curves, **jointOptions):
+
+    r'''A simple wrapper around class gnuplotlib to plot image maps
+
+SYNOPSIS
+
+ import numpy as np
+ import gnuplotlib as gp
+
+ x,y = np.ogrid[-10:11,-10:11]
+ gp.plotimage( x**2 + y**2,
+               title     = 'Heat map')
+
+DESCRIPTION
+
+class gnuplotlib provides full power and flexibility, but for simple image-map
+plots this wrapper is easier to use. plotimage() simply calls plot(...,
+_with='image', tuplesize=3). See the documentation for plot() and class
+gnuplotlib for full details.
+
+    '''
+    jointOptions['_with']     = 'image'
+    jointOptions['tuplesize'] = 3
+    plot(*curves, **jointOptions)
+
+
+
 
 
 
@@ -1631,7 +1672,7 @@ if __name__ == '__main__':
     x,y = np.ogrid[-10:11,-10:11]
     gp.plot( x**2 + y**2,
              title     = 'Heat map',
-             cmds      = 'set view map',
+             set       = 'view map',
              _with     = 'image',
              tuplesize = 3)
     time.sleep(5)

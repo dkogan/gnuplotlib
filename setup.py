@@ -14,7 +14,7 @@ class MoreClean(clean):
 
 
 setup(name         = 'gnuplotlib',
-      version      = '0.4',
+      version      = '0.6',
       author       = 'Dima Kogan',
       author_email = 'dima@secretsauce.net',
       url          = 'http://github.com/dkogan/gnuplotlib',
