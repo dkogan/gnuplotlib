@@ -7,7 +7,6 @@ r'''gnuplotlib: a gnuplot-based plotting backend for numpy
 #+BEGIN_SRC python
  import numpy      as np
  import gnuplotlib as gp
- from scipy.constants import pi
 
  x = np.arange(101) - 50
  gp.plot(x**2)
@@ -32,8 +31,8 @@ r'''gnuplotlib: a gnuplot-based plotting backend for numpy
  [ Heat map pops up where first parabola used to be ]
 
 
- theta = np.linspace(0, 6*pi, 200)
- z     = np.linspace(0, 5,    200)
+ theta = np.linspace(0, 6*np.pi, 200)
+ z     = np.linspace(0, 5,       200)
  g2 = gp.gnuplotlib(_3d = True)
  g2.plot( (np.cos(theta),  np.sin(theta), z),
           (np.cos(theta), -np.sin(theta), z))
@@ -557,8 +556,8 @@ If xy is a 2D array, we can plot it as a height map on an implicit domain
 Complicated 3D plot with fancy styling:
 
 #+BEGIN_SRC python
-  th    = np.linspace(0, 6*pi, 200)
-  z     = np.linspace(0, 5,    200)
+  th    = np.linspace(0, 6*np.pi, 200)
+  z     = np.linspace(0, 5,       200)
   size  = 0.5 + np.abs(np.cos(th))
   color = np.sin(2*th)
 
@@ -1653,12 +1652,11 @@ if __name__ == '__main__':
 
     import numpy      as np
     import gnuplotlib as gp
-    from scipy.constants import pi
     import time
 
     x = np.arange(101) - 50
-    gp.plot(x**2)
-    time.sleep(5)
+    gp.plot(x**2, dump=0, ascii=0)
+    time.sleep(1)
 
 
     g1 = gp.gnuplotlib(title = 'Parabola with error bars',
@@ -1678,8 +1676,8 @@ if __name__ == '__main__':
     time.sleep(5)
 
 
-    theta = np.linspace(0, 6*pi, 200)
-    z     = np.linspace(0, 5,    200)
+    theta = np.linspace(0, 6*np.pi, 200)
+    z     = np.linspace(0, 5,       200)
     g2 = gp.gnuplotlib(_3d = True)
     g2.plot( (np.cos(theta),  np.sin(theta), z),
              (np.cos(theta), -np.sin(theta), z))
