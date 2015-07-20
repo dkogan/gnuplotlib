@@ -1,3 +1,12 @@
+python-gnuplotlib (0.6-1) unstable; urgency=medium
+
+  * turning on 'dump' in a not-brand-new global plot object now works
+  * fixed broken range settings
+  * *range options can now be given as a tuple or a list
+  * added plotimage()
+
+ -- Dima Kogan <dima@secretsauce.net>  Sun, 19 Jul 2015 20:49:27 -0700
+
 python-gnuplotlib (0.5-1) unstable; urgency=medium
 
   * removed python3 packages; too much pain to support it
