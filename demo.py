@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import numpy as np
-from scipy.constants import pi
 import time
 import sys
 
@@ -11,8 +10,8 @@ import gnuplotlib as gp
 x = np.arange(21) - 10
 
 # data I use for 3D testing
-th   = np.linspace(0,     pi*2, 30)
-ph   = np.linspace(-pi/2, pi*2, 30)[:,np.newaxis]
+th   = np.linspace(0,        np.pi*2, 30)
+ph   = np.linspace(-np.pi/2, np.pi*2, 30)[:,np.newaxis]
 
 x_3d = (np.cos(ph) * np.cos(th))          .ravel()
 y_3d = (np.cos(ph) * np.sin(th))          .ravel()
@@ -128,8 +127,8 @@ gp.plot3d( ( z,  {'legend': 'zplus'}),
 time.sleep(sleep_interval)
 
 # 3d, variable color, variable pointsize
-th    = np.linspace(0, 6*pi, 200)
-z     = np.linspace(0, 5,    200)
+th    = np.linspace(0, 6*np.pi, 200)
+z     = np.linspace(0, 5,       200)
 size  = 0.5 + np.abs(np.cos(th))
 color = np.sin(2*th)
 
@@ -157,7 +156,7 @@ z   = x*x + y*y
 x   = np.linspace(0,20,100)
 gp.plot( ( z, {'tuplesize': 3,
                'with':      'image'}),
-         (x, 20*np.cos(x/20 * pi/2),
+         (x, 20*np.cos(x/20 * np.pi/2),
 
           {'tuplesize': 2,
            'with':      'lines'}),
