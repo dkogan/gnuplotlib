@@ -49,10 +49,10 @@ making available the full power and flexibility of the Gnuplot backend. Gnuplot
 is described in great detail at its upstream website: http://www.gnuplot.info
 
 gnuplotlib has an object-oriented interface (via class gnuplotlib) and a few
-helper class-less functions (plot() and plot3d()). Each instance of class
-gnuplotlib has a gnuplot process associated with it, which has (usually) a plot
-window to go with it. If multiple simultaneous plot windows are desired, create
-a separate class gnuplotlib object for each.
+helper class-less functions (plot(), plot3d(), plotimage()). Each instance of
+class gnuplotlib has a gnuplot process associated with it, which has (usually) a
+plot window to go with it. If multiple simultaneous plot windows are desired,
+create a separate class gnuplotlib object for each.
 
 The helper functions reuse a single global gnuplotlib instance, so each such
 invocation rewrites over the previous gnuplot window.
@@ -75,6 +75,8 @@ A call to plot(...) is simpler:
 #+END_SRC
 
 plot3d(...) simply calls plot(...) with an extra plot option _3d=True.
+plotimage(...) simply calls plot(...) with extra plot options _with='image',
+tuplesize=3.
 
 If just a single curve is plotted, 'curve' can simply be a sequence of numpy
 arrays representing coordinates of each point. For instance:
@@ -434,6 +436,10 @@ Each 'plot()' call reuses the same window.
 ** global plot3d(...)
 
 Generates 3D plots. Shorthand for 'plot(..., _3d=True)'
+
+** global plotimage(...)
+
+Generates an image plot. Shorthand for 'plot(..., _with='image', tuplesize=3)'
 
 
 * RECIPES
@@ -1609,6 +1615,33 @@ the documentation for plot() and class gnuplotlib for full details.
 
     '''
     jointOptions['3d'] = True
+    plot(*curves, **jointOptions)
+
+
+
+def plotimage(*curves, **jointOptions):
+
+    r'''A simple wrapper around class gnuplotlib to plot image maps
+
+SYNOPSIS
+
+ import numpy as np
+ import gnuplotlib as gp
+
+ x,y = np.ogrid[-10:11,-10:11]
+ gp.plotimage( x**2 + y**2,
+               title     = 'Heat map')
+
+DESCRIPTION
+
+class gnuplotlib provides full power and flexibility, but for simple image-map
+plots this wrapper is easier to use. plotimage() simply calls plot(...,
+_with='image', tuplesize=3). See the documentation for plot() and class
+gnuplotlib for full details.
+
+    '''
+    jointOptions['_with']     = 'image'
+    jointOptions['tuplesize'] = 3
     plot(*curves, **jointOptions)
 
 
