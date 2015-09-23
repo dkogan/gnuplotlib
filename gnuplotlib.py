@@ -668,7 +668,7 @@ def _runSubprocess(cmd, input):
     """Runs a given command feeding the given input to stdin. Waits for the command
 to terminate, and returns the stdout,stderr tuple we get back"""
 
-    process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_ newlines=True)
     out, err = process.communicate(input=input)
     retcode = process.poll()
     if retcode:
@@ -683,7 +683,7 @@ def _getGnuplotFeatures():
     # on the local echo. So make sure to not use a tty
 
     # first, I run 'gnuplot --help' to extract all the cmdline options as features
-    helpstring = subprocess.check_output(['gnuplot', '--help'], stderr=subprocess.STDOUT)
+    helpstring = subprocess.check_output(['gnuplot', '--help'], stderr=subprocess.STDOUT, universal_newlines=True)
     features = set( re.findall(r'--([a-zA-Z0-9_]+)', helpstring) )
 
 
@@ -764,7 +764,7 @@ class gnuplotlib:
                 cmd += ['--persist']
 
             self.fdDupSTDOUT = os.dup(sys.stdout.fileno())
-            self.gnuplotProcess = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.gnuplotProcess = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 
         # save the default terminal
         self._safelyWriteToPipe("set terminal push", 'terminal')
