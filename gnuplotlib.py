@@ -1345,6 +1345,83 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         curves = [ reformat(curve) for curve in curves ]
 
 
+        # I now manually broadcast the dimensions. PDL does this for me
+        # automatically, but numpy absolutely does not. This is a MAJOR
+        # advantage PDL has over numpy. Oh well
+        def broadcast_split(curve):
+
+            # I line up all the dimensions, and split off any that are being
+            # broadcasted
+
+
+            shapes = [ v.shape for v in curve['_data'] ]
+            max_ndim = max( len(s) for s in shapes )
+
+            # Broadcasting does 2 things:
+            # 1. out-of-bounds dimensions are added at the front
+            # 2. too-high indices are truncated to 1
+            #
+            # I handle the first case before I do anything else:
+            data = []
+            for v in curve['_data']:
+                for iaxis in range(max_ndim - len(v.shape)):
+                    v = v[np.newaxis, :]
+                data.append(v)
+            shapes = [ v.shape for v in data ]
+            curve_nodata = curve
+            del curve_nodata['_data']
+
+
+            dims = []
+            for i in range(max_ndim):
+
+                # looking at a particular dimension. I'm broadcasting, so this dimension
+                # may not exist. The dimensions are lined up at the end. dim_idxs is the
+                # indices of dimension i for each vector. If <0, this dimension does not
+                # exist in that vector
+                dim_idxs = [ len(s) - max_ndim + i for s in shapes ]
+
+                # I grab all the dimensions that aren't 1. All the counts that aren't 1
+                # must match, or else we can't broadcast this
+                dims_not_1 = [ s[dim_idx] for s,dim_idx in zip(shapes,dim_idxs)
+                               if dim_idx >= 0 and s[dim_idx] != 1 ]
+
+                if len(dims_not_1) and not all( d == dims_not_1[0] for d in dims_not_1):
+                    raise GnuplotlibError("Mismatched dimensions, cannot broadcast. Shapes: {}".format(shapes))
+
+                # grab this dimension
+                dims.append( dims_not_1[0] if len(dims_not_1) else 1 )
+
+
+            ndims_keep = 1
+            split_curves = []
+            def accum_dim( dimlist ):
+                if len(dimlist) == max_ndim - ndims_keep:
+                    # I have a full list of dimensions. I sample the curves and
+                    # accumulate. Need to pay attention to 2 things:
+                    # 1. out-of-bounds dimensions are added at the front (the 'data'
+                    # already has this taken care of)
+                    # 2. too-high indices are truncated to 1
+
+                    # expand the dimensionality to cover out-of-bounds dimensions
+                    split_curve = dict(curve_nodata)
+                    split_curve['_data'] = [
+                        v[ tuple(d if v.shape[i] != 1 else 0 for i,d in enumerate(dimlist)) ]
+                        for v in data ]
+                    split_curves.append(split_curve)
+                    return
+
+                for inext in range( dims[ len(dimlist)] ):
+                    accum_dim( dimlist + (inext,) )
+
+            accum_dim( () )
+            return split_curves
+
+        curves_flattened = []
+        for curve in curves:
+            curves_flattened.extend( broadcast_split( curve ))
+        curves = curves_flattened
+
         for curve in curves:
 
             # make sure all the curve options are valid
