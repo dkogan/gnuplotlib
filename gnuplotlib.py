@@ -1393,7 +1393,10 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
                 dims.append( dims_not_1[0] if len(dims_not_1) else 1 )
 
 
-            ndims_keep = 1
+            # With line plots I don't broadcast the last dimension; with
+            # matrices, I don't broadcast the last 2
+            ndims_keep = 2 if curve.get('matrix') else 1
+
             split_curves = []
             def accum_dim( dimlist ):
                 if len(dimlist) == max_ndim - ndims_keep:
