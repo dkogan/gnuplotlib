@@ -279,7 +279,7 @@ sys.stderr.write("==== Testing error detection ====\n")
 sys.stderr.write('I should complain about an invalid "with":\n')
 sys.stderr.write("=================================\n")
 try:
-    gp.plot(x, _with = 'bogusstyle')
+    gp.plot(np.arange(5), _with = 'bogusstyle')
 except gp.GnuplotlibError as e:
     print("OK! Got err I was supposed to get:\n[[[[[[[\n{}\n]]]]]]]\n".format(e))
 except:
