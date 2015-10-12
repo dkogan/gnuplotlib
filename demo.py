@@ -37,6 +37,12 @@ gp.plot((x**2))
 time.sleep(sleep_interval)
 gp.plot((-x, x**3, {'with': 'lines'}), (x**2,))
 time.sleep(sleep_interval)
+gp.plot( x, np.vstack((x**3, x**2)) )
+time.sleep(sleep_interval)
+gp.plot( np.vstack((-x**3, x**2)), _with='lines' )
+time.sleep(sleep_interval)
+gp.plot( (np.vstack((x**3, -x**2)), {'with': 'points'} ))
+time.sleep(sleep_interval)
 
 #################################
 # some more varied plotting, using the object-oriented interface
@@ -44,9 +50,8 @@ plot1 = gp.gnuplotlib(_with = 'linespoints',
                       xmin  = -10,
                       title = 'Error bars and other things')
 
-# this had PDL threading in it. Put it back when packed broadcastable plotting
-# is implemented
-plot1.plot( ( x, x**2 - 300,
+# broadcasting title fix here
+plot1.plot( ( np.vstack((x, x*2, x*3)), x**2 - 300,
               {'with':   'lines lw 4',
                'y2':     True,
                'legend': 'a parabola'}),
@@ -55,7 +60,7 @@ plot1.plot( ( x, x**2 - 300,
              {'with':      'xyerrorbars',
               'tuplesize': 4}),
 
-            (x, x**3 - 100,
+            (x, np.vstack((x**3, x**3 - 100)),
              {"with": 'lines',
               'legend': 'shifted cubic',
               'tuplesize': 2}))
@@ -88,11 +93,11 @@ gp.plot3d( x_3d, y_3d, z_3d,
 time.sleep(sleep_interval)
 
 # sphere, ellipse together
-# put broadcasting here
-gp.plot3d( (x_3d, y_3d, z_3d,
+# broadcasting title fix here
+gp.plot3d( (x_3d * np.array([[1,2]]).T,
+            y_3d * np.array([[1,2]]).T,
+            z_3d,
             { 'legend': 'sphere'}),
-           (2*x_3d, 2*y_3d, z_3d,
-            { 'legend': 'ellipse'}),
 
            title  = 'sphere, ellipse',
            square = True,
@@ -101,11 +106,11 @@ time.sleep(sleep_interval)
 
 
 # similar, written to a png
-# put broadcasting here
-gp.plot3d( (x_3d, y_3d, z_3d,
+# broadcasting title fix here
+gp.plot3d( (x_3d * np.array([[1,2]]).T,
+            y_3d * np.array([[1,2]]).T,
+            z_3d,
             { 'legend': 'sphere'}),
-           (2*x_3d, 2*y_3d, z_3d,
-            { 'legend': 'ellipse'}),
 
            title    = 'sphere, ellipse',
            square   = True,
@@ -132,8 +137,10 @@ z     = np.linspace(0, 5,       200)
 size  = 0.5 + np.abs(np.cos(th))
 color = np.sin(2*th)
 
-gp.plot3d( ( np.cos(th),  np.sin(th), z, size, color, {'legend': "spiral 1"}),
-           (-np.cos(th), -np.sin(th), z, size, color, {'legend': "spiral 2"}),
+# broadcasting title fix here
+gp.plot3d( ( np.cos(th) * np.array([[1,-1]]).T,
+             np.sin(th) * np.array([[1,-1]]).T,
+             z, size, color, {'legend': "spiral 1"}),
 
            title     = 'double helix',
            tuplesize = 5,
@@ -197,7 +204,19 @@ gp.plot(z, x,
         ascii     = False)
 time.sleep(sleep_interval)
 
+# broadcasting fix here: this is broadcast, but with different 'with'. Do I even
+# want to allow this?
 # 2 3d matrix curves
+
+# gp.plot((np.rollaxis( np.dstack((x,z)), 2,0),
+#          {'tuplesize': 3,
+#           'with':      'points palette pt 7'}),
+
+#         title  = '2 3D matrix plots. Binary.',
+#         square = 1,
+#         ascii = False)
+
+
 gp.plot((x, {'tuplesize': 3,
              'with':      'points palette pt 7'}),
         (z, {'tuplesize': 3,
