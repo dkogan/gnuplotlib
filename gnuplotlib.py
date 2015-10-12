@@ -1345,6 +1345,81 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         curves = [ reformat(curve) for curve in curves ]
 
 
+
+        for curve in curves:
+
+            # make sure all the curve options are valid
+            for opt in curve:
+                if opt == '_data':
+                    continue
+                if not opt in knownCurveOptions:
+                    raise GnuplotlibError("'{}' not a known curve option".format(opt))
+
+            # tuplesize is either given explicitly, or taken from the '3d' plot
+            # option. 2d plots default to tuplesize=2 and 3d plots to
+            # tuplesize=3. This means that the tuplesize can be omitted for
+            # basic plots but MUST be given for anything fancy
+            Ndata = len(curve['_data'])
+            if not 'tuplesize' in curve:
+                curve['tuplesize'] = 3 if self.plotOptions.get('3d') else 2
+
+            if Ndata > curve['tuplesize']:
+                raise GnuplotlibError("Got {} tuples, but the tuplesize is {}. Giving up". \
+                    format(Ndata, curve['tuplesize']))
+
+            if Ndata < curve['tuplesize']:
+                # I got fewer data elements than I expected. Set up the implicit
+                # domain if that makes sense
+
+                if Ndata+1 == curve['tuplesize']:
+
+                    # A plot is one data element short. Fill in a sequential
+                    # domain 0,1,2,...
+                    curve['_data'].insert(0, np.arange(curve['_data'][0].shape[-1]))
+
+                elif Ndata+2 == curve['tuplesize']:
+                    # a plot is 2 elements short. Use a grid as a domain. I simply set the
+                    # 'matrix' flag and have gnuplot deal with it later
+                    if self.plotOptions.get('ascii') and curve['tuplesize'] > 3:
+                        raise GnuplotlibError( \
+                            "Can't make more than 3-dimensional plots on a implicit 2D domain\n" + \
+                            "when sending ASCII data. I don't think gnuplot supports this. Use binary data\n" + \
+                            "or explicitly specify the domain\n" )
+
+                    curve['matrix'] = True
+
+                else:
+                    raise GnuplotlibError( \
+                        "plot() needed {} data arrays, but only got {}".format(curve['tuplesize'],Ndata))
+
+
+
+            # The curve is now set up. I look at the input matrices to make sure
+            # the dimensions line up
+
+            # Make sure the domain and ranges describe the same number of data points
+            dim01 = [None, None]
+            for datum in curve['_data']:
+
+                if curve.get('matrix') and datum.ndim < 2:
+                    raise GnuplotlibError("Tried to plot against an implicit 2D domain, but was given less than 2D data")
+
+                def checkdim(idim):
+                    dim_here = datum.shape[-1 - idim]
+                    if dim01[idim]:
+                        if dim_here != dim01[idim]:
+                            raise GnuplotlibError("plot() was given mismatched tuples to plot. {} vs {}". \
+                                                  format(dim01[idim], dim_here))
+                    else:
+                        dim01[idim] = dim_here
+
+                checkdim(0)
+
+                if curve.get('matrix'):
+                    checkdim(1)
+
+
+
         # I now manually broadcast the dimensions. PDL does this for me
         # automatically, but numpy absolutely does not. This is a MAJOR
         # advantage PDL has over numpy. Oh well
@@ -1424,79 +1499,6 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         for curve in curves:
             curves_flattened.extend( broadcast_split( curve ))
         curves = curves_flattened
-
-        for curve in curves:
-
-            # make sure all the curve options are valid
-            for opt in curve:
-                if opt == '_data':
-                    continue
-                if not opt in knownCurveOptions:
-                    raise GnuplotlibError("'{}' not a known curve option".format(opt))
-
-            # tuplesize is either given explicitly, or taken from the '3d' plot
-            # option. 2d plots default to tuplesize=2 and 3d plots to
-            # tuplesize=3. This means that the tuplesize can be omitted for
-            # basic plots but MUST be given for anything fancy
-            Ndata = len(curve['_data'])
-            if not 'tuplesize' in curve:
-                curve['tuplesize'] = 3 if self.plotOptions.get('3d') else 2
-
-            if Ndata > curve['tuplesize']:
-                raise GnuplotlibError("Got {} tuples, but the tuplesize is {}. Giving up". \
-                    format(Ndata, curve['tuplesize']))
-
-            if Ndata < curve['tuplesize']:
-
-                # I got fewer data elements than I expected. Set up the implicit
-                # domain if that makes sense
-
-                if Ndata+1 == curve['tuplesize']:
-
-                    # A plot is one data element short. Fill in a sequential
-                    # domain 0,1,2,...
-                    curve['_data'].insert(0, np.arange(curve['_data'][0].shape[-1]))
-
-                elif Ndata+2 == curve['tuplesize']:
-                    # a plot is 2 elements short. Use a grid as a domain. I simply set the
-                    # 'matrix' flag and have gnuplot deal with it later
-                    if self.plotOptions.get('ascii') and curve['tuplesize'] > 3:
-                        raise GnuplotlibError( \
-                            "Can't make more than 3-dimensional plots on a implicit 2D domain\n" + \
-                            "when sending ASCII data. I don't think gnuplot supports this. Use binary data\n" + \
-                            "or explicitly specify the domain\n" )
-
-                    curve['matrix'] = True
-
-                else:
-                    raise GnuplotlibError( \
-                        "plot() needed {} data arrays, but only got {}".format(curve['tuplesize'],Ndata))
-
-
-
-            # The curve is now set up. I look at the input matrices to make sure
-            # the dimensions line up
-
-            # Make sure the domain and ranges describe the same number of data points
-            dim01 = [None, None]
-            for datum in curve['_data']:
-
-                if curve.get('matrix') and datum.ndim < 2:
-                    raise GnuplotlibError("Tried to plot against an implicit 2D domain, but was given less than 2D data")
-
-                def checkdim(idim):
-                    dim_here = datum.shape[-1 - idim]
-                    if dim01[idim]:
-                        if dim_here != dim01[idim]:
-                            raise GnuplotlibError("plot() was given mismatched tuples to plot. {} vs {}". \
-                                                  format(dim01[idim], dim_here))
-                    else:
-                        dim01[idim] = dim_here
-
-                checkdim(0)
-
-                if curve.get('matrix'):
-                    checkdim(1)
 
 
         return curves
