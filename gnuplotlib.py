@@ -1322,7 +1322,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         elif all(type(curve) is tuple for curve in curves):
             curves = [ list(curve) for curve in curves ]
         else:
-            raise GnuplotlibError("all data arguments should be of type ndarray (one curve) or  tuples")
+            raise GnuplotlibError("all data arguments should be of type ndarray (one curve) or tuples")
 
         # add an options dict if there isn't one, apply the base curve
         # options to each curve
