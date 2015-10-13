@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import numpy as np
-from scipy.constants import pi
 import time
 import sys
 
@@ -11,8 +10,8 @@ import gnuplotlib as gp
 x = np.arange(21) - 10
 
 # data I use for 3D testing
-th   = np.linspace(0,     pi*2, 30)
-ph   = np.linspace(-pi/2, pi*2, 30)[:,np.newaxis]
+th   = np.linspace(0,        np.pi*2, 30)
+ph   = np.linspace(-np.pi/2, np.pi*2, 30)[:,np.newaxis]
 
 x_3d = (np.cos(ph) * np.cos(th))          .ravel()
 y_3d = (np.cos(ph) * np.sin(th))          .ravel()
@@ -38,6 +37,12 @@ gp.plot((x**2))
 time.sleep(sleep_interval)
 gp.plot((-x, x**3, {'with': 'lines'}), (x**2,))
 time.sleep(sleep_interval)
+gp.plot( x, np.vstack((x**3, x**2)) )
+time.sleep(sleep_interval)
+gp.plot( np.vstack((-x**3, x**2)), _with='lines' )
+time.sleep(sleep_interval)
+gp.plot( (np.vstack((x**3, -x**2)), {'with': 'points'} ))
+time.sleep(sleep_interval)
 
 #################################
 # some more varied plotting, using the object-oriented interface
@@ -45,20 +50,18 @@ plot1 = gp.gnuplotlib(_with = 'linespoints',
                       xmin  = -10,
                       title = 'Error bars and other things')
 
-# this had PDL threading in it. Put it back when packed broadcastable plotting
-# is implemented
-plot1.plot( ( x, x**2 - 300,
+plot1.plot( ( np.vstack((x, x*2, x*3)), x**2 - 300,
               {'with':   'lines lw 4',
                'y2':     True,
-               'legend': 'a parabola'}),
+               'legend': 'parabolas'}),
 
             (x**2 * 10, x**2/40, x**2/2, # implicit domain
              {'with':      'xyerrorbars',
               'tuplesize': 4}),
 
-            (x, x**3 - 100,
+            (x, np.vstack((x**3, x**3 - 100)),
              {"with": 'lines',
-              'legend': 'shifted cubic',
+              'legend': 'shifted cubics',
               'tuplesize': 2}))
 time.sleep(sleep_interval)
 
@@ -89,11 +92,10 @@ gp.plot3d( x_3d, y_3d, z_3d,
 time.sleep(sleep_interval)
 
 # sphere, ellipse together
-# put broadcasting here
-gp.plot3d( (x_3d, y_3d, z_3d,
-            { 'legend': 'sphere'}),
-           (2*x_3d, 2*y_3d, z_3d,
-            { 'legend': 'ellipse'}),
+gp.plot3d( (x_3d * np.array([[1,2]]).T,
+            y_3d * np.array([[1,2]]).T,
+            z_3d,
+            { 'legend': np.array(('sphere', 'ellipse'))}),
 
            title  = 'sphere, ellipse',
            square = True,
@@ -102,11 +104,10 @@ time.sleep(sleep_interval)
 
 
 # similar, written to a png
-# put broadcasting here
-gp.plot3d( (x_3d, y_3d, z_3d,
-            { 'legend': 'sphere'}),
-           (2*x_3d, 2*y_3d, z_3d,
-            { 'legend': 'ellipse'}),
+gp.plot3d( (x_3d * np.array([[1,2]]).T,
+            y_3d * np.array([[1,2]]).T,
+            z_3d,
+            { 'legend': np.array(('sphere', 'ellipse'))}),
 
            title    = 'sphere, ellipse',
            square   = True,
@@ -128,13 +129,14 @@ gp.plot3d( ( z,  {'legend': 'zplus'}),
 time.sleep(sleep_interval)
 
 # 3d, variable color, variable pointsize
-th    = np.linspace(0, 6*pi, 200)
-z     = np.linspace(0, 5,    200)
+th    = np.linspace(0, 6*np.pi, 200)
+z     = np.linspace(0, 5,       200)
 size  = 0.5 + np.abs(np.cos(th))
 color = np.sin(2*th)
 
-gp.plot3d( ( np.cos(th),  np.sin(th), z, size, color, {'legend': "spiral 1"}),
-           (-np.cos(th), -np.sin(th), z, size, color, {'legend': "spiral 2"}),
+gp.plot3d( ( np.cos(th) * np.array([[1,-1]]).T,
+             np.sin(th) * np.array([[1,-1]]).T,
+             z, size, color, { 'legend': np.array(('spiral 1', 'spiral 2'))}),
 
            title     = 'double helix',
            tuplesize = 5,
@@ -157,7 +159,7 @@ z   = x*x + y*y
 x   = np.linspace(0,20,100)
 gp.plot( ( z, {'tuplesize': 3,
                'with':      'image'}),
-         (x, 20*np.cos(x/20 * pi/2),
+         (x, 20*np.cos(x/20 * np.pi/2),
 
           {'tuplesize': 2,
            'with':      'lines'}),
@@ -198,11 +200,10 @@ gp.plot(z, x,
         ascii     = False)
 time.sleep(sleep_interval)
 
-# 2 3d matrix curves
-gp.plot((x, {'tuplesize': 3,
-             'with':      'points palette pt 7'}),
-        (z, {'tuplesize': 3,
-             'with':      'points ps variable pt 6'}),
+# Using broadcasting to plot each slice with aa different style
+gp.plot((np.rollaxis( np.dstack((x,z)), 2,0),
+         {'tuplesize': 3,
+          'with': np.array(('points palette pt 7','points ps variable pt 6'))}),
 
         title  = '2 3D matrix plots. Binary.',
         square = 1,
@@ -219,10 +220,9 @@ time.sleep(sleep_interval)
 # time.sleep(sleep_interval)
 
 # 2 3d matrix curves
-gp.plot((x, {'tuplesize': 3,
-             'with':      'points palette pt 7'}),
-        (z, {'tuplesize': 3,
-             'with':      'points ps variable pt 6'}),
+gp.plot((np.rollaxis( np.dstack((x,z)), 2,0),
+         {'tuplesize': 3,
+          'with': np.array(('points palette pt 7','points ps variable pt 6'))}),
 
         title  = '2 3D matrix plots. Binary.',
         square = 1,
@@ -237,17 +237,17 @@ x -= 30.0
 y -= 30.0
 z = np.sin(x / 4.0) * y
 
-# single 3d matrix curve
-gp.plot3d( (z, {'tuplesize': 3, 'with': 'image'}),
-           (z, {'tuplesize': 3, 'with': 'lines'}),
+# single 3d matrix curve. Two plots: the image and the contours together.
+# Broadcasting the styles
+gp.plot3d( (z, {'tuplesize': 3, 'with': np.array(('image','lines'))}),
 
-           title             = 'matrix plot with contours',
-           cmds         = [ 'set contours base',
-                            'set cntrparam bspline',
-                            'set cntrparam levels 15',
-                            'unset grid',
-                            'unset surface',
-                            'set view 0,0'],
+           title = 'matrix plot with contours',
+           cmds  = [ 'set contours base',
+                     'set cntrparam bspline',
+                     'set cntrparam levels 15',
+                     'unset grid',
+                     'unset surface',
+                     'set view 0,0'],
            square = 1 )
 time.sleep(sleep_interval)
 
@@ -261,7 +261,7 @@ sys.stderr.write("==== Testing error detection ====\n")
 sys.stderr.write('I should complain about an invalid "with":\n')
 sys.stderr.write("=================================\n")
 try:
-    gp.plot(x, _with = 'bogusstyle')
+    gp.plot(np.arange(5), _with = 'bogusstyle')
 except gp.GnuplotlibError as e:
     print("OK! Got err I was supposed to get:\n[[[[[[[\n{}\n]]]]]]]\n".format(e))
 except:

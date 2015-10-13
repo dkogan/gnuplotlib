@@ -7,7 +7,6 @@ r'''gnuplotlib: a gnuplot-based plotting backend for numpy
 #+BEGIN_SRC python
  import numpy      as np
  import gnuplotlib as gp
- from scipy.constants import pi
 
  x = np.arange(101) - 50
  gp.plot(x**2)
@@ -32,12 +31,13 @@ r'''gnuplotlib: a gnuplot-based plotting backend for numpy
  [ Heat map pops up where first parabola used to be ]
 
 
- theta = np.linspace(0, 6*pi, 200)
- z     = np.linspace(0, 5,    200)
+ theta = np.linspace(0, 6*np.pi, 200)
+ z     = np.linspace(0, 5,       200)
  g2 = gp.gnuplotlib(_3d = True)
- g2.plot( (np.cos(theta),  np.sin(theta), z),
-          (np.cos(theta), -np.sin(theta), z))
- [ Two 3D curves together in a new window: spirals ]
+ g2.plot( np.cos(theta),
+          np.vstack((np.sin(theta), -np.sin(theta))),
+          z )
+ [ Two 3D spirals together in a new window ]
 #+END_SRC
 
 
@@ -118,18 +118,56 @@ Plot generation is controlled by two sets of options:
 
 ** Data arguments
 
-The 'curves' arguments in the plot(...) argument list represent the actual data
-being plotted. Each output data point is a tuple whose size varies depending on
-what is being plotted. For example if we're making a simple 2D x-y plot, each
-tuple has 2 values; if we're making a 3d plot with each point having variable
-size and color, each tuple has 5 values (x,y,z,size,color). In the plot(...)
-argument list each tuple element must be passed separately. If we're making
-anything fancier than a simple 2D or 3D plot (2- and 3- tuples respectively)
-then the 'tuplesize' curve option MUST be passed in.
+The 'curve' arguments in the plot(...) argument list represent the actual data
+being plotted. Each output data point is a tuple (set of values, not a python
+"tuple") whose size varies depending on what is being plotted. For example if
+we're making a simple 2D x-y plot, each tuple has 2 values; if we're making a 3d
+plot with each point having variable size and color, each tuple has 5 values
+(x,y,z,size,color). In the plot(...) argument list each tuple element must be
+passed separately. If we're making anything fancier than a simple 2D or 3D plot
+(2- and 3- tuples respectively) then the 'tuplesize' curve option MUST be passed
+in.
 
-Currently each array is assumed to be 1D for normal plots and 2D for matrix
-plots. At some point I'll implement broadcasting to allow packed arrays, but not
-yet (numpy is missing thread_define from PDL)
+Furthermore, broadcasting is fully supported, so multiple curves can be plotted
+by stacking data inside the passed-in arrays. Broadcasting works across curve
+options also, so things like curve labels and styles can also be stacked inside
+arrays. An example:
+
+#+BEGIN_SRC python
+  th    = np.linspace(0, 6*np.pi, 200)
+  z     = np.linspace(0, 5,       200)
+  size  = 0.5 + np.abs(np.cos(th))
+  color = np.sin(2*th)
+
+
+  # without broadcasting:
+  plot3d( (  np.cos(th),  np.sin(th)
+            z, size, color,
+            { 'legend': 'spiral 1'}),
+
+          ( -np.cos(th), -np.sin(th)
+            z, size, color,
+            { 'legend': 'spiral 2'})
+
+          title     = 'double helix', tuplesize = 5,
+          _with = 'points pointsize variable pointtype 7 palette' )
+
+
+  # identical plot using broadcasting:
+  plot3d( ( np.cos(th) * np.array([[1,-1]]).T,
+            np.sin(th) * np.array([[1,-1]]).T,
+            z, size, color, { 'legend': np.array(('spiral 1', 'spiral 2'))})
+
+          title     = 'double helix', tuplesize = 5,
+          _with = 'points pointsize variable pointtype 7 palette' )
+#+END_SRC
+
+This is a 3d plot with variable size and color. There are 5 values in the tuple,
+which we specify. The first 2 arrays have dimensions (2,N); all the other arrays
+have a single dimension. Thus the broadcasting rules generate 2 distinct curves,
+with varying values for x,y and identical values for z, size and color. We label
+the curves differently by passing an array for the 'legend' curve option. This
+array contains strings, and is broadcast like everything else.
 
 *** Implicit domains
 
@@ -444,8 +482,7 @@ Generates an image plot. Shorthand for 'plot(..., _with='image', tuplesize=3)'
 
 * RECIPES
 
-Most of these come directly from Gnuplot commands. See the Gnuplot docs for
-details.
+Some different plots appear here. A longer set of demos is given in demos.py.
 
 ** 2D plotting
 
@@ -474,6 +511,9 @@ To change point size and point type:
 #+BEGIN_SRC python
   gp.plot(x,y, _with='points pointtype 4 pointsize 8')
 #+END_SRC
+
+Everything (like _with) feeds directly into Gnuplot, so look at the Gnuplot docs
+to know how to change thicknesses, styles and such.
 
 *** Errorbars
 
@@ -554,20 +594,24 @@ If xy is a 2D array, we can plot it as a height map on an implicit domain
   plot3d(xy)
 #+END_SRC
 
-Complicated 3D plot with fancy styling:
+Ellipse and sphere plotted together, using broadcasting:
 
 #+BEGIN_SRC python
-  th    = np.linspace(0, 6*pi, 200)
-  z     = np.linspace(0, 5,    200)
-  size  = 0.5 + np.abs(np.cos(th))
-  color = np.sin(2*th)
+ th   = np.linspace(0,        np.pi*2, 30)
+ ph   = np.linspace(-np.pi/2, np.pi*2, 30)[:,np.newaxis]
 
-  plot3d( ( np.cos(th),  np.sin(th), z, size, color, {'legend': "spiral 1"}),
-          (-np.cos(th), -np.sin(th), z, size, color, {'legend': "spiral 2"}),
+ x_3d = (np.cos(ph) * np.cos(th))          .ravel()
+ y_3d = (np.cos(ph) * np.sin(th))          .ravel()
+ z_3d = (np.sin(ph) * np.ones( th.shape )) .ravel()
 
-          title     = 'double helix',
-          tuplesize = 5,
-          _with = 'points pointsize variable pointtype 7 palette' )
+ gp.plot3d( (x_3d * np.array([[1,2]]).T,
+             y_3d * np.array([[1,2]]).T,
+             z_3d,
+             { 'legend': np.array(('sphere', 'ellipse'))}),
+
+            title  = 'sphere, ellipse',
+            square = True,
+            _with  = 'points')
 #+END_SRC
 
 Image arrays plots can be plotted as a heat map:
@@ -707,11 +751,6 @@ features = _getGnuplotFeatures()
 
 
 
-# used to read options. 'have' looks at the existence of an option, 'active'
-# looks at its truth
-def _have  (opt, where): return opt in where
-def _active(opt, where): return opt in where and where[opt]
-
 def _dictDeUnderscore(d):
     """Takes a dict, and renames all keys that start with an '_' to not contain that
 anymore. This is done because some keys are illegal as kwargs (notably 'with'
@@ -735,10 +774,6 @@ class GnuplotlibError(Exception):
 
 
 class gnuplotlib:
-
-    def _havePlotOption  (self, opt): return _have  (opt, self.plotOptions)
-    def _activePlotOption(self, opt): return _active(opt, self.plotOptions)
-
 
     def __init__(self, **plotOptions):
 
@@ -767,7 +802,7 @@ class gnuplotlib:
 
         self._logEvent("_startgnuplot()")
 
-        if not self._activePlotOption('dump'):
+        if not self.plotOptions.get('dump'):
 
             cmd = ['gnuplot']
             if 'persist' in features:
@@ -782,10 +817,6 @@ class gnuplotlib:
 
     def _getPlotOptionsCmds(self):
 
-        def have(opt):   return self._havePlotOption(opt)
-        def active(opt): return self._activePlotOption(opt)
-
-
         for option in self.plotOptions:
             if not option in knownPlotOptions:
                 raise GnuplotlibError(option + ' is not a valid plot option')
@@ -793,22 +824,22 @@ class gnuplotlib:
 
         # set some defaults
         # plot with lines and points by default
-        if not have('with'):
+        if not 'with' in self.plotOptions:
             self.plotOptions['with'] = 'linespoints'
 
         # make sure I'm not passed invalid combinations of options
-        if active('3d'):
-            if have('y2min') or have('y2max'):
+        if self.plotOptions.get('3d'):
+            if 'y2min' in self.plotOptions or 'y2max' in self.plotOptions:
                 raise GnuplotlibError("'3d' does not make sense with 'y2'...")
 
             if not 'equal_3d' in features and \
-               ( active('square_xy') or active('square') ):
+               ( self.plotOptions.get('square_xy') or self.plotOptions.get('square') ):
 
                 sys.stderr.write("Your gnuplot doesn't support square aspect ratios for 3D plots, so I'm ignoring that\n")
                 del self.plotOptions['square_xy']
                 del self.plotOptions['square']
         else:
-            if active('square_xy'):
+            if self.plotOptions.get('square_xy'):
                 raise GnuplotlibError("'square_xy' only makes sense with '3d'")
 
 
@@ -818,7 +849,7 @@ class gnuplotlib:
 
         # send all set/unset as is
         for setunset in ('set', 'unset'):
-            if have(setunset):
+            if setunset in self.plotOptions:
                 if isinstance(self.plotOptions[setunset], (list, tuple)):
                     cmds += [ setunset + ' ' + setting for setting in self.plotOptions[setunset] ]
                 else:
@@ -831,9 +862,9 @@ class gnuplotlib:
             # if we have min AND max AND inv, I make sure that min>max, and
             # suppress the inv. This is because in gnuplot 'plot [min:max]
             # reverse' ingores the 'reverse' if both min and max are given
-            if have(axis + 'min') and \
-               have(axis + 'max') and \
-               active(axis + 'inv'):
+            if axis + 'min' in self.plotOptions and \
+               axis + 'max' in self.plotOptions and \
+               self.plotOptions.get(axis + 'inv'):
                 minval = min(self.plotOptions[axis + 'min'], self.plotOptions[axis + 'max'])
                 maxval = max(self.plotOptions[axis + 'min'], self.plotOptions[axis + 'max'])
                 self.plotOptions[axis + 'min'] = maxval
@@ -845,17 +876,17 @@ class gnuplotlib:
             rangeopt_name = axis + 'range'
             for minmax in ('min', 'max'):
                 opt = axis + minmax
-                if not have(opt):
+                if not opt in self.plotOptions:
                     self.plotOptions[opt] = ''
                 else:
-                    if have(rangeopt_name):
+                    if rangeopt_name in self.plotOptions:
                         raise GnuplotlibError("Both {} and {} not allowed at the same time".format(opt,rangeopt_name))
                     self.plotOptions[opt] = str(self.plotOptions[opt])
 
             # if any of the ranges are given, set the range
             if len(self.plotOptions[axis + 'min'] + self.plotOptions[axis + 'max']):
                 rangeopt_val = ':'.join((self.plotOptions[axis + 'min'], self.plotOptions[axis + 'max']))
-            elif have(rangeopt_name):
+            elif rangeopt_name in self.plotOptions:
                 # A range was given. If it's a string, just take it. It can also
                 # be a two-value list for the min/max
                 rangeopt_val = self.plotOptions[rangeopt_name]
@@ -866,38 +897,38 @@ class gnuplotlib:
 
             cmds.append( "set {} [{}] {}".format(rangeopt_name,
                                                  rangeopt_val,
-                                                 'reverse' if active(axis + 'inv') else ''))
+                                                 'reverse' if self.plotOptions.get(axis + 'inv') else ''))
 
             # set the curve labels
             if not axis == 'cb':
-                if have(axis + 'label'):
+                if axis + 'label' in self.plotOptions:
                     cmds.append('set {axis}label "{label}"'.format(axis = axis,
                                                                    label = self.plotOptions[axis + 'label']))
 
 
 
         # set the title
-        if have('title'):
+        if 'title' in self.plotOptions:
             cmds.append('set title "' + self.plotOptions['title'] + '"')
 
 
         # handle a requested square aspect ratio
         # set a square aspect ratio. Gnuplot does this differently for 2D and 3D plots
-        if active('3d'):
-            if active('square'):
+        if self.plotOptions.get('3d'):
+            if self.plotOptions.get('square'):
                 cmds.append("set view equal xyz")
-            elif active('square_xy'):
+            elif self.plotOptions.get('square_xy'):
                 cmds.append("set view equal xy")
         else:
-            if active('square'):
+            if self.plotOptions.get('square'):
                 cmds.append("set size ratio -1")
 
         # handle 'hardcopy'. This simply ties in to 'output' and 'terminal', handled
         # later
-        if have('hardcopy'):
+        if 'hardcopy' in self.plotOptions:
             # 'hardcopy' is simply a shorthand for 'terminal' and 'output', so they
             # can't exist together
-            if have('terminal') or have('output'):
+            if 'terminal' in self.plotOptions or 'output' in self.plotOptions:
                 raise GnuplotlibError(
                     """The 'hardcopy' option can't coexist with either 'terminal' or 'output'.  If the
 defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
@@ -919,11 +950,11 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
             self.plotOptions['output']   = outputfile
 
 
-        if have('terminal') and not have('output'):
+        if 'terminal' in self.plotOptions and not 'output' in self.plotOptions:
             sys.stderr.write('Warning: defined gnuplot terminal, but NOT an output file. Is this REALLY what you want?\n')
 
         # add the extra global options
-        if have('cmds'):
+        if 'cmds' in self.plotOptions:
             # if there's a single cmds option, put it into a 1-element list to
             # make the processing work
             if isinstance(self.plotOptions['cmds'], (list, tuple)):
@@ -1163,7 +1194,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
     def _logEvent(self, event):
 
         # only log when asked
-        if not self._activePlotOption('log'):
+        if not self.plotOptions.get('log'):
             return
 
         t = time.time() - self.t0
@@ -1176,8 +1207,8 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
     def _sendCurve(self, curve):
 
         pipe = self._gnuplotStdin()
-        if self._activePlotOption('ascii'):
-            if _active('matrix',curve):
+        if self.plotOptions.get('ascii'):
+            if curve.get('matrix'):
                 np.savetxt( pipe,
                             np.vstack(curve['_data']).astype(np.float64,copy=False),
                             '%s' )
@@ -1204,8 +1235,8 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
             # back on the global
             _with = curve['with'] if 'with' in curve else self.plotOptions['with']
 
-            if _with:                cmd += "with {} ".format(_with)
-            if _active('y2', curve): cmd += "axes x1y2 "
+            if _with:           cmd += "with {} ".format(_with)
+            if curve.get('y2'): cmd += "axes x1y2 "
 
             return cmd
 
@@ -1217,7 +1248,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
             tuplesize = curve['tuplesize']
 
             fmt = ''
-            if _active('matrix', curve):
+            if curve.get('matrix'):
                 fmt += 'binary array=({},{})'.format(curve['_data'][0].shape[-1],
                                                      curve['_data'][0].shape[-2])
                 fmt += ' format="' + ('%double' * (tuplesize-2)) + '"'
@@ -1231,7 +1262,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
             # logic that I don't want kicking in. For instance, 3d matrix plots
             # with image do not work in binary without 'using':
             using_Ncolumns = tuplesize
-            if _active('matrix', curve):
+            if curve.get('matrix'):
                 using_Ncolumns -= 2
 
             fmt += ' using ' + ':'.join( str(x+1) for x in range(using_Ncolumns) )
@@ -1246,7 +1277,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
 
         def getTestDataLen(curve):
             # assuming sizeof(double)==8
-            if _active('matrix', curve):
+            if curve.get('matrix'):
                 return 8 * 2*2*(curve['tuplesize']-2)
             return 8 * curve['tuplesize']
 
@@ -1258,15 +1289,15 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         basecmd = ''
 
         # if anything is to be plotted on the y2 axis, set it up
-        if any( _active('y2', curve) for curve in curves ):
-            if self._activePlotOption('3d'):
+        if any( curve.get('y2') for curve in curves ):
+            if self.plotOptions.get('3d'):
                 raise GnuplotlibError("3d plots don't have a y2 axis")
 
             basecmd += "set ytics nomirror\n"
             basecmd += "set y2tics\n"
 
-        if self._activePlotOption('3d'): basecmd += 'splot '
-        else:                            basecmd += 'plot '
+        if self.plotOptions.get('3d'): basecmd += 'splot '
+        else:                          basecmd += 'plot '
 
         plotCurveCmds        = []
         plotCurveCmdsMinimal = [] # same as above, but with a single data point per plot only
@@ -1275,7 +1306,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         for curve in curves:
             optioncmds = optioncmd(curve)
 
-            if not self._activePlotOption('ascii'):
+            if not self.plotOptions.get('ascii'):
                 # I get 2 formats: one real, and another to test the plot cmd, in case it
                 # fails. The test command is the same, but with a minimal point count. I
                 # also get the number of bytes in a single data point here
@@ -1304,7 +1335,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
                 # I'm using ascii to talk to gnuplot, so the minimal and "normal" plot
                 # commands are the same (point count is not in the plot command)
                 matrix = ''
-                if _active('matrix', curve): matrix =  'matrix'
+                if curve.get('matrix'): matrix =  'matrix'
                 plotCurveCmds.append( \
                     "'-' {matrix} {using} {optioncmds}".
                         format(matrix     = matrix,
@@ -1312,7 +1343,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
                                optioncmds = optioncmds))
 
                 testData_curve = ''
-                if _active('matrix', curve):
+                if curve.get('matrix'):
                     testmatrix = "{0} {0}\n" + "{0} {0}\n" + "\ne\n"
                     testData_curve = testmatrix.format(testdataunit_ascii) * (curve['tuplesize'] - 2)
                 else:
@@ -1336,7 +1367,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         elif all(type(curve) is tuple for curve in curves):
             curves = [ list(curve) for curve in curves ]
         else:
-            raise GnuplotlibError("all data arguments should be of type ndarray (one curve) or  tuples")
+            raise GnuplotlibError("all data arguments should be of type ndarray (one curve) or tuples")
 
         # add an options dict if there isn't one, apply the base curve
         # options to each curve
@@ -1359,6 +1390,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         curves = [ reformat(curve) for curve in curves ]
 
 
+
         for curve in curves:
 
             # make sure all the curve options are valid
@@ -1374,14 +1406,13 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
             # basic plots but MUST be given for anything fancy
             Ndata = len(curve['_data'])
             if not 'tuplesize' in curve:
-                curve['tuplesize'] = 3 if self._activePlotOption('3d') else 2
+                curve['tuplesize'] = 3 if self.plotOptions.get('3d') else 2
 
             if Ndata > curve['tuplesize']:
                 raise GnuplotlibError("Got {} tuples, but the tuplesize is {}. Giving up". \
                     format(Ndata, curve['tuplesize']))
 
             if Ndata < curve['tuplesize']:
-
                 # I got fewer data elements than I expected. Set up the implicit
                 # domain if that makes sense
 
@@ -1394,7 +1425,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
                 elif Ndata+2 == curve['tuplesize']:
                     # a plot is 2 elements short. Use a grid as a domain. I simply set the
                     # 'matrix' flag and have gnuplot deal with it later
-                    if self._activePlotOption('ascii') and curve['tuplesize'] > 3:
+                    if self.plotOptions.get('ascii') and curve['tuplesize'] > 3:
                         raise GnuplotlibError( \
                             "Can't make more than 3-dimensional plots on a implicit 2D domain\n" + \
                             "when sending ASCII data. I don't think gnuplot supports this. Use binary data\n" + \
@@ -1415,7 +1446,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
             dim01 = [None, None]
             for datum in curve['_data']:
 
-                if _active('matrix', curve) and datum.ndim < 2:
+                if curve.get('matrix') and datum.ndim < 2:
                     raise GnuplotlibError("Tried to plot against an implicit 2D domain, but was given less than 2D data")
 
                 def checkdim(idim):
@@ -1429,8 +1460,125 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
 
                 checkdim(0)
 
-                if _active('matrix', curve):
+                if curve.get('matrix'):
                     checkdim(1)
+
+
+
+        # I now manually broadcast the dimensions. PDL does this for me
+        # automatically, but numpy absolutely does not. This is a MAJOR
+        # advantage PDL has over numpy. Oh well
+        def broadcast_split(curve):
+
+            # I line up all the dimensions, and split off any that are being
+            # broadcasted
+
+            # With line plots I don't broadcast the last dimension; with
+            # matrices, I don't broadcast the last 2
+            ndims_keep = 2 if curve.get('matrix') else 1
+
+            # object needed for fancy slices. m[:] is exactly the same as
+            # m[colon], but 'colon' can be manipulated in ways that ':' can't
+            colon = slice(None, None, None)
+
+            # make a copy of the plot options
+            curve_options = dict(curve)
+            del curve_options['_data']
+
+            # grab all option keys that have numpy arrays as values. I broadcast
+            # these
+            numpy_options_keys   = [ k for k in curve_options.keys()
+                                     if type(curve_options[k]) == np.ndarray ]
+
+            # The numpy option values have no domain dimension, so I add dummy
+            # dimensions to make things line up
+            idx_new_axes = (colon,) + (np.newaxis,)*ndims_keep
+            for k in numpy_options_keys:
+                curve_options[k] = curve_options[k][idx_new_axes]
+
+            shapes = [ v.shape for v in curve['_data'] + [curve_options[k] for k in numpy_options_keys] ]
+            max_ndim = max( len(s) for s in shapes )
+
+            # Broadcasting does 2 things:
+            # 1. out-of-bounds dimensions are added at the front
+            # 2. too-high indices are truncated to 1
+            #
+            # I handle the first case before I do anything else: I add dummy
+            # length-1 dimensions at the front as needed. After this is done,
+            # ndims for all the matrices will be the same
+            data = []
+            for v in curve['_data']:
+                N_new_axes = max_ndim - len(v.shape)
+                idx_new_axes = (np.newaxis,)*N_new_axes + (colon,)
+                data.append(v[idx_new_axes])
+
+            for k in numpy_options_keys:
+                o = curve_options[k]
+                N_new_axes = max_ndim - len(o.shape)
+                idx_new_axes = (np.newaxis,)*N_new_axes + (colon,)
+                curve_options[k] = o[idx_new_axes]
+
+            shapes = [ v.shape for v in data + [curve_options[k] for k in numpy_options_keys] ]
+
+
+
+            dims = []
+            for i in range(max_ndim):
+
+                # looking at a particular dimension. I'm broadcasting, so this dimension
+                # may not exist. The dimensions are lined up at the end. dim_idxs is the
+                # indices of dimension i for each vector. If <0, this dimension does not
+                # exist in that vector
+                dim_idxs = [ len(s) - max_ndim + i for s in shapes ]
+
+                # I grab all the dimensions that aren't 1. All the counts that aren't 1
+                # must match, or else we can't broadcast this
+                dims_not_1 = [ s[dim_idx] for s,dim_idx in zip(shapes,dim_idxs)
+                               if dim_idx >= 0 and s[dim_idx] != 1 ]
+
+                if len(dims_not_1) and not all( d == dims_not_1[0] for d in dims_not_1):
+                    raise GnuplotlibError("Mismatched dimensions, cannot broadcast. Shapes: {}".format(shapes))
+
+                # grab this dimension
+                dims.append( dims_not_1[0] if len(dims_not_1) else 1 )
+
+
+            split_curves = []
+            def accum_dim( dimlist ):
+                if len(dimlist) == max_ndim - ndims_keep:
+                    # I have a full list of dimensions. I sample the curves and
+                    # accumulate. Need to pay attention to 2 things:
+                    #
+                    # 1. out-of-bounds dimensions are added at the front (the
+                    # 'data' and 'curve_options' already has this taken care of)
+                    #
+                    # 2. too-high indices are truncated to 1
+
+                    # expand the dimensionality to cover out-of-bounds dimensions
+                    split_curve = dict(curve_options)
+
+                    def lookup_broadcasted_slice(array):
+                        return tuple(d if array.shape[i] != 1 else 0 for i,d in enumerate(dimlist))
+
+                    split_curve['_data'] = [ v[ lookup_broadcasted_slice(v) ] for v in data ]
+
+                    for k in numpy_options_keys:
+                        split_curve[k] = split_curve[k][ lookup_broadcasted_slice(split_curve[k]) +
+                                                         (0,)*ndims_keep ]
+
+                    split_curves.append(split_curve)
+                    return
+
+                for inext in range( dims[ len(dimlist)] ):
+                    accum_dim( dimlist + (inext,) )
+
+            accum_dim( () )
+            return split_curves
+
+        curves_flattened = []
+        for curve in curves:
+            curves_flattened.extend( broadcast_split( curve ))
+        curves = curves_flattened
 
 
         return curves
@@ -1456,11 +1604,11 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         # select the default terminal in case that's what we want
         self._safelyWriteToPipe("set terminal pop; set terminal push", 'terminal')
 
-        if self._havePlotOption('terminal'):
+        if 'terminal' in self.plotOptions:
             self._safelyWriteToPipe("set terminal " + self.plotOptions['terminal'],
                                     'terminal')
 
-        if self._havePlotOption('output'):
+        if 'output' in self.plotOptions:
             if hasattr(self,'fdDupSTDOUT') and self.plotOptions['output'] == '*STDOUT':
                 self.plotOptions['output'] = '/dev/fd/' + str(self.fdDupSTDOUT)
             self._safelyWriteToPipe('set output "' + self.plotOptions['output'] + '"',
@@ -1582,7 +1730,7 @@ See the documentation for class gnuplotlib for full details.
     # object. There's no gnuplot session to reuse in that case, and otherwise
     # the dumping won't get activated
     global globalplot
-    if not globalplot or _active('dump', plotOptions):
+    if not globalplot or plotOptions.get('dump'):
         globalplot = gnuplotlib(**plotOptions)
     else:
         globalplot.__init__(**plotOptions)
@@ -1653,12 +1801,11 @@ if __name__ == '__main__':
 
     import numpy      as np
     import gnuplotlib as gp
-    from scipy.constants import pi
     import time
 
     x = np.arange(101) - 50
-    gp.plot(x**2)
-    time.sleep(5)
+    gp.plot(x**2, dump=0, ascii=0)
+    time.sleep(1)
 
 
     g1 = gp.gnuplotlib(title = 'Parabola with error bars',
@@ -1678,8 +1825,8 @@ if __name__ == '__main__':
     time.sleep(5)
 
 
-    theta = np.linspace(0, 6*pi, 200)
-    z     = np.linspace(0, 5,    200)
+    theta = np.linspace(0, 6*np.pi, 200)
+    z     = np.linspace(0, 5,       200)
     g2 = gp.gnuplotlib(_3d = True)
     g2.plot( (np.cos(theta),  np.sin(theta), z),
              (np.cos(theta), -np.sin(theta), z))
