@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
-r'''
-* NAME
+r'''* NAME
 
 gnuplotlib: a gnuplot-based plotting backend for numpy
 
