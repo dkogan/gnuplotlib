@@ -4,7 +4,6 @@ gnuplotlib: a gnuplot-based plotting backend for numpy
 #+BEGIN_SRC python
  import numpy      as np
  import gnuplotlib as gp
- from scipy.constants import pi
 
  x = np.arange(101) - 50
  gp.plot(x**2)
@@ -29,12 +28,13 @@ gnuplotlib: a gnuplot-based plotting backend for numpy
  [ Heat map pops up where first parabola used to be ]
 
 
- theta = np.linspace(0, 6*pi, 200)
- z     = np.linspace(0, 5,    200)
+ theta = np.linspace(0, 6*np.pi, 200)
+ z     = np.linspace(0, 5,       200)
  g2 = gp.gnuplotlib(_3d = True)
- g2.plot( (np.cos(theta),  np.sin(theta), z),
-          (np.cos(theta), -np.sin(theta), z))
- [ Two 3D curves together in a new window: spirals ]
+ g2.plot( np.cos(theta),
+          np.vstack((np.sin(theta), -np.sin(theta))),
+          z )
+ [ Two 3D spirals together in a new window ]
 #+END_SRC
 
 
@@ -115,18 +115,56 @@ Plot generation is controlled by two sets of options:
 
 ** Data arguments
 
-The 'curves' arguments in the plot(...) argument list represent the actual data
-being plotted. Each output data point is a tuple whose size varies depending on
-what is being plotted. For example if we're making a simple 2D x-y plot, each
-tuple has 2 values; if we're making a 3d plot with each point having variable
-size and color, each tuple has 5 values (x,y,z,size,color). In the plot(...)
-argument list each tuple element must be passed separately. If we're making
-anything fancier than a simple 2D or 3D plot (2- and 3- tuples respectively)
-then the 'tuplesize' curve option MUST be passed in.
+The 'curve' arguments in the plot(...) argument list represent the actual data
+being plotted. Each output data point is a tuple (set of values, not a python
+"tuple") whose size varies depending on what is being plotted. For example if
+we're making a simple 2D x-y plot, each tuple has 2 values; if we're making a 3d
+plot with each point having variable size and color, each tuple has 5 values
+(x,y,z,size,color). In the plot(...) argument list each tuple element must be
+passed separately. If we're making anything fancier than a simple 2D or 3D plot
+(2- and 3- tuples respectively) then the 'tuplesize' curve option MUST be passed
+in.
 
-Currently each array is assumed to be 1D for normal plots and 2D for matrix
-plots. At some point I'll implement broadcasting to allow packed arrays, but not
-yet (numpy is missing thread_define from PDL)
+Furthermore, broadcasting is fully supported, so multiple curves can be plotted
+by stacking data inside the passed-in arrays. Broadcasting works across curve
+options also, so things like curve labels and styles can also be stacked inside
+arrays. An example:
+
+#+BEGIN_SRC python
+  th    = np.linspace(0, 6*np.pi, 200)
+  z     = np.linspace(0, 5,       200)
+  size  = 0.5 + np.abs(np.cos(th))
+  color = np.sin(2*th)
+
+
+  # without broadcasting:
+  plot3d( (  np.cos(th),  np.sin(th)
+            z, size, color,
+            { 'legend': 'spiral 1'}),
+
+          ( -np.cos(th), -np.sin(th)
+            z, size, color,
+            { 'legend': 'spiral 2'})
+
+          title     = 'double helix', tuplesize = 5,
+          _with = 'points pointsize variable pointtype 7 palette' )
+
+
+  # identical plot using broadcasting:
+  plot3d( ( np.cos(th) * np.array([[1,-1]]).T,
+            np.sin(th) * np.array([[1,-1]]).T,
+            z, size, color, { 'legend': np.array(('spiral 1', 'spiral 2'))})
+
+          title     = 'double helix', tuplesize = 5,
+          _with = 'points pointsize variable pointtype 7 palette' )
+#+END_SRC
+
+This is a 3d plot with variable size and color. There are 5 values in the tuple,
+which we specify. The first 2 arrays have dimensions (2,N); all the other arrays
+have a single dimension. Thus the broadcasting rules generate 2 distinct curves,
+with varying values for x,y and identical values for z, size and color. We label
+the curves differently by passing an array for the 'legend' curve option. This
+array contains strings, and is broadcast like everything else.
 
 *** Implicit domains
 
@@ -441,8 +479,7 @@ Generates an image plot. Shorthand for 'plot(..., _with='image', tuplesize=3)'
 
 * RECIPES
 
-Most of these come directly from Gnuplot commands. See the Gnuplot docs for
-details.
+Some different plots appear here. A longer set of demos is given in demos.py.
 
 ** 2D plotting
 
@@ -471,6 +508,9 @@ To change point size and point type:
 #+BEGIN_SRC python
   gp.plot(x,y, _with='points pointtype 4 pointsize 8')
 #+END_SRC
+
+Everything (like _with) feeds directly into Gnuplot, so look at the Gnuplot docs
+to know how to change thicknesses, styles and such.
 
 *** Errorbars
 
@@ -551,20 +591,24 @@ If xy is a 2D array, we can plot it as a height map on an implicit domain
   plot3d(xy)
 #+END_SRC
 
-Complicated 3D plot with fancy styling:
+Ellipse and sphere plotted together, using broadcasting:
 
 #+BEGIN_SRC python
-  th    = np.linspace(0, 6*pi, 200)
-  z     = np.linspace(0, 5,    200)
-  size  = 0.5 + np.abs(np.cos(th))
-  color = np.sin(2*th)
+ th   = np.linspace(0,        np.pi*2, 30)
+ ph   = np.linspace(-np.pi/2, np.pi*2, 30)[:,np.newaxis]
 
-  plot3d( ( np.cos(th),  np.sin(th), z, size, color, {'legend': "spiral 1"}),
-          (-np.cos(th), -np.sin(th), z, size, color, {'legend': "spiral 2"}),
+ x_3d = (np.cos(ph) * np.cos(th))          .ravel()
+ y_3d = (np.cos(ph) * np.sin(th))          .ravel()
+ z_3d = (np.sin(ph) * np.ones( th.shape )) .ravel()
 
-          title     = 'double helix',
-          tuplesize = 5,
-          _with = 'points pointsize variable pointtype 7 palette' )
+ gp.plot3d( (x_3d * np.array([[1,2]]).T,
+             y_3d * np.array([[1,2]]).T,
+             z_3d,
+             { 'legend': np.array(('sphere', 'ellipse'))}),
+
+            title  = 'sphere, ellipse',
+            square = True,
+            _with  = 'points')
 #+END_SRC
 
 Image arrays plots can be plotted as a heat map:
