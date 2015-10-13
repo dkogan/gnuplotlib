@@ -1,4 +1,7 @@
+* NAME
+
 gnuplotlib: a gnuplot-based plotting backend for numpy
+
 * SYNOPSIS
 
 #+BEGIN_SRC python
