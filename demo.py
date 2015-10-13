@@ -200,12 +200,12 @@ gp.plot(z, x,
         ascii     = False)
 time.sleep(sleep_interval)
 
-# Using broadcasting to plot each slice with aa different style
+# Using broadcasting to plot each slice with a different style
 gp.plot((np.rollaxis( np.dstack((x,z)), 2,0),
          {'tuplesize': 3,
           'with': np.array(('points palette pt 7','points ps variable pt 6'))}),
 
-        title  = '2 3D matrix plots. Binary.',
+        title  = 'Two 3D matrix plots. Binary.',
         square = 1,
         ascii = False)
 time.sleep(sleep_interval)
@@ -224,7 +224,7 @@ gp.plot((np.rollaxis( np.dstack((x,z)), 2,0),
          {'tuplesize': 3,
           'with': np.array(('points palette pt 7','points ps variable pt 6'))}),
 
-        title  = '2 3D matrix plots. Binary.',
+        title  = 'Two 3D matrix plots. Binary.',
         square = 1,
         ascii = True)
 time.sleep(sleep_interval)
