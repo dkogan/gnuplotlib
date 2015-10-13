@@ -1428,23 +1428,53 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
             # I line up all the dimensions, and split off any that are being
             # broadcasted
 
+            # With line plots I don't broadcast the last dimension; with
+            # matrices, I don't broadcast the last 2
+            ndims_keep = 2 if curve.get('matrix') else 1
 
-            shapes = [ v.shape for v in curve['_data'] ]
+            # object needed for fancy slices. m[:] is exactly the same as
+            # m[colon], but 'colon' can be manipulated in ways that ':' can't
+            colon = slice(None, None, None)
+
+            # make a copy of the plot options
+            curve_options = dict(curve)
+            del curve_options['_data']
+
+            # grab all option keys that have numpy arrays as values. I broadcast
+            # these
+            numpy_options_keys   = [ k for k in curve_options.keys()
+                                     if type(curve_options[k]) == np.ndarray ]
+
+            # The numpy option values have no domain dimension, so I add dummy
+            # dimensions to make things line up
+            idx_new_axes = (colon,) + (np.newaxis,)*ndims_keep
+            for k in numpy_options_keys:
+                curve_options[k] = curve_options[k][idx_new_axes]
+
+            shapes = [ v.shape for v in curve['_data'] + [curve_options[k] for k in numpy_options_keys] ]
             max_ndim = max( len(s) for s in shapes )
 
             # Broadcasting does 2 things:
             # 1. out-of-bounds dimensions are added at the front
             # 2. too-high indices are truncated to 1
             #
-            # I handle the first case before I do anything else:
+            # I handle the first case before I do anything else: I add dummy
+            # length-1 dimensions at the front as needed. After this is done,
+            # ndims for all the matrices will be the same
             data = []
             for v in curve['_data']:
-                for iaxis in range(max_ndim - len(v.shape)):
-                    v = v[np.newaxis, :]
-                data.append(v)
-            shapes = [ v.shape for v in data ]
-            curve_nodata = curve
-            del curve_nodata['_data']
+                N_new_axes = max_ndim - len(v.shape)
+                idx_new_axes = (np.newaxis,)*N_new_axes + (colon,)
+                data.append(v[idx_new_axes])
+
+            for k in numpy_options_keys:
+                o = curve_options[k]
+                N_new_axes = max_ndim - len(o.shape)
+                idx_new_axes = (np.newaxis,)*N_new_axes + (colon,)
+                curve_options[k] = o[idx_new_axes]
+
+            shapes = [ v.shape for v in data + [curve_options[k] for k in numpy_options_keys] ]
+
 
 
             dims = []
@@ -1468,24 +1498,29 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
                 dims.append( dims_not_1[0] if len(dims_not_1) else 1 )
 
 
-            # With line plots I don't broadcast the last dimension; with
-            # matrices, I don't broadcast the last 2
-            ndims_keep = 2 if curve.get('matrix') else 1
-
             split_curves = []
             def accum_dim( dimlist ):
                 if len(dimlist) == max_ndim - ndims_keep:
                     # I have a full list of dimensions. I sample the curves and
                     # accumulate. Need to pay attention to 2 things:
-                    # 1. out-of-bounds dimensions are added at the front (the 'data'
-                    # already has this taken care of)
+                    #
+                    # 1. out-of-bounds dimensions are added at the front (the
+                    # 'data' and 'curve_options' already has this taken care of)
+                    #
                     # 2. too-high indices are truncated to 1
 
                     # expand the dimensionality to cover out-of-bounds dimensions
-                    split_curve = dict(curve_nodata)
-                    split_curve['_data'] = [
-                        v[ tuple(d if v.shape[i] != 1 else 0 for i,d in enumerate(dimlist)) ]
-                        for v in data ]
+                    split_curve = dict(curve_options)
+
+                    def lookup_broadcasted_slice(array):
+                        return tuple(d if array.shape[i] != 1 else 0 for i,d in enumerate(dimlist))
+
+                    split_curve['_data'] = [ v[ lookup_broadcasted_slice(v) ] for v in data ]
+
+                    for k in numpy_options_keys:
+                        split_curve[k] = split_curve[k][ lookup_broadcasted_slice(split_curve[k]) +
+                                                         (0,)*ndims_keep ]
+
                     split_curves.append(split_curve)
                     return
 
