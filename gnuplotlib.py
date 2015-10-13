@@ -310,7 +310,7 @@ These specify axis labels
 
 Instead of drawing a plot on screen, plot into a file instead. The output
 filename is the value associated with this key. The output format is inferred
-from the filename. Currently only eps, ps, pdf, png are supported with some
+from the filename. Currently only eps, ps, pdf, png, svg are supported with some
 default sets of options. This option is simply a shorthand for the 'terminal'
 and 'output' options. If the defaults provided by the 'hardcopy' option are
 insufficient, use 'terminal' and 'output' manually. Example:
@@ -937,16 +937,17 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
 'output' to get more control""")
 
             outputfile = self.plotOptions['hardcopy']
-            m = re.search(r'\.(eps|ps|pdf|png)$', outputfile)
+            m = re.search(r'\.(eps|ps|pdf|png|svg)$', outputfile)
             if not m:
-                raise GnuplotlibError("Only .eps, .ps, .pdf and .png hardcopy output supported")
+                raise GnuplotlibError("Only .eps, .ps, .pdf, .png and .svg hardcopy output supported")
 
             outputfileType = m.group(1)
 
             terminalOpts = { 'eps': 'postscript solid color enhanced eps',
                              'ps':  'postscript solid color landscape 10',
                              'pdf': 'pdf solid color font ",10" size 11in,8.5in',
-                             'png': 'png size 1280,1024' }
+                             'png': 'png size 1280,1024',
+                             'svg': 'svg enhanced solid'}
 
             self.plotOptions['terminal'] = terminalOpts[outputfileType]
             self.plotOptions['output']   = outputfile
