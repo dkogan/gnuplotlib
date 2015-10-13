@@ -1,3 +1,9 @@
+python-gnuplotlib (0.7-1) unstable; urgency=medium
+
+  * Upstream update: broadcasting support
+
+ -- Dima Kogan <dima@secretsauce.net>  Tue, 13 Oct 2015 12:39:57 -0700
+
 python-gnuplotlib (0.6-1) unstable; urgency=medium
 
   * turning on 'dump' in a not-brand-new global plot object now works
