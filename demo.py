@@ -50,11 +50,10 @@ plot1 = gp.gnuplotlib(_with = 'linespoints',
                       xmin  = -10,
                       title = 'Error bars and other things')
 
-# broadcasting title fix here
 plot1.plot( ( np.vstack((x, x*2, x*3)), x**2 - 300,
               {'with':   'lines lw 4',
                'y2':     True,
-               'legend': 'a parabola'}),
+               'legend': 'parabolas'}),
 
             (x**2 * 10, x**2/40, x**2/2, # implicit domain
              {'with':      'xyerrorbars',
@@ -62,7 +61,7 @@ plot1.plot( ( np.vstack((x, x*2, x*3)), x**2 - 300,
 
             (x, np.vstack((x**3, x**3 - 100)),
              {"with": 'lines',
-              'legend': 'shifted cubic',
+              'legend': 'shifted cubics',
               'tuplesize': 2}))
 time.sleep(sleep_interval)
 
@@ -93,11 +92,10 @@ gp.plot3d( x_3d, y_3d, z_3d,
 time.sleep(sleep_interval)
 
 # sphere, ellipse together
-# broadcasting title fix here
 gp.plot3d( (x_3d * np.array([[1,2]]).T,
             y_3d * np.array([[1,2]]).T,
             z_3d,
-            { 'legend': 'sphere'}),
+            { 'legend': np.array(('sphere', 'ellipse'))}),
 
            title  = 'sphere, ellipse',
            square = True,
@@ -106,11 +104,10 @@ time.sleep(sleep_interval)
 
 
 # similar, written to a png
-# broadcasting title fix here
 gp.plot3d( (x_3d * np.array([[1,2]]).T,
             y_3d * np.array([[1,2]]).T,
             z_3d,
-            { 'legend': 'sphere'}),
+            { 'legend': np.array(('sphere', 'ellipse'))}),
 
            title    = 'sphere, ellipse',
            square   = True,
@@ -137,10 +134,9 @@ z     = np.linspace(0, 5,       200)
 size  = 0.5 + np.abs(np.cos(th))
 color = np.sin(2*th)
 
-# broadcasting title fix here
 gp.plot3d( ( np.cos(th) * np.array([[1,-1]]).T,
              np.sin(th) * np.array([[1,-1]]).T,
-             z, size, color, {'legend': "spiral 1"}),
+             z, size, color, { 'legend': np.array(('spiral 1', 'spiral 2'))}),
 
            title     = 'double helix',
            tuplesize = 5,
@@ -204,23 +200,10 @@ gp.plot(z, x,
         ascii     = False)
 time.sleep(sleep_interval)
 
-# broadcasting fix here: this is broadcast, but with different 'with'. Do I even
-# want to allow this?
-# 2 3d matrix curves
-
-# gp.plot((np.rollaxis( np.dstack((x,z)), 2,0),
-#          {'tuplesize': 3,
-#           'with':      'points palette pt 7'}),
-
-#         title  = '2 3D matrix plots. Binary.',
-#         square = 1,
-#         ascii = False)
-
-
-gp.plot((x, {'tuplesize': 3,
-             'with':      'points palette pt 7'}),
-        (z, {'tuplesize': 3,
-             'with':      'points ps variable pt 6'}),
+# Using broadcasting to plot each slice with aa different style
+gp.plot((np.rollaxis( np.dstack((x,z)), 2,0),
+         {'tuplesize': 3,
+          'with': np.array(('points palette pt 7','points ps variable pt 6'))}),
 
         title  = '2 3D matrix plots. Binary.',
         square = 1,
@@ -237,10 +220,9 @@ time.sleep(sleep_interval)
 # time.sleep(sleep_interval)
 
 # 2 3d matrix curves
-gp.plot((x, {'tuplesize': 3,
-             'with':      'points palette pt 7'}),
-        (z, {'tuplesize': 3,
-             'with':      'points ps variable pt 6'}),
+gp.plot((np.rollaxis( np.dstack((x,z)), 2,0),
+         {'tuplesize': 3,
+          'with': np.array(('points palette pt 7','points ps variable pt 6'))}),
 
         title  = '2 3D matrix plots. Binary.',
         square = 1,
@@ -255,17 +237,17 @@ x -= 30.0
 y -= 30.0
 z = np.sin(x / 4.0) * y
 
-# single 3d matrix curve
-gp.plot3d( (z, {'tuplesize': 3, 'with': 'image'}),
-           (z, {'tuplesize': 3, 'with': 'lines'}),
+# single 3d matrix curve. Two plots: the image and the contours together.
+# Broadcasting the styles
+gp.plot3d( (z, {'tuplesize': 3, 'with': np.array(('image','lines'))}),
 
-           title             = 'matrix plot with contours',
-           cmds         = [ 'set contours base',
-                            'set cntrparam bspline',
-                            'set cntrparam levels 15',
-                            'unset grid',
-                            'unset surface',
-                            'set view 0,0'],
+           title = 'matrix plot with contours',
+           cmds  = [ 'set contours base',
+                     'set cntrparam bspline',
+                     'set cntrparam levels 15',
+                     'unset grid',
+                     'unset surface',
+                     'set view 0,0'],
            square = 1 )
 time.sleep(sleep_interval)
 
