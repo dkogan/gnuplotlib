@@ -579,6 +579,26 @@ necessary to specify the color range here
        _with = 'circles palette', tuplesize = 4 )
 #+END_SRC
 
+
+Broadcasting example: the Conchoids of de Sluze. The whole family of curves is
+generated all at once, and plotted all at once with broadcasting. Broadcasting
+is also used to generate the labels. Generally these would be strings, but here
+just printing the numerical value of the parameter is sufficient.
+
+#+BEGIN_SRC python
+ theta = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
+ a     = np.arange(-4,3)[:, np.newaxis] # dim=(7,1)
+
+ gp.plot( theta,
+          1./np.cos(theta) + a*np.cos(theta), # broadcasted. dim=(7,1000)
+
+          _with  = 'lines',
+          set    = 'polar',
+          square = True,
+          yrange = [-5,5],
+          legend = a.ravel() )
+#+END_SRC
+
 ** 3D plotting
 
 General style control works identically for 3D plots as in 2D plots.

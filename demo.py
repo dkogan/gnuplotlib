@@ -78,6 +78,19 @@ gp.plot( x**2, np.abs(x)/2, x*50,
          tuplesize = 4 )
 time.sleep(sleep_interval)
 
+# Conchoids of de Sluze. Broadcasting example
+theta = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
+a     = np.arange(-4,3)[:, np.newaxis] # dim=(7,1)
+gp.plot( theta,
+         1./np.cos(theta) + a*np.cos(theta), # broadcasted. dim=(7,1000)
+
+         _with  = 'lines',
+         set    = 'polar',
+         square = True,
+         yrange = [-5,5],
+         legend = a.ravel() )
+time.sleep(sleep_interval)
+
 
 ################################
 # some 3d stuff
