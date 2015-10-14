@@ -693,6 +693,7 @@ import select
 import numpy as np
 
 
+# note that 'with' is both a known plot and curve option
 knownPlotOptions = frozenset(('3d', 'dump', 'ascii', 'log',
                               'cmds', 'set', 'unset', 'square', 'square_xy', 'title',
                               'hardcopy', 'terminal', 'output',
@@ -1721,10 +1722,10 @@ See the documentation for class gnuplotlib for full details.
     plotOptions       = {}
     curveOptions_base = {}
     for opt in jointOptions:
-        if opt in knownPlotOptions:
-            plotOptions[opt] = jointOptions[opt]
-        elif opt in knownCurveOptions:
+        if opt in knownCurveOptions:
             curveOptions_base[opt] = jointOptions[opt]
+        elif opt in knownPlotOptions:
+            plotOptions[opt] = jointOptions[opt]
         else:
             raise GnuplotlibError("Option '{}' not a known curve or plot option".format(opt))
 
