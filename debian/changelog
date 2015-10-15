@@ -1,3 +1,12 @@
+python-gnuplotlib (0.8-1) unstable; urgency=medium
+
+  * Upstream update:
+    * svg hardcopy support
+    * a joint 'with' option is now interpreted as a curve opt not a plot opt
+    * more broadcasting docs
+
+ -- Dima Kogan <dima@secretsauce.net>  Wed, 14 Oct 2015 20:11:44 -0700
+
 python-gnuplotlib (0.7-1) unstable; urgency=medium
 
   * Upstream update: broadcasting support
