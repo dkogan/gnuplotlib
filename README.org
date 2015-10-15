@@ -1,4 +1,6 @@
+* NAME
 gnuplotlib: a gnuplot-based plotting backend for numpy
+
 * SYNOPSIS
 
 #+BEGIN_SRC python
@@ -305,7 +307,7 @@ These specify axis labels
 
 Instead of drawing a plot on screen, plot into a file instead. The output
 filename is the value associated with this key. The output format is inferred
-from the filename. Currently only eps, ps, pdf, png are supported with some
+from the filename. Currently only eps, ps, pdf, png, svg are supported with some
 default sets of options. This option is simply a shorthand for the 'terminal'
 and 'output' options. If the defaults provided by the 'hardcopy' option are
 insufficient, use 'terminal' and 'output' manually. Example:
@@ -572,6 +574,26 @@ necessary to specify the color range here
   plot(x, y, radii, colors,
        cbmin = mincolor, cbmax = maxcolor,
        _with = 'circles palette', tuplesize = 4 )
+#+END_SRC
+
+
+Broadcasting example: the Conchoids of de Sluze. The whole family of curves is
+generated all at once, and plotted all at once with broadcasting. Broadcasting
+is also used to generate the labels. Generally these would be strings, but here
+just printing the numerical value of the parameter is sufficient.
+
+#+BEGIN_SRC python
+ theta = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
+ a     = np.arange(-4,3)[:, np.newaxis] # dim=(7,1)
+
+ gp.plot( theta,
+          1./np.cos(theta) + a*np.cos(theta), # broadcasted. dim=(7,1000)
+
+          _with  = 'lines',
+          set    = 'polar',
+          square = True,
+          yrange = [-5,5],
+          legend = a.ravel() )
 #+END_SRC
 
 ** 3D plotting

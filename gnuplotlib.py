@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
-r'''gnuplotlib: a gnuplot-based plotting backend for numpy
+r'''* NAME
+
+gnuplotlib: a gnuplot-based plotting backend for numpy
 
 * SYNOPSIS
 
@@ -308,7 +310,7 @@ These specify axis labels
 
 Instead of drawing a plot on screen, plot into a file instead. The output
 filename is the value associated with this key. The output format is inferred
-from the filename. Currently only eps, ps, pdf, png are supported with some
+from the filename. Currently only eps, ps, pdf, png, svg are supported with some
 default sets of options. This option is simply a shorthand for the 'terminal'
 and 'output' options. If the defaults provided by the 'hardcopy' option are
 insufficient, use 'terminal' and 'output' manually. Example:
@@ -577,6 +579,26 @@ necessary to specify the color range here
        _with = 'circles palette', tuplesize = 4 )
 #+END_SRC
 
+
+Broadcasting example: the Conchoids of de Sluze. The whole family of curves is
+generated all at once, and plotted all at once with broadcasting. Broadcasting
+is also used to generate the labels. Generally these would be strings, but here
+just printing the numerical value of the parameter is sufficient.
+
+#+BEGIN_SRC python
+ theta = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
+ a     = np.arange(-4,3)[:, np.newaxis] # dim=(7,1)
+
+ gp.plot( theta,
+          1./np.cos(theta) + a*np.cos(theta), # broadcasted. dim=(7,1000)
+
+          _with  = 'lines',
+          set    = 'polar',
+          square = True,
+          yrange = [-5,5],
+          legend = a.ravel() )
+#+END_SRC
+
 ** 3D plotting
 
 General style control works identically for 3D plots as in 2D plots.
@@ -691,6 +713,7 @@ import select
 import numpy as np
 
 
+# note that 'with' is both a known plot and curve option
 knownPlotOptions = frozenset(('3d', 'dump', 'ascii', 'log',
                               'cmds', 'set', 'unset', 'square', 'square_xy', 'title',
                               'hardcopy', 'terminal', 'output',
@@ -935,16 +958,17 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
 'output' to get more control""")
 
             outputfile = self.plotOptions['hardcopy']
-            m = re.search(r'\.(eps|ps|pdf|png)$', outputfile)
+            m = re.search(r'\.(eps|ps|pdf|png|svg)$', outputfile)
             if not m:
-                raise GnuplotlibError("Only .eps, .ps, .pdf and .png hardcopy output supported")
+                raise GnuplotlibError("Only .eps, .ps, .pdf, .png and .svg hardcopy output supported")
 
             outputfileType = m.group(1)
 
             terminalOpts = { 'eps': 'postscript solid color enhanced eps',
                              'ps':  'postscript solid color landscape 10',
                              'pdf': 'pdf solid color font ",10" size 11in,8.5in',
-                             'png': 'png size 1280,1024' }
+                             'png': 'png size 1280,1024',
+                             'svg': 'svg enhanced solid'}
 
             self.plotOptions['terminal'] = terminalOpts[outputfileType]
             self.plotOptions['output']   = outputfile
@@ -1718,10 +1742,10 @@ See the documentation for class gnuplotlib for full details.
     plotOptions       = {}
     curveOptions_base = {}
     for opt in jointOptions:
-        if opt in knownPlotOptions:
-            plotOptions[opt] = jointOptions[opt]
-        elif opt in knownCurveOptions:
+        if opt in knownCurveOptions:
             curveOptions_base[opt] = jointOptions[opt]
+        elif opt in knownPlotOptions:
+            plotOptions[opt] = jointOptions[opt]
         else:
             raise GnuplotlibError("Option '{}' not a known curve or plot option".format(opt))
 
