@@ -1045,8 +1045,13 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
             self.plotOptions['output']   = outputfile
 
 
-        if 'terminal' in self.plotOptions and not 'output' in self.plotOptions:
-            sys.stderr.write('Warning: defined gnuplot terminal, but NOT an output file. Is this REALLY what you want?\n')
+        if 'terminal' in self.plotOptions:
+            if self.plotOptions['terminal'] in ('x11', 'wxt', 'qt', 'aquaterm'):
+                if 'output' in self.plotOptions:
+                    sys.stderr.write("Warning: requested a known-interactive gnuplot terminal AND an output file. Is this REALLY what you want?\n")
+            else:
+                if not 'output' in self.plotOptions:
+                    sys.stderr.write("Warning: requested a gnuplot terminal (not a known-interactive one), but NOT an output file. Is this REALLY what you want?\n")
 
         # add the extra global options
         if 'cmds' in self.plotOptions:
