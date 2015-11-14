@@ -116,7 +116,8 @@ Plot generation is controlled by two sets of options:
   plot, the axis labels, the extents, 2d/3d selection, etc. All the plot options
   are described below in "Plot options".
 
-- Curve options: parameters that affect only a single curve
+- Curve options: parameters that affect only a single curve. Each is described
+  below in "Curve options".
 
 ** Data arguments
 
@@ -224,6 +225,69 @@ represent each data point. For example, if we want a 2D line plot with varying
 colors plotted with an implicit domain, set tuplesize=3 as before (x,y,color),
 but pass in only 2 arrays (y, color).
 
+** Symbolic equations
+
+Gnuplot can plot both data and equations. This module exists largely for the
+data-plotting case, but sometimes it can be useful to plot equations together
+with some data. This is supported by the 'equation' plot option. This plot
+option is either a string (for a single equation) or a list/tuple containing
+multiple strings for multiple equations. Note that plotting only equations
+without data is not supported (and generally is better done with gnuplot
+directly). An example:
+
+#+BEGIN_SRC python
+ import numpy as np
+ import numpy.random as nr
+ import numpy.linalg
+ import gnuplotlib as gp
+
+ # generate data
+ x     = np.arange(100)
+ c     = np.array([1, 1800, -100, 0.8])   # coefficients
+ m     = x[:, np.newaxis] ** np.arange(4) # 1, x, x**2, ...
+ noise = 1e4 * nr.random(x.shape)
+ y     = np.dot( m, c) + noise            # polynomial corrupted by noise
+
+ c_fit = np.dot(numpy.linalg.pinv(m), y)  # coefficients obtained by a curve fit
+
+ # generate a string that describes the curve-fitted equation
+ fit_equation = '+'.join( '{} * {}'.format(c,m) for c,m in zip( c_fit.tolist(), ('x**0','x**1','x**2','x**3')))
+
+ # plot the data points and the fitted curve
+ gp.plot(x, y, _with='points', equation = fit_equation)
+#+END_SRC
+
+Here I generated some data, performed a curve fit to it, and plotted the data
+points together with the best-fitting curve. Here the best-fitting curve was
+plotted by gnuplot as an equation, so gnuplot was free to choose the proper
+sampling frequency. And as we zoom around the plot, the sampling frequency is
+adjusted to keep things looking nice.
+
+Note that the various styles and options set by the other options do NOT apply
+to these equation plots. Instead, the string is passed to gnuplot directly, and
+any styling can be applied there. For instance, to plot a parabola with thick
+lines, you can issue
+
+#+BEGIN_SRC python
+ gp.plot( ....., equation = 'x**2 with lines linewidth 2')
+#+END_SRC
+
+As before, see the gnuplot documentation for details. You can also do fancy
+things:
+
+#+BEGIN_SRC python
+ x   = np.arange(100, dtype=float) / 100 * np.pi * 2;
+ c,s = np.cos(x), np.sin(x)
+
+ gp.plot( c,s,
+          square=1, _with='points',
+          set = ('parametric', 'trange [0:2*3.14]'),
+          equation = "sin(t),cos(t)" )
+#+END_SRC
+
+Here the data are points evently spaced around a unit circle. Along with these
+points we plot a unit circle as a parametric equation.
+
 ** Interactivity
 
 The graphical backends of Gnuplot are interactive, allowing the user to pan,
@@ -305,6 +369,13 @@ generated
 - xlabel, ylabel, zlabel, y2label
 
 These specify axis labels
+
+- equation
+
+This option allows equations represented as formula strings to be plotted along
+with data passed in as numpy arrays. This can be a string (for a single
+equation) or an array/tuple of strings (for multiple equations). See the
+"Symbolic equations" section above.
 
 - hardcopy
 
@@ -717,7 +788,7 @@ import numpy as np
 knownPlotOptions = frozenset(('3d', 'dump', 'ascii', 'log',
                               'cmds', 'set', 'unset', 'square', 'square_xy', 'title',
                               'hardcopy', 'terminal', 'output',
-                              'with',
+                              'with', 'equation',
                               'xmax',  'xmin',  'xrange',  'xinv',  'xlabel',
                               'y2max', 'y2min', 'y2range', 'y2inv', 'y2label',
                               'ymax',  'ymin',  'yrange',  'yinv',  'ylabel',
@@ -974,8 +1045,13 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
             self.plotOptions['output']   = outputfile
 
 
-        if 'terminal' in self.plotOptions and not 'output' in self.plotOptions:
-            sys.stderr.write('Warning: defined gnuplot terminal, but NOT an output file. Is this REALLY what you want?\n')
+        if 'terminal' in self.plotOptions:
+            if self.plotOptions['terminal'] in ('x11', 'wxt', 'qt', 'aquaterm'):
+                if 'output' in self.plotOptions:
+                    sys.stderr.write("Warning: requested a known-interactive gnuplot terminal AND an output file. Is this REALLY what you want?\n")
+            else:
+                if not 'output' in self.plotOptions:
+                    sys.stderr.write("Warning: requested a gnuplot terminal (not a known-interactive one), but NOT an output file. Is this REALLY what you want?\n")
 
         # add the extra global options
         if 'cmds' in self.plotOptions:
@@ -1322,6 +1398,13 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
 
         if self.plotOptions.get('3d'): basecmd += 'splot '
         else:                          basecmd += 'plot '
+
+        # send all equations
+        if 'equation' in self.plotOptions:
+            if isinstance(self.plotOptions['equation'], (list, tuple)):
+                basecmd += ''.join( eq + ', ' for eq in self.plotOptions['equation'])
+            else:
+                basecmd += self.plotOptions['equation'] + ', '
 
         plotCurveCmds        = []
         plotCurveCmdsMinimal = [] # same as above, but with a single data point per plot only
