@@ -402,14 +402,16 @@ Gnuplot docs for all the details.
 Sets the plot output file. You generally only need to set this if you're
 generating a hardcopy, such as a PDF.
 
-A magic output value of '*STDOUT' is accepted to send the plot output to
-standard output. The special syntax is required because the standard output of
-gnuplot is connected to gnuplotlib, and we want a way to send the output to
-gnuplotlib's STDOUT. This is useful for instance with the dumb terminal:
+There are several gnuplot terminals that are known (at this time) to be
+interactive: "x11", "qt" and so on. For these no "output" setting is desired.
+For noninteractive terminals ("pdf", "dumb" and so on) the output will go to the
+file defined here. If this plot option isn't defined or set to the empty string,
+the output will be redirected to the standard output of the python process
+calling gnuplotlib.
 
 #+BEGIN_SRC python
   gp.plot( np.linspace(-5,5,30)**2,
-            unset='grid', terminal='dumb 80 40', output='*STDOUT' )
+            unset='grid', terminal='dumb 80 40' )
 #+END_SRC
 
 #+BEGIN_EXAMPLE
@@ -797,6 +799,8 @@ knownPlotOptions = frozenset(('3d', 'dump', 'ascii', 'log',
 
 knownCurveOptions = frozenset(('legend', 'y2', 'with', 'tuplesize'))
 
+knownInteractiveTerminals = frozenset(('x11', 'wxt', 'qt', 'aquaterm'))
+
 # when testing plots with ASCII i/o, this is the unit of test data
 testdataunit_ascii = 10
 
@@ -1046,12 +1050,10 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
 
 
         if 'terminal' in self.plotOptions:
-            if self.plotOptions['terminal'] in ('x11', 'wxt', 'qt', 'aquaterm'):
-                if 'output' in self.plotOptions:
+            if self.plotOptions['terminal'] in knownInteractiveTerminals:
+                # known interactive terminal
+                if 'output' in self.plotOptions and self.plotOptions['output'] != '':
                     sys.stderr.write("Warning: requested a known-interactive gnuplot terminal AND an output file. Is this REALLY what you want?\n")
-            else:
-                if not 'output' in self.plotOptions:
-                    sys.stderr.write("Warning: requested a gnuplot terminal (not a known-interactive one), but NOT an output file. Is this REALLY what you want?\n")
 
         # add the extra global options
         if 'cmds' in self.plotOptions:
@@ -1715,11 +1717,29 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
             self._safelyWriteToPipe("set terminal " + self.plotOptions['terminal'],
                                     'terminal')
 
+        # I always set the output. If no plot option explicitly is given then I
+        # either "set output" for a known interactive terminal, or redirect to
+        # python's STDOUT otherwise
         if 'output' in self.plotOptions:
-            if hasattr(self,'fdDupSTDOUT') and self.plotOptions['output'] == '*STDOUT':
+            if self.plotOptions['output'] != '':
+                # user requested an explicit output
+                self._safelyWriteToPipe('set output "' + self.plotOptions['output'] + '"',
+                                        'output')
+            else:
+                # user requested null output
+                self._safelyWriteToPipe('set output',
+                                        'output')
+        else:
+            # user requested nothing. Is this a known interactive terminal or an
+            # unspecified terminal (unspecified terminal assumed to be
+            # interactive)? Then set the null output
+            if 'terminal' not in self.plotOptions or self.plotOptions['terminal'] in knownInteractiveTerminals:
+                self._safelyWriteToPipe('set output',
+                                        'output')
+            else:
                 self.plotOptions['output'] = '/dev/fd/' + str(self.fdDupSTDOUT)
-            self._safelyWriteToPipe('set output "' + self.plotOptions['output'] + '"',
-                                    'output')
+                self._safelyWriteToPipe('set output "' + self.plotOptions['output'] + '"',
+                                        'output')
 
         # all done. make the plot
         self._printGnuplotPipe( plotcmd + "\n")
@@ -1758,7 +1778,6 @@ SYNOPSIS
 
           _with    = 'lines',
           terminal = 'dumb 80,40',
-          output   = '*STDOUT',
           unset    = 'grid')
 
  [ ascii plot printed on STDOUT]
