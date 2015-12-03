@@ -399,14 +399,16 @@ Gnuplot docs for all the details.
 Sets the plot output file. You generally only need to set this if you're
 generating a hardcopy, such as a PDF.
 
-A magic output value of '*STDOUT' is accepted to send the plot output to
-standard output. The special syntax is required because the standard output of
-gnuplot is connected to gnuplotlib, and we want a way to send the output to
-gnuplotlib's STDOUT. This is useful for instance with the dumb terminal:
+There are several gnuplot terminals that are known (at this time) to be
+interactive: "x11", "qt" and so on. For these no "output" setting is desired.
+For noninteractive terminals ("pdf", "dumb" and so on) the output will go to the
+file defined here. If this plot option isn't defined or set to the empty string,
+the output will be redirected to the standard output of the python process
+calling gnuplotlib.
 
 #+BEGIN_SRC python
   gp.plot( np.linspace(-5,5,30)**2,
-            unset='grid', terminal='dumb 80 40', output='*STDOUT' )
+            unset='grid', terminal='dumb 80 40' )
 #+END_SRC
 
 #+BEGIN_EXAMPLE
