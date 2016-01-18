@@ -1750,6 +1750,10 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         # read and report any warnings that happened during the plot
         self._checkpoint('printwarnings')
 
+        # Reset the output. This is required for some terminals such as svg,
+        # that need to write out a closing stanza
+        self._safelyWriteToPipe('set output', 'output')
+
 
 
 
