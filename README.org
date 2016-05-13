@@ -743,8 +743,8 @@ fonts and sizes can be changed.
 
 * COMPATIBILITY
 
-Only python 2 is supported. I have no plans to support python 3 (forcing me to
-care about unicode is stupid), but patches are welcome.
+Only python 2 is supported. I have no plans to support python 3 (it forces me to
+care about unicode, which is an unreasonable burden), but patches are welcome.
 
 Everything should work on all platforms that support Gnuplot and Python. That
 said, only Debian GNU/Linux has been tested at this point. Comments and/or
