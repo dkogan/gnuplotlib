@@ -763,7 +763,7 @@ Dima Kogan <dima@secretsauce.net>
 
 * LICENSE AND COPYRIGHT
 
-Copyright 2015 Dima Kogan.
+Copyright 2015-2016 Dima Kogan.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License (version 3 or higher) as
