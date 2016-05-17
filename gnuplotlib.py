@@ -4,41 +4,39 @@ r'''a gnuplot-based plotting backend for numpy
 
 * SYNOPSIS
 
-#+BEGIN_SRC python
- import numpy      as np
- import gnuplotlib as gp
+    import numpy      as np
+    import gnuplotlib as gp
 
- x = np.arange(101) - 50
- gp.plot(x**2)
- [ basic parabola plot pops up ]
-
-
- g1 = gp.gnuplotlib(title = 'Parabola with error bars',
-                    _with = 'xyerrorbars')
- g1.plot( x**2 * 10, np.abs(x)/10, np.abs(x)*5,
-          legend    = 'Parabola',
-          tuplesize = 4 )
- [ parabola with x,y errobars pops up in a new window ]
+    x = np.arange(101) - 50
+    gp.plot(x**2)
+    [ basic parabola plot pops up ]
 
 
- x,y = np.ogrid[-10:11,-10:11]
- gp.plot( x**2 + y**2,
-          title     = 'Heat map',
-          unset     = 'grid',
-          cmds      = 'set view map',
-          _with     = 'image',
-          tuplesize = 3)
- [ Heat map pops up where first parabola used to be ]
+    g1 = gp.gnuplotlib(title = 'Parabola with error bars',
+                       _with = 'xyerrorbars')
+    g1.plot( x**2 * 10, np.abs(x)/10, np.abs(x)*5,
+             legend    = 'Parabola',
+             tuplesize = 4 )
+    [ parabola with x,y errobars pops up in a new window ]
 
 
- theta = np.linspace(0, 6*np.pi, 200)
- z     = np.linspace(0, 5,       200)
- g2 = gp.gnuplotlib(_3d = True)
- g2.plot( np.cos(theta),
-          np.vstack((np.sin(theta), -np.sin(theta))),
-          z )
- [ Two 3D spirals together in a new window ]
-#+END_SRC
+    x,y = np.ogrid[-10:11,-10:11]
+    gp.plot( x**2 + y**2,
+             title     = 'Heat map',
+             unset     = 'grid',
+             cmds      = 'set view map',
+             _with     = 'image',
+             tuplesize = 3)
+    [ Heat map pops up where first parabola used to be ]
+
+
+    theta = np.linspace(0, 6*np.pi, 200)
+    z     = np.linspace(0, 5,       200)
+    g2 = gp.gnuplotlib(_3d = True)
+    g2.plot( np.cos(theta),
+             np.vstack((np.sin(theta), -np.sin(theta))),
+             z )
+    [ Two 3D spirals together in a new window ]
 
 
 * DESCRIPTION
@@ -61,18 +59,14 @@ When making a plot with the object-oriented interface, the gnuplotlib object is
 created with a set of plot options, then the plot is made by passing it curves,
 possibly with some curve options per curve. Something like this:
 
-#+BEGIN_SRC python
- import gnuplotlib as gp
- g = gp.gnuplotlib(plot_options)
- g.plot( curve, curve, .... )
-#+END_SRC
+    import gnuplotlib as gp
+    g = gp.gnuplotlib(plot_options)
+    g.plot( curve, curve, .... )
 
 A call to plot(...) is simpler:
 
-#+BEGIN_SRC python
- import gnuplotlib as gp
- gp.plot( curve, curve, ...., plot_and_default_curve_options )
-#+END_SRC
+    import gnuplotlib as gp
+    gp.plot( curve, curve, ...., plot_and_default_curve_options )
 
 plot3d(...) simply calls plot(...) with an extra plot option _3d=True.
 plotimage(...) simply calls plot(...) with extra plot options _with='image',
@@ -81,28 +75,22 @@ tuplesize=3.
 If just a single curve is plotted, 'curve' can simply be a sequence of numpy
 arrays representing coordinates of each point. For instance:
 
-#+BEGIN_SRC python
- plot( x, y )
-#+END_SRC
+    plot( x, y )
 
 If multiple curves are to be drawn on the same plot, then each 'curve' must live
 in a separate tuple. The last element of any such tuple can be a dict of curve
 options, if desired. For instance:
 
-#+BEGIN_SRC python
- plot( (x1,y1),
-       (x2,y2, {'legend'='Second curve'}) )
-#+END_SRC
+    plot( (x1,y1),
+          (x2,y2, {'legend'='Second curve'}) )
 
 The plot_and_default_curve_options passed to plot(...) are kwargs. The curve
 options present here are used as defaults for each curve; these defaults can be
 overriden as desired. For instance:
 
-#+BEGIN_SRC python
- plot( (x1,y1),
-       (x2,y2, {'with':'points'}),
-       _with='lines')
-#+END_SRC
+    plot( (x1,y1),
+          (x2,y2, {'with':'points'}),
+          _with='lines')
 
 would plot the first curve with lines, but the second with points.
 
@@ -134,34 +122,32 @@ by stacking data inside the passed-in arrays. Broadcasting works across curve
 options also, so things like curve labels and styles can also be stacked inside
 arrays. An example:
 
-#+BEGIN_SRC python
-  th    = np.linspace(0, 6*np.pi, 200)
-  z     = np.linspace(0, 5,       200)
-  size  = 0.5 + np.abs(np.cos(th))
-  color = np.sin(2*th)
+    th    = np.linspace(0, 6*np.pi, 200)
+    z     = np.linspace(0, 5,       200)
+    size  = 0.5 + np.abs(np.cos(th))
+    color = np.sin(2*th)
 
 
-  # without broadcasting:
-  plot3d( (  np.cos(th),  np.sin(th)
-            z, size, color,
-            { 'legend': 'spiral 1'}),
+    # without broadcasting:
+    plot3d( (  np.cos(th),  np.sin(th)
+              z, size, color,
+              { 'legend': 'spiral 1'}),
 
-          ( -np.cos(th), -np.sin(th)
-            z, size, color,
-            { 'legend': 'spiral 2'})
+            ( -np.cos(th), -np.sin(th)
+              z, size, color,
+              { 'legend': 'spiral 2'})
 
-          title     = 'double helix', tuplesize = 5,
-          _with = 'points pointsize variable pointtype 7 palette' )
+            title     = 'double helix', tuplesize = 5,
+            _with = 'points pointsize variable pointtype 7 palette' )
 
 
-  # identical plot using broadcasting:
-  plot3d( ( np.cos(th) * np.array([[1,-1]]).T,
-            np.sin(th) * np.array([[1,-1]]).T,
-            z, size, color, { 'legend': np.array(('spiral 1', 'spiral 2'))})
+    # identical plot using broadcasting:
+    plot3d( ( np.cos(th) * np.array([[1,-1]]).T,
+              np.sin(th) * np.array([[1,-1]]).T,
+              z, size, color, { 'legend': np.array(('spiral 1', 'spiral 2'))})
 
-          title     = 'double helix', tuplesize = 5,
-          _with = 'points pointsize variable pointtype 7 palette' )
-#+END_SRC
+            title     = 'double helix', tuplesize = 5,
+            _with = 'points pointsize variable pointtype 7 palette' )
 
 This is a 3d plot with variable size and color. There are 5 values in the tuple,
 which we specify. The first 2 arrays have dimensions (2,N); all the other arrays
@@ -180,24 +166,18 @@ or 2 arrays short (usually when making 2D and 3D plots respectively).
 When making a simple 2D plot, if exactly 1 dimension is missing, gnuplotlib will
 use numpy.arange(N) as the domain. This is why code like
 
-#+BEGIN_SRC python
- plot(numpy.array([1,5,3,4,4]))
-#+END_SRC
+    plot(numpy.array([1,5,3,4,4]))
 
 works. Only one array is given here, but the default tuplesize is 2, and we are
 thus exactly 1 array short. This is thus equivalent to
 
-#+BEGIN_SRC python
- plot(numpy.arange(5), numpy.array([1,5,3,4,4]) )
-#+END_SRC
+    plot(numpy.arange(5), numpy.array([1,5,3,4,4]) )
 
 If plotting in 3D, an implicit domain will be used if we are exactly 2 arrayss
 short. In this case, gnuplotlib will use a 2D grid as a domain. Example:
 
-#+BEGIN_SRC python
- xy = numpy.arange(21*21).reshape(21*21)
- plot( xy, _with = 'points', _3d=True)
-#+END_SRC
+    xy = numpy.arange(21*21).reshape(21*21)
+    plot( xy, _with = 'points', _3d=True)
 
 Here the only given array has dimensions (21,21). This is a 3D plot, so we are
 exactly 2 arrays short. Thus, gnuplotlib generates an implicit domain,
@@ -208,14 +188,12 @@ once we have a tuplesize, the logic doesn't care if a 3d plot is being made. It
 can make sense to have a 2D implicit domain when making 2D plots. For example,
 one can be plotting a color map:
 
-#+BEGIN_SRC python
- x,y = np.ogrid[-10:11,-10:11]
- gp.plot( x**2 + y**2,
-          title     = 'Heat map',
-          set       = 'view map',
-          _with     = 'image',
-          tuplesize = 3)
-#+END_SRC
+    x,y = np.ogrid[-10:11,-10:11]
+    gp.plot( x**2 + y**2,
+             title     = 'Heat map',
+             set       = 'view map',
+             _with     = 'image',
+             tuplesize = 3)
 
 Also note that the 'tuplesize' curve option is independent of implicit domains.
 This option specifies not how many data arrays we have, but how many values
@@ -233,27 +211,25 @@ multiple strings for multiple equations. Note that plotting only equations
 without data is not supported (and generally is better done with gnuplot
 directly). An example:
 
-#+BEGIN_SRC python
- import numpy as np
- import numpy.random as nr
- import numpy.linalg
- import gnuplotlib as gp
+    import numpy as np
+    import numpy.random as nr
+    import numpy.linalg
+    import gnuplotlib as gp
 
- # generate data
- x     = np.arange(100)
- c     = np.array([1, 1800, -100, 0.8])   # coefficients
- m     = x[:, np.newaxis] ** np.arange(4) # 1, x, x**2, ...
- noise = 1e4 * nr.random(x.shape)
- y     = np.dot( m, c) + noise            # polynomial corrupted by noise
+    # generate data
+    x     = np.arange(100)
+    c     = np.array([1, 1800, -100, 0.8])   # coefficients
+    m     = x[:, np.newaxis] ** np.arange(4) # 1, x, x**2, ...
+    noise = 1e4 * nr.random(x.shape)
+    y     = np.dot( m, c) + noise            # polynomial corrupted by noise
 
- c_fit = np.dot(numpy.linalg.pinv(m), y)  # coefficients obtained by a curve fit
+    c_fit = np.dot(numpy.linalg.pinv(m), y)  # coefficients obtained by a curve fit
 
- # generate a string that describes the curve-fitted equation
- fit_equation = '+'.join( '{} * {}'.format(c,m) for c,m in zip( c_fit.tolist(), ('x**0','x**1','x**2','x**3')))
+    # generate a string that describes the curve-fitted equation
+    fit_equation = '+'.join( '{} * {}'.format(c,m) for c,m in zip( c_fit.tolist(), ('x**0','x**1','x**2','x**3')))
 
- # plot the data points and the fitted curve
- gp.plot(x, y, _with='points', equation = fit_equation)
-#+END_SRC
+    # plot the data points and the fitted curve
+    gp.plot(x, y, _with='points', equation = fit_equation)
 
 Here I generated some data, performed a curve fit to it, and plotted the data
 points together with the best-fitting curve. Here the best-fitting curve was
@@ -266,22 +242,18 @@ to these equation plots. Instead, the string is passed to gnuplot directly, and
 any styling can be applied there. For instance, to plot a parabola with thick
 lines, you can issue
 
-#+BEGIN_SRC python
- gp.plot( ....., equation = 'x**2 with lines linewidth 2')
-#+END_SRC
+    gp.plot( ....., equation = 'x**2 with lines linewidth 2')
 
 As before, see the gnuplot documentation for details. You can also do fancy
 things:
 
-#+BEGIN_SRC python
- x   = np.arange(100, dtype=float) / 100 * np.pi * 2;
- c,s = np.cos(x), np.sin(x)
+    x   = np.arange(100, dtype=float) / 100 * np.pi * 2;
+    c,s = np.cos(x), np.sin(x)
 
- gp.plot( c,s,
-          square=1, _with='points',
-          set = ('parametric', 'trange [0:2*3.14]'),
-          equation = "sin(t),cos(t)" )
-#+END_SRC
+    gp.plot( c,s,
+             square=1, _with='points',
+             set = ('parametric', 'trange [0:2*3.14]'),
+             equation = "sin(t),cos(t)" )
 
 Here the data are points evently spaced around a unit circle. Along with these
 points we plot a unit circle as a parametric equation.
@@ -330,10 +302,8 @@ These take either a string of a list. If given a string, a set or unset gnuplot
 command is executed with that argument. If given a list, elements of that list
 are set/unset separately. Example:
 
-#+BEGIN_SRC python
- plot(..., set='grid', unset=['xtics', 'ytics])
- [ turns on the grid, turns off the x and y axis tics ]
-#+END_SRC
+    plot(..., set='grid', unset=['xtics', 'ytics])
+    [ turns on the grid, turns off the x and y axis tics ]
 
 - with
 
@@ -384,10 +354,8 @@ default sets of options. This option is simply a shorthand for the 'terminal'
 and 'output' options. If the defaults provided by the 'hardcopy' option are
 insufficient, use 'terminal' and 'output' manually. Example:
 
-#+BEGIN_SRC python
- plot(..., hardcopy="plot.pdf")
- [ Plots into that file ]
-#+END_SRC
+    plot(..., hardcopy="plot.pdf")
+    [ Plots into that file ]
 
 - terminal
 
@@ -407,50 +375,46 @@ file defined here. If this plot option isn't defined or set to the empty string,
 the output will be redirected to the standard output of the python process
 calling gnuplotlib.
 
-#+BEGIN_SRC python
-  gp.plot( np.linspace(-5,5,30)**2,
-            unset='grid', terminal='dumb 80 40' )
-#+END_SRC
+      >>> gp.plot( np.linspace(-5,5,30)**2,
+      ...          unset='grid', terminal='dumb 80 40' )
 
-#+BEGIN_EXAMPLE
-  25 A-+---------+-----------+-----------+----------+-----------+---------A-+
-     *           +           +           +          +           +        *  +
-     |*                                                                  *  |
-     |*                                                                 *   |
-     | *                                                                *   |
-     | A                                                               A    |
-     |  *                                                              *    |
-  20 +-+ *                                                            *   +-+
-     |   *                                                            *     |
-     |    A                                                          A      |
-     |     *                                                         *      |
-     |     *                                                        *       |
-     |      *                                                       *       |
-     |      A                                                      A        |
-  15 +-+     *                                                    *       +-+
-     |       *                                                    *         |
-     |        *                                                  *          |
-     |        A                                                 A           |
-     |         *                                               *            |
-     |          *                                              *            |
-     |           A                                            A             |
-  10 +-+          *                                          *            +-+
-     |            *                                         *               |
-     |             A                                       A                |
-     |              *                                     *                 |
-     |               *                                    *                 |
-     |                A                                  A                  |
-     |                 *                                *                   |
-   5 +-+                A                              A                  +-+
-     |                   *                           **                     |
-     |                    A**                       A                       |
-     |                                             *                        |
-     |                       A*                  *A                         |
-     |                         A*              *A                           |
-     +           +           +   A**     +  *A*     +           +           +
-   0 +-+---------+-----------+------A*A**A*A--------+-----------+---------+-+
-     0           5           10          15         20          25          30
-#+END_EXAMPLE
+    25 A-+---------+-----------+-----------+----------+-----------+---------A-+
+       *           +           +           +          +           +        *  +
+       |*                                                                  *  |
+       |*                                                                 *   |
+       | *                                                                *   |
+       | A                                                               A    |
+       |  *                                                              *    |
+    20 +-+ *                                                            *   +-+
+       |   *                                                            *     |
+       |    A                                                          A      |
+       |     *                                                         *      |
+       |     *                                                        *       |
+       |      *                                                       *       |
+       |      A                                                      A        |
+    15 +-+     *                                                    *       +-+
+       |       *                                                    *         |
+       |        *                                                  *          |
+       |        A                                                 A           |
+       |         *                                               *            |
+       |          *                                              *            |
+       |           A                                            A             |
+    10 +-+          *                                          *            +-+
+       |            *                                         *               |
+       |             A                                       A                |
+       |              *                                     *                 |
+       |               *                                    *                 |
+       |                A                                  A                  |
+       |                 *                                *                   |
+     5 +-+                A                              A                  +-+
+       |                   *                           **                     |
+       |                    A**                       A                       |
+       |                                             *                        |
+       |                       A*                  *A                         |
+       |                         A*              *A                           |
+       +           +           +   A**     +  *A*     +           +           +
+     0 +-+---------+-----------+------A*A**A*A--------+-----------+---------+-+
+       0           5           10          15         20          25          30
 
 - cmds
 
@@ -521,11 +485,9 @@ plots
 
 A gnuplotlib object abstracts a gnuplot process and a plot window. Invocation:
 
-#+BEGIN_SRC python
- import gnuplotlib as gp
- g = gp.gnuplotlib(plot_options)
- g.plot( curve, curve, .... )
-#+END_SRC
+    import gnuplotlib as gp
+    g = gp.gnuplotlib(plot_options)
+    g.plot( curve, curve, .... )
 
 The plot options are passed into the constructor; the curve options and the data
 are passed into the plot() method. One advantage of making plots this way is
@@ -537,10 +499,8 @@ multiple times reuses the plot window instead of creating a new one.
 
 The convenience plotting routine in gnuplotlib. Invocation:
 
-#+BEGIN_SRC python
- import gnuplotlib as gp
- gp.plot( curve, curve, ...., plot_and_default_curve_options )
-#+END_SRC
+    import gnuplotlib as gp
+    gp.plot( curve, curve, ...., plot_and_default_curve_options )
 
 Each 'plot()' call reuses the same window.
 
@@ -561,29 +521,21 @@ Some different plots appear here. A longer set of demos is given in demos.py.
 
 If we're plotting y-values sequentially (implicit domain), all you need is
 
-#+BEGIN_SRC python
-  plot(y)
-#+END_SRC
+    plot(y)
 
 If we also have a corresponding x domain, we can plot y vs. x with
 
-#+BEGIN_SRC python
-  plot(x, y)
-#+END_SRC
+    plot(x, y)
 
 *** Simple style control
 
 To change line thickness:
 
-#+BEGIN_SRC python
-  plot(x,y, _with='lines linewidth 3')
-#+END_SRC
+    plot(x,y, _with='lines linewidth 3')
 
 To change point size and point type:
 
-#+BEGIN_SRC python
-  gp.plot(x,y, _with='points pointtype 4 pointsize 8')
-#+END_SRC
+    gp.plot(x,y, _with='points pointtype 4 pointsize 8')
 
 Everything (like _with) feeds directly into Gnuplot, so look at the Gnuplot docs
 to know how to change thicknesses, styles and such.
@@ -592,63 +544,47 @@ to know how to change thicknesses, styles and such.
 
 To plot errorbars that show y +- 1, plotted with an implicit domain
 
-#+BEGIN_SRC python
-  plot( y, np.ones(y.shape), _with = 'yerrorbars', tuplesize = 3 )
-#+END_SRC
+    plot( y, np.ones(y.shape), _with = 'yerrorbars', tuplesize = 3 )
 
 Same with an explicit x domain:
 
-#+BEGIN_SRC python
-  plot( x, y, np.ones(y.shape), _with = 'yerrorbars', tuplesize = 3 )
-#+END_SRC
+    plot( x, y, np.ones(y.shape), _with = 'yerrorbars', tuplesize = 3 )
 
 Symmetric errorbars on both x and y. x +- 1, y +- 2:
 
-#+BEGIN_SRC python
-  plot( x, y, np.ones(x.shape), 2*np.ones(y.shape), _with = 'xyerrorbars', tuplesize = 4 )
-#+END_SRC
+    plot( x, y, np.ones(x.shape), 2*np.ones(y.shape), _with = 'xyerrorbars', tuplesize = 4 )
 
 To plot asymmetric errorbars that show the range y-1 to y+2 (note that here you
 must specify the actual errorbar-end positions, NOT just their deviations from
 the center; this is how Gnuplot does it)
 
-#+BEGIN_SRC python
-  plot( y, y - np.ones(y.shape), y + 2*np.ones(y.shape),
-       _with = 'yerrorbars', tuplesize = 4 )
-#+END_SRC
+    plot( y, y - np.ones(y.shape), y + 2*np.ones(y.shape),
+         _with = 'yerrorbars', tuplesize = 4 )
 
 *** More multi-value styles
 
 Plotting with variable-size circles (size given in plot units, requires Gnuplot >= 4.4)
 
-#+BEGIN_SRC python
-  plot(x, y, radii,
-       _with = 'circles', tuplesize = 3)
-#+END_SRC
+    plot(x, y, radii,
+         _with = 'circles', tuplesize = 3)
 
 Plotting with an variably-sized arbitrary point type (size given in multiples of
 the "default" point size)
 
-#+BEGIN_SRC python
-  plot(x, y, sizes,
-       _with = 'points pointtype 7 pointsize variable', tuplesize = 3 )
-#+END_SRC
+    plot(x, y, sizes,
+         _with = 'points pointtype 7 pointsize variable', tuplesize = 3 )
 
 Color-coded points
 
-#+BEGIN_SRC python
-  plot(x, y, colors,
-       _with = 'points palette', tuplesize = 3 )
-#+END_SRC
+    plot(x, y, colors,
+         _with = 'points palette', tuplesize = 3 )
 
 Variable-size AND color-coded circles. A Gnuplot (4.4.0) quirk makes it
 necessary to specify the color range here
 
-#+BEGIN_SRC python
-  plot(x, y, radii, colors,
-       cbmin = mincolor, cbmax = maxcolor,
-       _with = 'circles palette', tuplesize = 4 )
-#+END_SRC
+    plot(x, y, radii, colors,
+         cbmin = mincolor, cbmax = maxcolor,
+         _with = 'circles palette', tuplesize = 4 )
 
 
 Broadcasting example: the Conchoids of de Sluze. The whole family of curves is
@@ -656,19 +592,17 @@ generated all at once, and plotted all at once with broadcasting. Broadcasting
 is also used to generate the labels. Generally these would be strings, but here
 just printing the numerical value of the parameter is sufficient.
 
-#+BEGIN_SRC python
- theta = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
- a     = np.arange(-4,3)[:, np.newaxis] # dim=(7,1)
+    theta = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
+    a     = np.arange(-4,3)[:, np.newaxis] # dim=(7,1)
 
- gp.plot( theta,
-          1./np.cos(theta) + a*np.cos(theta), # broadcasted. dim=(7,1000)
+    gp.plot( theta,
+             1./np.cos(theta) + a*np.cos(theta), # broadcasted. dim=(7,1000)
 
-          _with  = 'lines',
-          set    = 'polar',
-          square = True,
-          yrange = [-5,5],
-          legend = a.ravel() )
-#+END_SRC
+             _with  = 'lines',
+             set    = 'polar',
+             square = True,
+             yrange = [-5,5],
+             legend = a.ravel() )
 
 ** 3D plotting
 
@@ -677,66 +611,54 @@ General style control works identically for 3D plots as in 2D plots.
 To plot a set of 3d points, with a square aspect ratio (squareness requires
 Gnuplot >= 4.4):
 
-#+BEGIN_SRC python
-  plot3d(x, y, z, square = 1)
-#+END_SRC
+    plot3d(x, y, z, square = 1)
 
 If xy is a 2D array, we can plot it as a height map on an implicit domain
 
-#+BEGIN_SRC python
-  plot3d(xy)
-#+END_SRC
+    plot3d(xy)
 
 Ellipse and sphere plotted together, using broadcasting:
 
-#+BEGIN_SRC python
- th   = np.linspace(0,        np.pi*2, 30)
- ph   = np.linspace(-np.pi/2, np.pi*2, 30)[:,np.newaxis]
+    th   = np.linspace(0,        np.pi*2, 30)
+    ph   = np.linspace(-np.pi/2, np.pi*2, 30)[:,np.newaxis]
 
- x_3d = (np.cos(ph) * np.cos(th))          .ravel()
- y_3d = (np.cos(ph) * np.sin(th))          .ravel()
- z_3d = (np.sin(ph) * np.ones( th.shape )) .ravel()
+    x_3d = (np.cos(ph) * np.cos(th))          .ravel()
+    y_3d = (np.cos(ph) * np.sin(th))          .ravel()
+    z_3d = (np.sin(ph) * np.ones( th.shape )) .ravel()
 
- gp.plot3d( (x_3d * np.array([[1,2]]).T,
-             y_3d * np.array([[1,2]]).T,
-             z_3d,
-             { 'legend': np.array(('sphere', 'ellipse'))}),
+    gp.plot3d( (x_3d * np.array([[1,2]]).T,
+                y_3d * np.array([[1,2]]).T,
+                z_3d,
+                { 'legend': np.array(('sphere', 'ellipse'))}),
 
-            title  = 'sphere, ellipse',
-            square = True,
-            _with  = 'points')
-#+END_SRC
+               title  = 'sphere, ellipse',
+               square = True,
+               _with  = 'points')
 
 Image arrays plots can be plotted as a heat map:
 
-#+BEGIN_SRC python
-   x,y = np.ogrid[-10:11,-10:11]
-   gp.plot( x**2 + y**2,
-            title     = 'Heat map',
-            set       = 'view map',
-            _with     = 'image',
-            tuplesize = 3)
-#+END_SRC
+    x,y = np.ogrid[-10:11,-10:11]
+    gp.plot( x**2 + y**2,
+             title     = 'Heat map',
+             set       = 'view map',
+             _with     = 'image',
+             tuplesize = 3)
 
 ** Hardcopies
 
 To send any plot to a file, instead of to the screen, one can simply do
 
-#+BEGIN_SRC python
-  plot(x, y,
-       hardcopy = 'output.pdf')
-#+END_SRC
+    plot(x, y,
+         hardcopy = 'output.pdf')
 
 The 'hardcopy' option is a shorthand for the 'terminal' and 'output'
 options. If more control is desired, the latter can be used. For example to
 generate a PDF of a particular size with a particular font size for the text,
 one can do
 
-#+BEGIN_SRC python
-  plot(x, y,
-       terminal = 'pdfcairo solid color font ",10" size 11in,8.5in',
-       output   = 'output.pdf')
-#+END_SRC
+    plot(x, y,
+         terminal = 'pdfcairo solid color font ",10" size 11in,8.5in',
+         output   = 'output.pdf')
 
 This command is equivalent to the 'hardcopy' shorthand used previously, but the
 fonts and sizes can be changed.
