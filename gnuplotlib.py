@@ -1,8 +1,6 @@
 #!/usr/bin/python
 
-r'''* NAME
-
-gnuplotlib: a gnuplot-based plotting backend for numpy
+r'''a gnuplot-based plotting backend for numpy
 
 * SYNOPSIS
 
@@ -742,35 +740,6 @@ one can do
 
 This command is equivalent to the 'hardcopy' shorthand used previously, but the
 fonts and sizes can be changed.
-
-
-* COMPATIBILITY
-
-Only python 2 is supported. I have no plans to support python 3 (it forces me to
-care about unicode, which is an unreasonable burden), but patches are welcome.
-
-Everything should work on all platforms that support Gnuplot and Python. That
-said, only Debian GNU/Linux has been tested at this point. Comments and/or
-patches are welcome.
-
-* REPOSITORY
-
-https://github.com/dkogan/gnuplotlib
-
-* AUTHOR
-
-Dima Kogan <dima@secretsauce.net>
-
-* LICENSE AND COPYRIGHT
-
-Copyright 2015-2016 Dima Kogan.
-
-This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU Lesser General Public License (version 3 or higher) as
-published by the Free Software Foundation
-
-See https://www.gnu.org/licenses/lgpl.html
-
 '''
 
 

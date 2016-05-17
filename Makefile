@@ -1,28 +1,7 @@
-define extract_docstring :=
-perl -ne "					\
-if( /'''(.*)/)					\
-{						\
-    if(\$$started)				\
-    {						\
-        exit;					\
-    }						\
-    else					\
-    {						\
-        \$$started = 1;				\
-    }						\
-    \$$_ = \$$1;				\
-}						\
-print if \$$started;                            \
-"
-endef
-
-# reroute the main docs into a separate README.org if requested. This is here
-# purely to generate a README.org for the github front page
-README.org: gnuplotlib.py
-	$(extract_docstring) < $^ > $@
-
-README: README.org
-	ln -fs $^ $@
+# a multiple-target pattern rule means that a single invocation of the command
+# builds all the targets, which is what I want here
+%EADME %EADME.org: gnuplotlib.py README.footer.org extract_README.py
+	python extract_README.py gnuplotlib
 clean:
 	rm -f README.org README
 .PHONY: clean
