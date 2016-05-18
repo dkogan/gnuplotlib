@@ -375,8 +375,8 @@ file defined here. If this plot option isn't defined or set to the empty string,
 the output will be redirected to the standard output of the python process
 calling gnuplotlib.
 
-      >>> gp.plot( np.linspace(-5,5,30)**2,
-      ...          unset='grid', terminal='dumb 80 40' )
+    >>> gp.plot( np.linspace(-5,5,30)**2,
+    ...          unset='grid', terminal='dumb 80 40' )
 
     25 A-+---------+-----------+-----------+----------+-----------+---------A-+
        *           +           +           +          +           +        *  +
@@ -699,8 +699,10 @@ testdataunit_ascii = 10
 
 
 def _runSubprocess(cmd, input):
-    """Runs a given command feeding the given input to stdin. Waits for the command
-to terminate, and returns the stdout,stderr tuple we get back"""
+    r'''Runs a given command feeding the given input to stdin. Waits for the command
+    to terminate, and returns the stdout,stderr tuple we get back
+
+    '''
 
     process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = process.communicate(input=input)
@@ -741,10 +743,12 @@ features = _getGnuplotFeatures()
 
 
 def _dictDeUnderscore(d):
-    """Takes a dict, and renames all keys that start with an '_' to not contain that
-anymore. This is done because some keys are illegal as kwargs (notably 'with'
-and '3d'), so the user passes in '_with' and '_3d', which ARE legal
-    """
+    r'''Takes a dict, and renames all keys that start with an '_' to not contain that
+    anymore. This is done because some keys are illegal as kwargs (notably
+    'with' and '3d'), so the user passes in '_with' and '_3d', which ARE legal
+
+    '''
+
     d2 = {}
     for key in d:
         if isinstance(key, (str, bytes)) and key[0] == '_':
@@ -1584,7 +1588,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         return curves
 
     def plot(self, *curves, **curveOptions_base):
-        r"""Main gnuplotlib API entry point"""
+        r'''Main gnuplotlib API entry point'''
 
         curves = self._massageAndValidateArgs(curves, curveOptions_base)
 
@@ -1657,78 +1661,79 @@ def plot(*curves, **jointOptions):
 
     r'''A simple wrapper around class gnuplotlib
 
-SYNOPSIS
+    SYNOPSIS
 
- import numpy as np
- import gnuplotlib as gp
+        >>> import numpy as np
+        >>> import gnuplotlib as gp
 
- x = np.linspace(-5,5,100)
+        >>> x = np.linspace(-5,5,100)
 
- gp.plot( x, np.sin(x) )
- [ graphical plot pops up showing a simple sinusoid ]
-
-
- gp.plot( (x, np.sin(x), {'with': 'boxes'}),
-          (x, np.cos(x), {'legend': 'cosine'}),
-
-          _with    = 'lines',
-          terminal = 'dumb 80,40',
-          unset    = 'grid')
-
- [ ascii plot printed on STDOUT]
-    1 +-+---------+----------+-----------+-----------+----------+---------+-+
-      +     +|||+ +          +         +++++   +++|||+          +           +
-      |     |||||+                    +     +  +||||||       cosine +-----+ |
-  0.8 +-+   ||||||                    +     + ++||||||+                   +-+
-      |     ||||||+                  +       ++||||||||+                    |
-      |     |||||||                  +       ++|||||||||                    |
-      |     |||||||+                +        |||||||||||                    |
-  0.6 +-+   ||||||||               +         +||||||||||+                 +-+
-      |     ||||||||+              |        ++|||||||||||                   |
-      |     |||||||||              +        |||||||||||||                   |
-  0.4 +-+   |||||||||              |       ++||||||||||||+                +-+
-      |     |||||||||             +        +||||||||||||||                  |
-      |     |||||||||+            +        |||||||||||||||                  |
-      |     ||||||||||+           |       ++||||||||||||||+           +     |
-  0.2 +-+   |||||||||||          +        |||||||||||||||||           +   +-+
-      |     |||||||||||          |        +||||||||||||||||+          |     |
-      |     |||||||||||         +         ||||||||||||||||||         +      |
-    0 +-+   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++   +-+
-      |       +        ||||||||||||||||||+         |       ++||||||||||     |
-      |       |        +|||||||||||||||||          +        |||||||||||     |
-      |       +        ++||||||||||||||||          |        +||||||||||     |
- -0.2 +-+      +        |||||||||||||||||          +        |||||||||||   +-+
-      |        |        ++||||||||||||||+           |       ++|||||||||     |
-      |        +         |||||||||||||||            +        ++||||||||     |
-      |         |        +||||||||||||||            +         |||||||||     |
- -0.4 +-+       +        ++||||||||||||+             |        +||||||||   +-+
-      |          +        |||||||||||||              +        |||||||||     |
-      |          |        +|||||||||||+               +       ++|||||||     |
- -0.6 +-+        +        ++||||||||||                |        +|||||||   +-+
-      |           +        |||||||||||                +        ++||||||     |
-      |           +        +|||||||||+                 +        |||||||     |
-      |            +       ++||||||||                  +       +++|||||     |
- -0.8 +-+          +      + ++||||||+                   +      + +|||||   +-+
-      |             +    +   +||||||                     +    +  ++||||     |
-      +           +  +  ++   ++|||++     +           +   ++  +  + ++|||     +
-   -1 +-+---------+----------+-----------+-----------+----------+---------+-+
-     -6          -4         -2           0           2          4           6
+        >>> gp.plot( x, np.sin(x) )
+        [ graphical plot pops up showing a simple sinusoid ]
 
 
-DESCRIPTION
+        >>> gp.plot( (x, np.sin(x), {'with': 'boxes'}),
+        ...          (x, np.cos(x), {'legend': 'cosine'}),
 
-class gnuplotlib provides full power and flexibility, but for simple plots this
-wrapper is easier to use. plot() uses a global instance of class gnuplotlib, so
-only a single plot can be made by plot() at a time: the one plot window is
-reused.
+        ...          _with    = 'lines',
+        ...          terminal = 'dumb 80,40',
+        ...          unset    = 'grid')
 
-Data is passed to plot() in exactly the same way as when using class gnuplotlib.
-The kwargs passed to this function are a combination of curve options and plot
-options. The curve options passed here are defaults for all the curves. Any
-specific options specified in each curve override the defaults given in the
-kwargs.
+        [ ascii plot printed on STDOUT]
+           1 +-+---------+----------+-----------+-----------+----------+---------+-+
+             +     +|||+ +          +         +++++   +++|||+          +           +
+             |     |||||+                    +     +  +||||||       cosine +-----+ |
+         0.8 +-+   ||||||                    +     + ++||||||+                   +-+
+             |     ||||||+                  +       ++||||||||+                    |
+             |     |||||||                  +       ++|||||||||                    |
+             |     |||||||+                +        |||||||||||                    |
+         0.6 +-+   ||||||||               +         +||||||||||+                 +-+
+             |     ||||||||+              |        ++|||||||||||                   |
+             |     |||||||||              +        |||||||||||||                   |
+         0.4 +-+   |||||||||              |       ++||||||||||||+                +-+
+             |     |||||||||             +        +||||||||||||||                  |
+             |     |||||||||+            +        |||||||||||||||                  |
+             |     ||||||||||+           |       ++||||||||||||||+           +     |
+         0.2 +-+   |||||||||||          +        |||||||||||||||||           +   +-+
+             |     |||||||||||          |        +||||||||||||||||+          |     |
+             |     |||||||||||         +         ||||||||||||||||||         +      |
+           0 +-+   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++   +-+
+             |       +        ||||||||||||||||||+         |       ++||||||||||     |
+             |       |        +|||||||||||||||||          +        |||||||||||     |
+             |       +        ++||||||||||||||||          |        +||||||||||     |
+        -0.2 +-+      +        |||||||||||||||||          +        |||||||||||   +-+
+             |        |        ++||||||||||||||+           |       ++|||||||||     |
+             |        +         |||||||||||||||            +        ++||||||||     |
+             |         |        +||||||||||||||            +         |||||||||     |
+        -0.4 +-+       +        ++||||||||||||+             |        +||||||||   +-+
+             |          +        |||||||||||||              +        |||||||||     |
+             |          |        +|||||||||||+               +       ++|||||||     |
+        -0.6 +-+        +        ++||||||||||                |        +|||||||   +-+
+             |           +        |||||||||||                +        ++||||||     |
+             |           +        +|||||||||+                 +        |||||||     |
+             |            +       ++||||||||                  +       +++|||||     |
+        -0.8 +-+          +      + ++||||||+                   +      + +|||||   +-+
+             |             +    +   +||||||                     +    +  ++||||     |
+             +           +  +  ++   ++|||++     +           +   ++  +  + ++|||     +
+          -1 +-+---------+----------+-----------+-----------+----------+---------+-+
+            -6          -4         -2           0           2          4           6
 
-See the documentation for class gnuplotlib for full details.
+
+    DESCRIPTION
+
+    class gnuplotlib provides full power and flexibility, but for simple plots this
+    wrapper is easier to use. plot() uses a global instance of class gnuplotlib, so
+    only a single plot can be made by plot() at a time: the one plot window is
+    reused.
+
+    Data is passed to plot() in exactly the same way as when using class gnuplotlib.
+    The kwargs passed to this function are a combination of curve options and plot
+    options. The curve options passed here are defaults for all the curves. Any
+    specific options specified in each curve override the defaults given in the
+    kwargs.
+
+    See the documentation for class gnuplotlib for full details.
+
     '''
 
     # pull out the options (joint curve and plot)
@@ -1764,23 +1769,23 @@ def plot3d(*curves, **jointOptions):
 
     r'''A simple wrapper around class gnuplotlib to make 3d plots
 
-SYNOPSIS
+    SYNOPSIS
 
- import numpy as np
- import gnuplotlib as gp
+        import numpy as np
+        import gnuplotlib as gp
 
- th = np.linspace(0,10,1000)
- x  = np.cos(np.linspace(0,10,1000))
- y  = np.sin(np.linspace(0,10,1000))
+        th = np.linspace(0,10,1000)
+        x  = np.cos(np.linspace(0,10,1000))
+        y  = np.sin(np.linspace(0,10,1000))
 
- gp.plot3d( x, y, th )
- [ an interactive, graphical plot of a spiral pops up]
+        gp.plot3d( x, y, th )
+        [ an interactive, graphical plot of a spiral pops up]
 
-DESCRIPTION
+    DESCRIPTION
 
-class gnuplotlib provides full power and flexibility, but for simple 3d plots
-this wrapper is easier to use. plot3d() simply calls plot(..., _3d=True). See
-the documentation for plot() and class gnuplotlib for full details.
+    class gnuplotlib provides full power and flexibility, but for simple 3d plots
+    this wrapper is easier to use. plot3d() simply calls plot(..., _3d=True). See
+    the documentation for plot() and class gnuplotlib for full details.
 
     '''
     jointOptions['3d'] = True
@@ -1792,23 +1797,24 @@ def plotimage(*curves, **jointOptions):
 
     r'''A simple wrapper around class gnuplotlib to plot image maps
 
-SYNOPSIS
+    SYNOPSIS
 
- import numpy as np
- import gnuplotlib as gp
+        import numpy as np
+        import gnuplotlib as gp
 
- x,y = np.ogrid[-10:11,-10:11]
- gp.plotimage( x**2 + y**2,
-               title     = 'Heat map')
+        x,y = np.ogrid[-10:11,-10:11]
+        gp.plotimage( x**2 + y**2,
+                      title     = 'Heat map')
 
-DESCRIPTION
+    DESCRIPTION
 
-class gnuplotlib provides full power and flexibility, but for simple image-map
-plots this wrapper is easier to use. plotimage() simply calls plot(...,
-_with='image', tuplesize=3). See the documentation for plot() and class
-gnuplotlib for full details.
+    class gnuplotlib provides full power and flexibility, but for simple image-map
+    plots this wrapper is easier to use. plotimage() simply calls plot(...,
+    _with='image', tuplesize=3). See the documentation for plot() and class
+    gnuplotlib for full details.
 
     '''
+
     jointOptions['_with']     = 'image'
     jointOptions['tuplesize'] = 3
     plot(*curves, **jointOptions)
