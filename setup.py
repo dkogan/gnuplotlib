@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from distutils.core import setup
+from setuputils import setup
 
 setup(name         = 'gnuplotlib',
       version      = '0.12',
@@ -10,4 +10,4 @@ setup(name         = 'gnuplotlib',
       description  = 'Gnuplot-based plotting for numpy',
       license      = 'LGPL-3+',
       py_modules   = ['gnuplotlib'],
-      cmdclass     = {})
+      install_requires = ('numpy', 'numpysane >= 0.3'))
