@@ -675,6 +675,7 @@ import os
 import re
 import select
 import numpy as np
+import numpysane as nps
 
 
 # note that 'with' is both a known plot and curve option
@@ -1468,120 +1469,30 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
                     checkdim(1)
 
 
-
-        # I now manually broadcast the dimensions. PDL does this for me
-        # automatically, but numpy absolutely does not. This is a MAJOR
-        # advantage PDL has over numpy. Oh well
-        def broadcast_split(curve):
-
-            # I line up all the dimensions, and split off any that are being
-            # broadcasted
-
-            # With line plots I don't broadcast the last dimension; with
-            # matrices, I don't broadcast the last 2
-            ndims_keep = 2 if curve.get('matrix') else 1
-
-            # object needed for fancy slices. m[:] is exactly the same as
-            # m[colon], but 'colon' can be manipulated in ways that ':' can't
-            colon = slice(None, None, None)
-
-            # make a copy of the plot options
-            curve_options = dict(curve)
-            del curve_options['_data']
-
-            # grab all option keys that have numpy arrays as values. I broadcast
-            # these
-            numpy_options_keys   = [ k for k in curve_options.keys()
-                                     if type(curve_options[k]) == np.ndarray ]
-
-            # The numpy option values have no domain dimension, so I add dummy
-            # dimensions to make things line up
-            idx_new_axes = (colon,) + (np.newaxis,)*ndims_keep
-            for k in numpy_options_keys:
-                curve_options[k] = curve_options[k][idx_new_axes]
-
-            shapes = [ v.shape for v in curve['_data'] + [curve_options[k] for k in numpy_options_keys] ]
-            max_ndim = max( len(s) for s in shapes )
-
-            # Broadcasting does 2 things:
-            # 1. out-of-bounds dimensions are added at the front
-            # 2. too-high indices are truncated to 1
-            #
-            # I handle the first case before I do anything else: I add dummy
-            # length-1 dimensions at the front as needed. After this is done,
-            # ndims for all the matrices will be the same
-            data = []
-            for v in curve['_data']:
-                N_new_axes = max_ndim - len(v.shape)
-                idx_new_axes = (np.newaxis,)*N_new_axes + (colon,)
-                data.append(v[idx_new_axes])
-
-            for k in numpy_options_keys:
-                o = curve_options[k]
-                N_new_axes = max_ndim - len(o.shape)
-                idx_new_axes = (np.newaxis,)*N_new_axes + (colon,)
-                curve_options[k] = o[idx_new_axes]
-
-            shapes = [ v.shape for v in data + [curve_options[k] for k in numpy_options_keys] ]
-
-
-
-            dims = []
-            for i in range(max_ndim):
-
-                # looking at a particular dimension. I'm broadcasting, so this dimension
-                # may not exist. The dimensions are lined up at the end. dim_idxs is the
-                # indices of dimension i for each vector. If <0, this dimension does not
-                # exist in that vector
-                dim_idxs = [ len(s) - max_ndim + i for s in shapes ]
-
-                # I grab all the dimensions that aren't 1. All the counts that aren't 1
-                # must match, or else we can't broadcast this
-                dims_not_1 = [ s[dim_idx] for s,dim_idx in zip(shapes,dim_idxs)
-                               if dim_idx >= 0 and s[dim_idx] != 1 ]
-
-                if len(dims_not_1) and not all( d == dims_not_1[0] for d in dims_not_1):
-                    raise GnuplotlibError("Mismatched dimensions, cannot broadcast. Shapes: {}".format(shapes))
-
-                # grab this dimension
-                dims.append( dims_not_1[0] if len(dims_not_1) else 1 )
-
-
-            split_curves = []
-            def accum_dim( dimlist ):
-                if len(dimlist) == max_ndim - ndims_keep:
-                    # I have a full list of dimensions. I sample the curves and
-                    # accumulate. Need to pay attention to 2 things:
-                    #
-                    # 1. out-of-bounds dimensions are added at the front (the
-                    # 'data' and 'curve_options' already has this taken care of)
-                    #
-                    # 2. too-high indices are truncated to 1
-
-                    # expand the dimensionality to cover out-of-bounds dimensions
-                    split_curve = dict(curve_options)
-
-                    def lookup_broadcasted_slice(array):
-                        return tuple(d if array.shape[i] != 1 else 0 for i,d in enumerate(dimlist))
-
-                    split_curve['_data'] = [ v[ lookup_broadcasted_slice(v) ] for v in data ]
-
-                    for k in numpy_options_keys:
-                        split_curve[k] = split_curve[k][ lookup_broadcasted_slice(split_curve[k]) +
-                                                         (0,)*ndims_keep ]
-
-                    split_curves.append(split_curve)
-                    return
-
-                for inext in range( dims[ len(dimlist)] ):
-                    accum_dim( dimlist + (inext,) )
-
-            accum_dim( () )
-            return split_curves
-
+        # broadcast through the arguments AND all the options that are arrays
         curves_flattened = []
         for curve in curves:
-            curves_flattened.extend( broadcast_split( curve ))
+            ndims_input = 2 if curve.get('matrix') else 1
+            prototype_onearg = ('n',) * ndims_input
+            prototype = prototype_onearg * len(curve['_data'])
+
+            # grab all option keys that have numpy arrays as values. I broadcast
+            # these as well
+            np_options_keys = [ k for k in curve.keys()
+                                if isinstance(curve[k], np.ndarray) ]
+            N_options_keys = len(np_options_keys)
+            prototype_np_options = ((),) * N_options_keys
+
+            for args in nps.broadcast_iterator( prototype + prototype_np_options,
+                                                curve['_data'] + list(curve[k] for k in np_options_keys)):
+                curve_slice = dict(curve)                     # make a copy of the options
+                curve_slice['_data'] = args[:-N_options_keys] # replace the data with the slice
+
+                for ikey in range(N_options_keys):
+                    curve_slice[np_options_keys[ikey]] = args[-N_options_keys + ikey]
+
+                curves_flattened.append( curve_slice )
+
         curves = curves_flattened
 
 
