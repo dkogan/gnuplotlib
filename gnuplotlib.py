@@ -1208,17 +1208,17 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         if self.plotOptions.get('ascii'):
             if curve.get('matrix'):
                 np.savetxt( pipe,
-                            np.vstack(curve['_data']).astype(np.float64,copy=False),
+                            nps.glue(*curve['_data'], axis=-2).astype(np.float64,copy=False),
                             '%s' )
                 pipe.write("\ne\n")
             else:
                 np.savetxt( pipe,
-                            np.vstack(curve['_data']).transpose().astype(np.float64,copy=False),
+                            nps.glue(*curve['_data'], axis=-2).transpose().astype(np.float64,copy=False),
                             '%s' )
                 pipe.write("e\n")
 
         else:
-            np.dstack(curve['_data']).astype(np.float64,copy=False).tofile(pipe)
+            nps.mv(nps.cat(*curve['_data']), 0, -1).astype(np.float64,copy=False).tofile(pipe)
 
 
     def _getPlotCmd(self, curves):
