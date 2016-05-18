@@ -1498,8 +1498,8 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
 
         curves = curves_flattened
 
-
         return curves
+
 
     def plot(self, *curves, **curveOptions_base):
         r'''Main gnuplotlib API entry point'''
