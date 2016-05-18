@@ -1242,7 +1242,6 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         def binaryFormatcmd(curve):
             # I make 2 formats: one real, and another to test the plot cmd, in case it
             # fails
-
             tuplesize = curve['tuplesize']
 
             fmt = ''
@@ -1473,8 +1472,8 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         curves_flattened = []
         for curve in curves:
             ndims_input = 2 if curve.get('matrix') else 1
-            prototype_onearg = ('n',) * ndims_input
-            prototype = prototype_onearg * len(curve['_data'])
+            prototype_onearg = tuple('n{}'.format(i) for i in range(ndims_input))
+            prototype = (prototype_onearg,) * len(curve['_data'])
 
             # grab all option keys that have numpy arrays as values. I broadcast
             # these as well
@@ -1485,8 +1484,12 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
 
             for args in nps.broadcast_iterator( prototype + prototype_np_options,
                                                 curve['_data'] + list(curve[k] for k in np_options_keys)):
-                curve_slice = dict(curve)                     # make a copy of the options
-                curve_slice['_data'] = args[:-N_options_keys] # replace the data with the slice
+
+                # make a copy of the options
+                curve_slice = dict(curve)
+
+                # replace the data with the slice
+                curve_slice['_data'] = args[:-N_options_keys] if N_options_keys else args
 
                 for ikey in range(N_options_keys):
                     curve_slice[np_options_keys[ikey]] = args[-N_options_keys + ikey]
