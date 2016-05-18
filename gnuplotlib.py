@@ -1482,7 +1482,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
             N_options_keys = len(np_options_keys)
             prototype_np_options = ((),) * N_options_keys
 
-            for args in nps.broadcast_iterator( prototype + prototype_np_options,
+            for args in nps.broadcast_generate( prototype + prototype_np_options,
                                                 curve['_data'] + list(curve[k] for k in np_options_keys)):
 
                 # make a copy of the options
