@@ -246,8 +246,8 @@ time.sleep(sleep_interval)
 # fancy contours just because I can
 ###################################
 y,x = np.mgrid[0:61,0:61]
-x -= 30.0
-y -= 30.0
+x -= 30
+y -= 30
 z = np.sin(x / 4.0) * y
 
 # single 3d matrix curve. Two plots: the image and the contours together.
