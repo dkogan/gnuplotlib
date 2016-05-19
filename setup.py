@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from setuputils import setup
+from setuptools import setup
 
 setup(name         = 'gnuplotlib',
       version      = '0.13',
