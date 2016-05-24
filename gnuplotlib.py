@@ -966,20 +966,30 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
 
     def __del__(self):
 
-        if self.gnuplotProcess:
-            if self.checkpoint_stuck:
-                self.gnuplotProcess.terminate()
-            else:
-                self._printGnuplotPipe( "exit\n" )
+        # Try to close all gnuplot pipes
+        try:
 
-            self.gnuplotProcess.wait()
-            self.gnuplotProcess = None
-            os.close(self.fdDupSTDOUT)
+            # If we have a running process
+            if self.gnuplotProcess:
 
+                # Clean stuck processes
+                if self.checkpoint_stuck:
+                    self.gnuplotProcess.terminate()
 
+                # Exit normally
+                else:
+                    self._printGnuplotPipe( "exit\n" )
 
+                # Wait for all process pipes to be clean
+                self.gnuplotProcess.wait()
+                self.gnuplotProcess = None
 
+                # Close the pipe
+                os.close(self.fdDupSTDOUT)
 
+        # Fail gracefully
+        except Exception as e:
+            pass
 
     def _safelyWriteToPipe(self, input, flags=''):
 
