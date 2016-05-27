@@ -258,6 +258,57 @@ things:
 Here the data are points evently spaced around a unit circle. Along with these
 points we plot a unit circle as a parametric equation.
 
+- Example which draws a vertical line on the chart:
+
+```
+import numpy as np
+import gnuplotlib as gp
+
+data = np.random.rand(10) * 20
+line = 'arrow from 5,'+ str(data.min()) +' to 5,'+ str(data.max())
+gp.plot(data, unset='grid', terminal='dumb 80 40', set=line)
+
+
+  20 +-+-----+-------+-------+-------+------+-------+-------+-------+-----+-+
+     +       +       +       +       +      +       +       +       +       +
+     A                                      >                               |
+  18 +*+                                    >                             +-+
+     | *                                    >                               |
+     | *                                    >                               |
+     |  *                                   >                               |
+  16 +-+ *                                  >                       A     +-+
+     |    *                                 >                      * *      |
+     |     *                                >                      *  *     |
+  14 +-+   *                                >                     *   *   +-+
+     |      *                               >                     *    *    |
+     |       A*******                       >                    *      *   |
+     |               A                      >                    *       *  |
+  12 +-+             *                      >                   *         *-+
+     |                *                     >                  *          * |
+     |                *                     >                  *           *|
+  10 +-+               *                    >                 *           +-A
+     |                 *                    >                 *             |
+     |                 *                    >                *              |
+     |                  *                   >                *              |
+   8 +-+                *                   >               A             +-+
+     |                   *                  >              *                |
+     |                   *                  >             *                 |
+   6 +-+                 *                  >           **                +-+
+     |                    *                 >          *                    |
+     |                    *                 >         *                     |
+     |                     *                >        *                      |
+   4 +-+                   *                >      *A                     +-+
+     |                     *                >   ***                         |
+     |                      *               > **                            |
+   2 +-+                    *              *A*                            +-+
+     |                       *           ** >                               |
+     |                       A*******  **   >                               |
+     +       +       +       +       A*     >       +       +       +       +
+   0 +-+-----+-------+-------+-------+------+-------+-------+-------+-----+-+
+     0       1       2       3       4      5       6       7       8       9
+
+```
+
 ** Interactivity
 
 The graphical backends of Gnuplot are interactive, allowing the user to pan,
@@ -1287,11 +1338,6 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
             if curve.get('matrix'):
                 return 8 * 2*2*(curve['tuplesize']-2)
             return 8 * curve['tuplesize']
-
-
-
-
-
 
         basecmd = ''
 

@@ -20,7 +20,8 @@ try:
 except:
     raise Exception("Need main module name as the first cmdline arg")
 
-exec( 'import {} as mod'.format(modname) )
+# Import the passed command as a python module
+mod = __import__(modname)
 
 import inspect
 import re
@@ -124,17 +125,8 @@ with open('README.org', 'w') as f_target_org:
             if   in_quote == 'example': f.write('#+END_EXAMPLE\n')
             elif in_quote == 'src':     f.write('#+END_SRC\n')
 
-
-
-
         header = '* NAME\n{}: '.format(modname)
         write( header )
-
-
-
-
-
-
         write_orgized(inspect.getdoc(mod))
         write( '\n' )
 
