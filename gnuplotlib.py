@@ -267,7 +267,7 @@ import gnuplotlib as gp
 data = np.random.rand(10) * 20
 line = 'arrow from 5,'+ str(data.min()) +' to 5,'+ str(data.max())
 gp.plot(data, unset='grid', terminal='dumb 80 40', set=line)
-
+```
 
   20 +-+-----+-------+-------+-------+------+-------+-------+-------+-----+-+
      +       +       +       +       +      +       +       +       +       +
@@ -306,8 +306,6 @@ gp.plot(data, unset='grid', terminal='dumb 80 40', set=line)
      +       +       +       +       A*     >       +       +       +       +
    0 +-+-----+-------+-------+-------+------+-------+-------+-------+-----+-+
      0       1       2       3       4      5       6       7       8       9
-
-```
 
 ** Interactivity
 
