@@ -82,7 +82,7 @@ in a separate tuple. The last element of any such tuple can be a dict of curve
 options, if desired. For instance:
 
     plot( (x1,y1),
-          (x2,y2, {'legend'='Second curve'}) )
+          (x2,y2, {'legend': 'Second curve'}) )
 
 The plot_and_default_curve_options passed to plot(...) are kwargs. The curve
 options present here are used as defaults for each curve; these defaults can be

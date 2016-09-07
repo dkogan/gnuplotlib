@@ -90,7 +90,7 @@ options, if desired. For instance:
 
 #+BEGIN_SRC python
 plot( (x1,y1),
-      (x2,y2, {'legend'='Second curve'}) )
+      (x2,y2, {'legend': 'Second curve'}) )
 #+END_SRC
 
 The plot_and_default_curve_options passed to plot(...) are kwargs. The curve
