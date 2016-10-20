@@ -330,6 +330,9 @@ Either min/max or range can be given but not both. min/max are numerical values.
 also be a [min,max] tuple or list. '*inv' is a boolean that reverses this axis.
 If the bounds are known, this can also be accomplished by setting max < min.
 
+If no nformation about a range is given, it is not touched: the previous zoom
+settings are preserved.
+
 The y2 axis is the secondary y-axis that is enabled by the 'y2' curve option.
 The 'cb' axis represents the color axis, used when color-coded plots are being
 generated
@@ -887,11 +890,12 @@ class gnuplotlib:
                 if isinstance(rangeopt_val, (list, tuple)):
                     rangeopt_val = ':'.join(str(x) for x in rangeopt_val)
             else:
-                rangeopt_val = ''
+                rangeopt_val = None
 
-            cmds.append( "set {} [{}] {}".format(rangeopt_name,
-                                                 rangeopt_val,
-                                                 'reverse' if self.plotOptions.get(axis + 'inv') else ''))
+            if rangeopt_val is not None:
+                cmds.append( "set {} [{}] {}".format(rangeopt_name,
+                                                     rangeopt_val,
+                                                     'reverse' if self.plotOptions.get(axis + 'inv') else ''))
 
             # set the curve labels
             if not axis == 'cb':
