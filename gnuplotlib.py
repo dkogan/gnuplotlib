@@ -432,7 +432,7 @@ of writing to a gnuplot process. Useful to see what commands would be sent to
 gnuplot. This is a dry run. Note that this dump will contain binary data unless
 ascii-only plotting is enabled (see below). This is also useful to generate
 gnuplot scripts since the dumped output can be sent to gnuplot later, manually
-if desired.
+if desired. Look at the 'notest' option for a less verbose dump.
 
 - log
 
@@ -450,6 +450,11 @@ for most plots, but not for all of them. An example where binary plotting
 doesn't work is 'with labels', and this option exists to force ASCII
 communication
 
+- notest
+
+Don't check for failure after each gnuplot command. And don't test all the plot
+options before creating the plot. This is generally only useful for debugging or
+for more sparse 'dump' functionality.
 
 ** Curve options
 
@@ -682,7 +687,9 @@ import numpysane as nps
 
 
 # note that 'with' is both a known plot and curve option
-knownPlotOptions = frozenset(('3d', 'dump', 'ascii', 'log',
+knownPlotOptions = frozenset(('dump', 'ascii', 'log', 'notest',
+
+                              '3d',
                               'cmds', 'set', 'unset', 'square', 'square_xy', 'title',
                               'hardcopy', 'terminal', 'output',
                               'with', 'equation',
@@ -1050,6 +1057,9 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
     # I test the plot command by making a dummy plot with the test command.
     def _testPlotcmd(self, cmd, data):
 
+        if self.plotOptions.get('notest'):
+            return
+
         # I don't actually want to see the plot, I just want to make sure that
         # no errors are thrown. I thus send the output to /dev/null. Note that I
         # never actually read stdout, so if this test plot goes to the default
@@ -1075,6 +1085,9 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
                 barfmsg += "Warnings:\n" + "\n".join(warnings)
             raise GnuplotlibError(barfmsg)
 
+        # select the default terminal in case that's what we want
+        self._safelyWriteToPipe("set terminal pop; set terminal push", 'terminal')
+
 
     # syncronizes the child and parent processes. After _checkpoint() returns, I
     # know that I've read all the data from the child. Extra data that represents
@@ -1086,6 +1099,9 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
         # yet arrived. I thus print out a checkpoint message and keep reading the
         # child's STDERR pipe until I get that message back. Any errors would have
         # been printed before this
+        if self.plotOptions.get('notest'):
+            return None, None
+
         checkpoint = "gpsync{}xxx".format(self.sync_count)
         self.sync_count += 1
 
@@ -1522,10 +1538,6 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         self._testPlotcmd(testcmd, testdata)
 
         # tests ok. Now set the terminal and actually make the plot!
-
-        # select the default terminal in case that's what we want
-        self._safelyWriteToPipe("set terminal pop; set terminal push", 'terminal')
-
         if 'terminal' in self.plotOptions:
             self._safelyWriteToPipe("set terminal " + self.plotOptions['terminal'],
                                     'terminal')
