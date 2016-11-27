@@ -330,7 +330,7 @@ Either min/max or range can be given but not both. min/max are numerical values.
 also be a [min,max] tuple or list. '*inv' is a boolean that reverses this axis.
 If the bounds are known, this can also be accomplished by setting max < min.
 
-If no nformation about a range is given, it is not touched: the previous zoom
+If no information about a range is given, it is not touched: the previous zoom
 settings are preserved.
 
 The y2 axis is the secondary y-axis that is enabled by the 'y2' curve option.
