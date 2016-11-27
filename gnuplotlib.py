@@ -329,6 +329,7 @@ Either min/max or range can be given but not both. min/max are numerical values.
 '*range' is a string 'min:max' with either one allowed to be omitted; it can
 also be a [min,max] tuple or list. '*inv' is a boolean that reverses this axis.
 If the bounds are known, this can also be accomplished by setting max < min.
+Passing in both max < min AND inv also results in a reversed axis.
 
 If no information about a range is given, it is not touched: the previous zoom
 settings are preserved.
@@ -670,6 +671,7 @@ one can do
 
 This command is equivalent to the 'hardcopy' shorthand used previously, but the
 fonts and sizes can be changed.
+
 '''
 
 
@@ -860,49 +862,48 @@ class gnuplotlib:
                     cmds.append(setunset + ' ' + self.plotOptions[setunset])
 
         # set the plot bounds
-
         for axis in ('x', 'y', 'y2', 'z', 'cb'):
 
-            # if we have min AND max AND inv, I make sure that min>max, and
-            # suppress the inv. This is because in gnuplot 'plot [min:max]
-            # reverse' ingores the 'reverse' if both min and max are given
-            if axis + 'min' in self.plotOptions and \
-               axis + 'max' in self.plotOptions and \
-               self.plotOptions.get(axis + 'inv'):
-                minval = min(self.plotOptions[axis + 'min'], self.plotOptions[axis + 'max'])
-                maxval = max(self.plotOptions[axis + 'min'], self.plotOptions[axis + 'max'])
-                self.plotOptions[axis + 'min'] = maxval
-                self.plotOptions[axis + 'max'] = minval
-                self.plotOptions[axis + 'inv'] = False
+            # I deal with range bounds here. These can be given for the various
+            # axes by variables (W-axis here; replace W with x, y, z, etc):
+            #
+            #   Wmin, Wmax, Winv, Wrange
+            #
+            # Wrange is mutually exclusive with Wmin and Wmax. Winv turns
+            # reverses the direction of the axis. This can also be achieved by
+            # passing in Wmin>Wmax or Wrange[0]>Wrange[1]. If this is done then
+            # Winv has no effect, i.e. setting Wmin>Wmax AND Winv results in a
+            # flipped axis.
+            opt_min   = self.plotOptions.get( axis + 'min'   )
+            opt_max   = self.plotOptions.get( axis + 'max'   )
+            opt_range = self.plotOptions.get( axis + 'range' )
+            opt_inv   = self.plotOptions.get( axis + 'inv'   )
 
             # If a bound isn't given I want to set it to the empty string, so I can communicate it simply
             # to gnuplot
-            rangeopt_name = axis + 'range'
-            for minmax in ('min', 'max'):
-                opt = axis + minmax
-                if not opt in self.plotOptions:
-                    self.plotOptions[opt] = ''
-                else:
-                    if rangeopt_name in self.plotOptions:
-                        raise GnuplotlibError("Both {} and {} not allowed at the same time".format(opt,rangeopt_name))
-                    self.plotOptions[opt] = str(self.plotOptions[opt])
+            if (opt_min is not None or opt_max is not None) and opt_range is not None:
+                raise GnuplotlibError("{0}min/{0}max and {0}range are mutually exclusive".format(axis))
 
-            # if any of the ranges are given, set the range
-            if len(self.plotOptions[axis + 'min'] + self.plotOptions[axis + 'max']):
-                rangeopt_val = ':'.join((self.plotOptions[axis + 'min'], self.plotOptions[axis + 'max']))
-            elif rangeopt_name in self.plotOptions:
-                # A range was given. If it's a string, just take it. It can also
-                # be a two-value list for the min/max
-                rangeopt_val = self.plotOptions[rangeopt_name]
-                if isinstance(rangeopt_val, (list, tuple)):
-                    rangeopt_val = ':'.join(str(x) for x in rangeopt_val)
-            else:
-                rangeopt_val = None
+            # if we have a range, copy it to min/max and just work with those
+            if opt_range is not None:
+                if not isinstance(opt_range, (list, tuple)):
+                    opt_range = [ None if x == '*' else float(x) for x in opt_range.split(':')]
+                if len(opt_range) != 2:
+                    raise GnuplotlibError('{}range should have exactly 2 elements'.format(axis))
+                opt_min,opt_max = opt_range
+                opt_range = None
 
-            if rangeopt_val is not None:
-                cmds.append( "set {} [{}] {}".format(rangeopt_name,
-                                                     rangeopt_val,
-                                                     'reverse' if self.plotOptions.get(axis + 'inv') else ''))
+            # apply the axis inversion. It's only needed if we're given both
+            # bounds and they aren't flipped
+            if opt_inv:
+                if opt_min is not None and opt_max is not None and opt_min < opt_max:
+                    opt_min,opt_max = opt_max,opt_min
+
+            cmds.append( "set {}range [{}:{}] {}reverse".
+                         format(axis,
+                                '*' if opt_min is None else opt_min,
+                                '*' if opt_max is None else opt_max,
+                                '' if opt_inv else 'no'))
 
             # set the curve labels
             if not axis == 'cb':
