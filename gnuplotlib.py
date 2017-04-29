@@ -684,6 +684,7 @@ import sys
 import os
 import re
 import select
+import numbers
 import numpy as np
 import numpysane as nps
 
@@ -1386,11 +1387,25 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
 
     def _massageAndValidateArgs(self, curves, curveOptions_base):
 
-        # Collect all the passed data into a tuple of lists, one curve per list
+        # Collect all the passed data into a tuple of lists, one curve per list.
+        # The input is either a bunch of numerical arrays, in which we have one
+        # curve (ignoring broadcasting) or a bunch of tuples containing
+        # numerical arrays, where each tuple represents a curve.
+        #
+        # These numerical arrays can be numpy arrays or scalars. If we see
+        # scalars, we convert them to a numpy array so that everything
+        # downstream can assume we have arrays
+
+        # convert any scalars in the data list
+        curves = [ np.array((c,)) if isinstance(c, numbers.Real) else c for c in curves ]
         if all(type(curve) is np.ndarray for curve in curves):
             curves = (list(curves),)
         elif all(type(curve) is tuple for curve in curves):
-            curves = [ list(curve) for curve in curves ]
+            # we have a list of tuples. I convert this into a list of lists, and
+            # each scalar in each list becomes a numpy array
+            curves = [ [ np.array((c,)) if isinstance(c, numbers.Real) else c
+                         for c in curve ]
+                       for curve in curves ]
         else:
             raise GnuplotlibError("all data arguments should be of type ndarray (one curve) or tuples")
 
