@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(name         = 'gnuplotlib',
-      version      = '0.14',
+      version      = '0.15',
       author       = 'Dima Kogan',
       author_email = 'dima@secretsauce.net',
       url          = 'http://github.com/dkogan/gnuplotlib',
