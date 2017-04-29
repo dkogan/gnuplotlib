@@ -1399,7 +1399,9 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         for curve in curves:
             if not type(curve[-1]) is dict:
                 curve.append({})
-            curve[-1].update(curveOptions_base)
+            for k in curveOptions_base:
+                if k not in curve[-1]:
+                    curve[-1][k] = curveOptions_base[k]
 
         # I convert the curve definition from a list of
         #    (data, data, data, ..., {options})
