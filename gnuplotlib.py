@@ -1234,9 +1234,37 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
                             '%s' )
                 pipe.write("\ne\n")
             else:
-                np.savetxt( pipe,
-                            nps.glue(*curve['_data'], axis=-2).transpose().astype(np.float64,copy=False),
-                            '%s' )
+                # Previously I was doing this:
+                #     np.savetxt( pipe,
+                #                 nps.glue(*curve['_data'], axis=-2).transpose().astype(np.float64,copy=False),
+                #                 '%s' )
+                #
+                # That works in most cases, but sometimes we have disparate data
+                # types in each column, so glueing the components together into
+                # a single array is impossible (most notably when plotting 'with
+                # labels' at some particular locations). Thus I loop myself
+                # here. This is slow, but if we're plotting in ascii, we
+                # probably aren't looking for maximal performance here. And
+                # 'with labels' isn't super common
+                Ncurves = len(curve['_data'])
+                def write_element(e):
+                    r'''Writes value to pipe. Encloses strings in "". This is required to support
+labels with spaces in them
+
+                    '''
+                    if type(e) is np.string_:
+                        pipe.write('"')
+                        pipe.write(str(e))
+                        pipe.write('"')
+                    else:
+                        pipe.write(str(e))
+
+                for i in xrange(curve['_data'][0].shape[-1]):
+                    for j in xrange(Ncurves-1):
+                        write_element(curve['_data'][j][i])
+                        pipe.write(' ')
+                    write_element(curve['_data'][Ncurves-1][i])
+                    pipe.write('\n')
                 pipe.write("e\n")
 
         else:
