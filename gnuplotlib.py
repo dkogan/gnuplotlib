@@ -342,6 +342,17 @@ generated
 
 These specify axis labels
 
+- rgbimage
+
+This should be set to a path containing an image file on disk. The data is then
+plotted on top of this image, which is very useful for annotations, computer
+vision, etc. Note that when plotting data, the y axis usually points up, but
+when looking at images, the y axis of the pixel coordinates points down instead.
+Thus, if the y axis extents aren't given and an rgbimage IS specified,
+gnuplotlib will flip the y axis to make things look reasonable. If any y-axis
+ranges are given, however (with any of the ymin,ymax,yrange,yinv plot options),
+then it is up to the user to flip the axis, if that's what they want.
+
 - equation
 
 This option allows equations represented as formula strings to be plotted along
@@ -653,6 +664,14 @@ Image arrays plots can be plotted as a heat map:
              _with     = 'image',
              tuplesize = 3)
 
+Data plotted on top of an existing image. Useful for image annotations.
+
+    gp.plot( x, y,
+             title    = 'Points on top of an image',
+             _with    = 'points',
+             square   = 1,
+             rgbimage = 'image.png')
+
 ** Hardcopies
 
 To send any plot to a file, instead of to the screen, one can simply do
@@ -695,7 +714,7 @@ knownPlotOptions = frozenset(('dump', 'ascii', 'log', 'notest',
                               '3d',
                               'cmds', 'set', 'unset', 'square', 'square_xy', 'title',
                               'hardcopy', 'terminal', 'output',
-                              'with', 'equation',
+                              'with', 'equation', 'rgbimage',
                               'xmax',  'xmin',  'xrange',  'xinv',  'xlabel',
                               'y2max', 'y2min', 'y2range', 'y2inv', 'y2label',
                               'ymax',  'ymin',  'yrange',  'yinv',  'ylabel',
@@ -875,6 +894,21 @@ class gnuplotlib:
             # passing in Wmin>Wmax or Wrange[0]>Wrange[1]. If this is done then
             # Winv has no effect, i.e. setting Wmin>Wmax AND Winv results in a
             # flipped axis.
+
+            # This axis was set up with the 'set' plot option, so I don't touch
+            # it
+            if any ( re.match(" *set +{}range[\s=]".format(axis), s) for s in cmds ):
+                continue
+
+            # images generally have the origin at the top-left instead of the
+            # bottom-left, so given nothing else, I flip the y axis
+            if 'rgbimage' in self.plotOptions and \
+               axis == 'y' and \
+               not any ( ('y'+what) in self.plotOptions \
+                         for what in ('min','max','range','inv')):
+                cmds.append("set yrange [:] reverse")
+                continue
+
             opt_min   = self.plotOptions.get( axis + 'min'   )
             opt_max   = self.plotOptions.get( axis + 'max'   )
             opt_range = self.plotOptions.get( axis + 'range' )
@@ -1352,6 +1386,13 @@ labels with spaces in them
                 basecmd += ''.join( eq + ', ' for eq in self.plotOptions['equation'])
             else:
                 basecmd += self.plotOptions['equation'] + ', '
+
+        if 'rgbimage' in self.plotOptions:
+            if not os.access     (self.plotOptions['rgbimage'], os.R_OK) or \
+               not os.path.isfile(self.plotOptions['rgbimage']):
+                raise GnuplotlibError("Requested image '{}' is not a readable file".format(plotOptions['rgbimage']))
+
+            basecmd += '"{}" binary filetype=auto flipy with rgbimage, '.format(self.plotOptions['rgbimage'])
 
         plotCurveCmds        = []
         plotCurveCmdsMinimal = [] # same as above, but with a single data point per plot only
