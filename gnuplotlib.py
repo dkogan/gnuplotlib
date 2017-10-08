@@ -914,8 +914,6 @@ class gnuplotlib:
             opt_range = self.plotOptions.get( axis + 'range' )
             opt_inv   = self.plotOptions.get( axis + 'inv'   )
 
-            # If a bound isn't given I want to set it to the empty string, so I can communicate it simply
-            # to gnuplot
             if (opt_min is not None or opt_max is not None) and opt_range is not None:
                 raise GnuplotlibError("{0}min/{0}max and {0}range are mutually exclusive".format(axis))
 
@@ -1012,8 +1010,7 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
 
 
     def __del__(self):
-
-        if self.gnuplotProcess:
+        if hasattr(self, 'gnuplotProcess') and self.gnuplotProcess:
             if self.checkpoint_stuck:
                 self.gnuplotProcess.terminate()
             else:
