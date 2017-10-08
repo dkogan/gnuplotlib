@@ -358,8 +358,9 @@ Either min/max or range can be given but not both. min/max are numerical values.
 '*range' is a string 'min:max' with either one allowed to be omitted; it can
 also be a [min,max] tuple or list. '*inv' is a boolean that reverses this axis.
 If the bounds are known, this can also be accomplished by setting max < min.
+Passing in both max < min AND inv also results in a reversed axis.
 
-If no nformation about a range is given, it is not touched: the previous zoom
+If no information about a range is given, it is not touched: the previous zoom
 settings are preserved.
 
 The y2 axis is the secondary y-axis that is enabled by the 'y2' curve option.
@@ -369,6 +370,17 @@ generated
 - xlabel, ylabel, zlabel, y2label
 
 These specify axis labels
+
+- rgbimage
+
+This should be set to a path containing an image file on disk. The data is then
+plotted on top of this image, which is very useful for annotations, computer
+vision, etc. Note that when plotting data, the y axis usually points up, but
+when looking at images, the y axis of the pixel coordinates points down instead.
+Thus, if the y axis extents aren't given and an rgbimage IS specified,
+gnuplotlib will flip the y axis to make things look reasonable. If any y-axis
+ranges are given, however (with any of the ymin,ymax,yrange,yinv plot options),
+then it is up to the user to flip the axis, if that's what they want.
 
 - equation
 
@@ -465,7 +477,7 @@ of writing to a gnuplot process. Useful to see what commands would be sent to
 gnuplot. This is a dry run. Note that this dump will contain binary data unless
 ascii-only plotting is enabled (see below). This is also useful to generate
 gnuplot scripts since the dumped output can be sent to gnuplot later, manually
-if desired.
+if desired. Look at the 'notest' option for a less verbose dump.
 
 - log
 
@@ -483,6 +495,11 @@ for most plots, but not for all of them. An example where binary plotting
 doesn't work is 'with labels', and this option exists to force ASCII
 communication
 
+- notest
+
+Don't check for failure after each gnuplot command. And don't test all the plot
+options before creating the plot. This is generally only useful for debugging or
+for more sparse 'dump' functionality.
 
 ** Curve options
 
@@ -716,6 +733,16 @@ gp.plot( x**2 + y**2,
          set       = 'view map',
          _with     = 'image',
          tuplesize = 3)
+#+END_SRC
+
+Data plotted on top of an existing image. Useful for image annotations.
+
+#+BEGIN_SRC python
+gp.plot( x, y,
+         title    = 'Points on top of an image',
+         _with    = 'points',
+         square   = 1,
+         rgbimage = 'image.png')
 #+END_SRC
 
 ** Hardcopies
