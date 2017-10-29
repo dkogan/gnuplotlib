@@ -2,8 +2,21 @@
 
 from setuptools import setup
 
+import re
+
+version = None
+with open("gnuplotlib.py", "r") as f:
+    for l in f:
+        m = re.match("__version__ *= *'(.*?)' *$", l)
+        if m:
+            version = m.group(1)
+            break
+if version is None:
+    raise Exception("Couldn't find version in 'gnuplotlib.py'")
+
+
 setup(name         = 'gnuplotlib',
-      version      = '0.16',
+      version      = version,
       author       = 'Dima Kogan',
       author_email = 'dima@secretsauce.net',
       url          = 'http://github.com/dkogan/gnuplotlib',
