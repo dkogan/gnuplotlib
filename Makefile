@@ -12,7 +12,7 @@ dist:
 
 # make and upload the distribution tarball
 dist_upload:
-	python setup.py sdist upload -r https://pypi.python.org/pypi
+	python setup.py sdist upload
 .PHONY: dist_upload
 
 clean:
