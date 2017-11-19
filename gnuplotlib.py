@@ -1156,7 +1156,7 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
 
             self._logEvent("Trying to read from gnuplot")
 
-            rlist,wlist,xlist = select.select([self.gnuplotProcess.stderr],[], [], 5)
+            rlist,wlist,xlist = select.select([self.gnuplotProcess.stderr],[], [], 15)
 
             if rlist:
                 # read a byte. I'd like to read "as many bytes as are
