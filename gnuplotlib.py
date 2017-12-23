@@ -1391,7 +1391,7 @@ labels with spaces in them
                not os.path.isfile(self.plotOptions['rgbimage']):
                 raise GnuplotlibError("Requested image '{}' is not a readable file".format(plotOptions['rgbimage']))
 
-            basecmd += '"{}" binary filetype=auto flipy with rgbimage, '.format(self.plotOptions['rgbimage'])
+            basecmd += '"{0}" binary filetype=auto flipy with rgbimage title "{0}", '.format(self.plotOptions['rgbimage'])
 
         plotCurveCmds        = []
         plotCurveCmdsMinimal = [] # same as above, but with a single data point per plot only
