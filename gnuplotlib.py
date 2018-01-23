@@ -1389,7 +1389,7 @@ labels with spaces in them
         if 'rgbimage' in self.plotOptions:
             if not os.access     (self.plotOptions['rgbimage'], os.R_OK) or \
                not os.path.isfile(self.plotOptions['rgbimage']):
-                raise GnuplotlibError("Requested image '{}' is not a readable file".format(plotOptions['rgbimage']))
+                raise GnuplotlibError("Requested image '{}' is not a readable file".format(self.plotOptions['rgbimage']))
 
             basecmd += '"{0}" binary filetype=auto flipy with rgbimage title "{0}", '.format(self.plotOptions['rgbimage'])
 
