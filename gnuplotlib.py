@@ -833,8 +833,6 @@ class gnuplotlib:
         if not self.plotOptions.get('dump'):
 
             cmd = ['gnuplot']
-            if 'persist' in features:
-                cmd += ['--persist']
 
             self.fdDupSTDOUT = os.dup(sys.stdout.fileno())
             self.gnuplotProcess = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
