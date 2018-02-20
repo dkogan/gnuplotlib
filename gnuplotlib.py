@@ -732,40 +732,31 @@ testdataunit_ascii = 10
 
 
 
-
-def _runSubprocess(cmd, input):
-    r'''Runs a given command feeding the given input to stdin. Waits for the command
-    to terminate, and returns the stdout,stderr tuple we get back
-
-    '''
-
-    process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = process.communicate(input=input)
-    retcode = process.poll()
-    if retcode:
-        raise subprocess.CalledProcessError(retcode, cmd[0], output=out + err)
-    return out,err
-
-
 def _getGnuplotFeatures():
 
-    # Be careful talking to gnuplot here. If you use a tty then gnuplot
-    # messes with the tty settings where it should NOT. For example it turns
-    # on the local echo. So make sure to not use a tty
+    # Be careful talking to gnuplot here. If you use a tty then gnuplot messes
+    # with the tty settings where it should NOT. For example it turns on the
+    # local echo. So make sure to not use a tty. Furthermore, I turn off the
+    # DISPLAY. I'm not actually plotting anything, so a DISPLAY can try to
+    # X-forward and be really slow pointlessly
 
     # first, I run 'gnuplot --help' to extract all the cmdline options as features
-    helpstring = subprocess.check_output(['gnuplot', '--help'], stderr=subprocess.STDOUT)
+    helpstring = subprocess.check_output(['gnuplot', '--help'],
+                                         stderr=subprocess.STDOUT,
+                                         env={'DISPLAY': ''})
     features = set( re.findall(r'--([a-zA-Z0-9_]+)', helpstring) )
 
 
     # then I try to set a square aspect ratio for 3D to see if it works
-    out,err = _runSubprocess(['gnuplot'],
-                             """set view equal
-exit
-""")
+    try:
+        out = subprocess.check_output(('gnuplot', '-e', "set view equal"),
+                                      stderr=subprocess.STDOUT,
+                                      env={'DISPLAY': ''})
+    except:
+        out = 'error!'
 
     # no output if works; some output if error
-    if( not ( out or err ) ):
+    if len(out) == 0:
         features.add('equal_3d')
 
     return frozenset(features)
