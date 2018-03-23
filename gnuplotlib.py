@@ -825,7 +825,11 @@ class gnuplotlib:
 
             cmd = ['gnuplot']
 
-            self.fdDupSTDOUT = os.dup(sys.stdout.fileno())
+            try:
+                self.fdDupSTDOUT = os.dup(sys.stdout.fileno())
+            except:
+                self.fdDupSTDOUT = None
+
             self.gnuplotProcess = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         # save the default terminal
@@ -1009,7 +1013,10 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
 
             self.gnuplotProcess.wait()
             self.gnuplotProcess = None
-            os.close(self.fdDupSTDOUT)
+
+            if self.fdDupSTDOUT is not None:
+                os.close(self.fdDupSTDOUT)
+                self.fdDupSTDOUT = None
 
 
 
@@ -1637,6 +1644,9 @@ labels with spaces in them
                 self._safelyWriteToPipe('set output',
                                         'output')
             else:
+                if self.fdDupSTDOUT is None:
+                    raise Exception("I need to plot to STDOUT, but STDOUT wasn't available")
+
                 self.plotOptions['output'] = '/dev/fd/' + str(self.fdDupSTDOUT)
                 self._safelyWriteToPipe('set output "' + self.plotOptions['output'] + '"',
                                         'output')
