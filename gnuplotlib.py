@@ -875,6 +875,12 @@ class gnuplotlib:
         # set the plot bounds
         for axis in ('x', 'y', 'y2', 'z', 'cb'):
 
+            # set the curve labels
+            if not axis == 'cb':
+                if axis + 'label' in self.plotOptions:
+                    cmds.append('set {axis}label "{label}"'.format(axis = axis,
+                                                                   label = self.plotOptions[axis + 'label']))
+
             # I deal with range bounds here. These can be given for the various
             # axes by variables (W-axis here; replace W with x, y, z, etc):
             #
@@ -928,12 +934,6 @@ class gnuplotlib:
                                 '*' if opt_min is None else opt_min,
                                 '*' if opt_max is None else opt_max,
                                 '' if opt_inv else 'no'))
-
-            # set the curve labels
-            if not axis == 'cb':
-                if axis + 'label' in self.plotOptions:
-                    cmds.append('set {axis}label "{label}"'.format(axis = axis,
-                                                                   label = self.plotOptions[axis + 'label']))
 
 
 
