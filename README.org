@@ -285,21 +285,30 @@ gp.plot( c,s,
 Here the data are points evently spaced around a unit circle. Along with these
 points we plot a unit circle as a parametric equation.
 
-** Interactivity
+** Plot persistence and blocking
 
-The graphical backends of Gnuplot are interactive, allowing the user to pan,
-zoom, rotate and measure the data in the plot window. See the Gnuplot
-documentation for details about how to do this. Some terminals (such as wxt) are
-persistently interactive, and the rest of this section does not apply to them.
-Other terminals (such as x11) have the downside described here.
+As currently written, gnuplotlib does NOT block and the plot windows do NOT
+persist. I.e.
 
-When using an affected terminal, interactivity is only possible if the gnuplot
-process is running. As long as the python program calling gnuplotlib is running,
-the plots are interactive, but once it exits, the child gnuplot process will
-exit also. This will keep the plot windows up, but the interactivity will be
-lost. So if the python program makes a plot and exits, the plot will NOT be
-interactive.
+- the 'plot()' functions return immediately, and the user interacts with the
+  plot WHILE THE REST OF THE PYTHON PROGRAM IS RUNNING
 
+- when the python program exits, the gnuplot process and any visible plots go
+  away
+
+So if you want to write a program that just shows a plot and does nothing else,
+you MUST put some sort of blocking call after the 'plot()' and before the python
+program exits. Something as simple as the below works:
+
+#+BEGIN_SRC python
+gp.plot( ... )
+import time
+time.sleep(100000)
+#+END_SRC
+
+The plot will then stay up until the python process is interrupted, with C-c for
+instance. This is an ugly hack, and I have ideas about improving it, but this
+hasn't been a priority so far.
 
 * OPTIONS
 
