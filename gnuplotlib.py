@@ -982,11 +982,11 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
 
             outputfileType = m.group(1)
 
-            terminalOpts = { 'eps': 'postscript solid color enhanced eps',
-                             'ps':  'postscript solid color landscape 10',
-                             'pdf': 'pdf solid color font ",10" size 11in,8.5in',
-                             'png': 'png size 1280,1024',
-                             'svg': 'svg enhanced solid'}
+            terminalOpts = { 'eps': 'postscript noenhanced solid color eps',
+                             'ps':  'postscript noenhanced solid color landscape 10',
+                             'pdf': 'pdf noenhanced solid color font ",10" size 11in,8.5in',
+                             'png': 'png noenhanced size 1280,1024',
+                             'svg': 'svg noenhanced solid'}
 
             self.plotOptions['terminal'] = terminalOpts[outputfileType]
             self.plotOptions['output']   = outputfile
