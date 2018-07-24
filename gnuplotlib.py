@@ -1018,7 +1018,10 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
             else:
                 self._printGnuplotPipe( "exit\n" )
 
-            self.gnuplotProcess.wait()
+            try:
+                self.gnuplotProcess.wait()
+            except:
+                pass
             self.gnuplotProcess = None
 
             if self.fdDupSTDOUT is not None:
