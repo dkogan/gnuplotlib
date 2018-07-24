@@ -207,9 +207,7 @@ Gnuplot can plot both data and equations. This module exists largely for the
 data-plotting case, but sometimes it can be useful to plot equations together
 with some data. This is supported by the 'equation' plot option. This plot
 option is either a string (for a single equation) or a list/tuple containing
-multiple strings for multiple equations. Note that plotting only equations
-without data is not supported (and generally is better done with gnuplot
-directly). An example:
+multiple strings for multiple equations. An example:
 
     import numpy as np
     import numpy.random as nr
@@ -1385,22 +1383,24 @@ labels with spaces in them
         if self.plotOptions.get('3d'): basecmd += 'splot '
         else:                          basecmd += 'plot '
 
+        plotCurveCmdsNonData = []
+        plotCurveCmds        = []
+        plotCurveCmdsMinimal = [] # same as above, but with a single data point per plot only
+
         # send all equations
         if 'equation' in self.plotOptions:
             if isinstance(self.plotOptions['equation'], (list, tuple)):
-                basecmd += ''.join( eq + ', ' for eq in self.plotOptions['equation'])
+                plotCurveCmdsNonData += self.plotOptions['equation']
             else:
-                basecmd += self.plotOptions['equation'] + ', '
+                plotCurveCmdsNonData.append(self.plotOptions['equation'])
 
         if 'rgbimage' in self.plotOptions:
             if not os.access     (self.plotOptions['rgbimage'], os.R_OK) or \
                not os.path.isfile(self.plotOptions['rgbimage']):
                 raise GnuplotlibError("Requested image '{}' is not a readable file".format(self.plotOptions['rgbimage']))
 
-            basecmd += '"{0}" binary filetype=auto flipy with rgbimage title "{0}", '.format(self.plotOptions['rgbimage'])
+            plotCurveCmdsNonData.append('"{0}" binary filetype=auto flipy with rgbimage title "{0}"'.format(self.plotOptions['rgbimage']))
 
-        plotCurveCmds        = []
-        plotCurveCmdsMinimal = [] # same as above, but with a single data point per plot only
         testData             = '' # data to make a minimal plot
 
         for curve in curves:
@@ -1453,8 +1453,9 @@ labels with spaces in them
                 testData += testData_curve
 
         # the command to make the plot and to test the plot
-        cmd        =  basecmd + ','.join(plotCurveCmds)
-        cmdMinimal = (basecmd + ','.join(plotCurveCmdsMinimal)) if plotCurveCmdsMinimal else cmd
+        cmd        =  basecmd + ','.join(plotCurveCmdsNonData + plotCurveCmds)
+        cmdMinimal = (basecmd + ','.join(plotCurveCmdsNonData + plotCurveCmdsMinimal)) \
+            if plotCurveCmdsMinimal else cmd
 
         return (cmd, cmdMinimal, testData)
 
@@ -1471,17 +1472,18 @@ labels with spaces in them
         # downstream can assume we have arrays
 
         # convert any scalars in the data list
-        curves = [ np.array((c,)) if isinstance(c, numbers.Real) else c for c in curves ]
-        if all(type(curve) is np.ndarray for curve in curves):
-            curves = (list(curves),)
-        elif all(type(curve) is tuple for curve in curves):
-            # we have a list of tuples. I convert this into a list of lists, and
-            # each scalar in each list becomes a numpy array
-            curves = [ [ np.array((c,)) if isinstance(c, numbers.Real) else c
-                         for c in curve ]
-                       for curve in curves ]
-        else:
-            raise GnuplotlibError("all data arguments should be of type ndarray (one curve) or tuples")
+        if len(curves):
+            curves = [ np.array((c,)) if isinstance(c, numbers.Real) else c for c in curves ]
+            if all(type(curve) is np.ndarray for curve in curves):
+                curves = (list(curves),)
+            elif all(type(curve) is tuple for curve in curves):
+                # we have a list of tuples. I convert this into a list of lists, and
+                # each scalar in each list becomes a numpy array
+                curves = [ [ np.array((c,)) if isinstance(c, numbers.Real) else c
+                             for c in curve ]
+                           for curve in curves ]
+            else:
+                raise GnuplotlibError("all data arguments should be of type ndarray (one curve) or tuples")
 
         # add an options dict if there isn't one, apply the base curve
         # options to each curve
