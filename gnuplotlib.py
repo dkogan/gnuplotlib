@@ -503,6 +503,20 @@ Specifies how many values represent each data point. For 2D plots this defaults
 to 2; for 3D plots this defaults to 3. These defaults are correct for simple
 plots
 
+- using
+
+Overrides the 'using' directive we pass to gnuplot. No error checking is
+performed, and the string is passed to gnuplot verbatim. This option is very
+rarely needed. The most common usage is to apply a function to an implicit
+domain. For instance, this basic command plots a line (linearly increasing
+values) against a linearly-increasing line number::
+
+    gp.plot(np.arange(100))
+
+We can plot the same values against the square-root of the line number to get a
+parabola:
+
+    gp.plot(np.arange(100), using='(sqrt($1)):2')
 
 * INTERFACE
 
@@ -728,7 +742,7 @@ knownPlotOptions = frozenset(('dump', 'ascii', 'log', 'notest',
                               'zmax',  'zmin',  'zrange',  'zinv',  'zlabel',
                               'cbmin', 'cbmax', 'cbrange'))
 
-knownCurveOptions = frozenset(('legend', 'y2', 'with', 'tuplesize'))
+knownCurveOptions = frozenset(('legend', 'y2', 'with', 'tuplesize', 'using'))
 
 knownInteractiveTerminals = frozenset(('x11', 'wxt', 'qt', 'aquaterm'))
 
@@ -1349,7 +1363,10 @@ labels with spaces in them
             if curve.get('matrix'):
                 using_Ncolumns -= 2
 
-            fmt += ' using ' + ':'.join( str(x+1) for x in range(using_Ncolumns) )
+            using = curve.get('using')
+            if using is None:
+                using = ':'.join(str(x+1) for x in range(using_Ncolumns))
+            fmt += ' using ' + using
 
             # to test the plot I plot a single record
             fmtTest = fmt
@@ -1430,7 +1447,10 @@ labels with spaces in them
                 # for some things gnuplot has its own implicit-tuples logic; I want to
                 # suppress this, so I explicitly tell gnuplot to use all the columns we
                 # have
-                using = ' using ' + ':'.join(str(x+1) for x in range(curve['tuplesize']))
+                using = curve.get('using')
+                if using is None:
+                    using = ':'.join(str(x+1) for x in range(curve['tuplesize']))
+                using = ' using ' + using
 
                 # I'm using ascii to talk to gnuplot, so the minimal and "normal" plot
                 # commands are the same (point count is not in the plot command)

@@ -538,6 +538,24 @@ Specifies how many values represent each data point. For 2D plots this defaults
 to 2; for 3D plots this defaults to 3. These defaults are correct for simple
 plots
 
+- using
+
+Overrides the 'using' directive we pass to gnuplot. No error checking is
+performed, and the string is passed to gnuplot verbatim. This option is very
+rarely needed. The most common usage is to apply a function to an implicit
+domain. For instance, this basic command plots a line (linearly increasing
+values) against a linearly-increasing line number::
+
+#+BEGIN_SRC python
+gp.plot(np.arange(100))
+#+END_SRC
+
+We can plot the same values against the square-root of the line number to get a
+parabola:
+
+#+BEGIN_SRC python
+gp.plot(np.arange(100), using='(sqrt($1)):2')
+#+END_SRC
 
 * INTERFACE
 
