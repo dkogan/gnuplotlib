@@ -762,7 +762,8 @@ def _getGnuplotFeatures():
     # first, I run 'gnuplot --help' to extract all the cmdline options as features
     helpstring = subprocess.check_output(['gnuplot', '--help'],
                                          stderr=subprocess.STDOUT,
-                                         env={'DISPLAY': ''})
+                                         env={'DISPLAY': ''}).decode()
+
     features = set( re.findall(r'--([a-zA-Z0-9_]+)', helpstring) )
 
 
@@ -770,7 +771,7 @@ def _getGnuplotFeatures():
     try:
         out = subprocess.check_output(('gnuplot', '-e', "set view equal"),
                                       stderr=subprocess.STDOUT,
-                                      env={'DISPLAY': ''})
+                                      env={'DISPLAY': ''}).decode()
     except:
         out = 'error!'
 
@@ -849,7 +850,27 @@ class gnuplotlib:
             except:
                 self.fdDupSTDOUT = None
 
-            self.gnuplotProcess = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.gnuplotProcess = \
+                subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+
+                                 # required to "autoflush" writes
+                                 bufsize=0,
+
+                                 # This was helpful in python3 to implicitly
+                                 # encode() strings, but it broke the
+                                 # select()/read() mechanism: select() would
+                                 # look at the OS file descriptor, but read()
+                                 # would look at some buffer, so you'd get into
+                                 # a situation where
+                                 #
+                                 # - data was read from the OS into a buffer, and is available to be read()
+                                 # - select() blocks waiting for MORE data
+                                 #
+                                 # I guess I leave this off and manully
+                                 # encode/decode everything
+
+                                 #encoding = 'utf-8',
+                )
 
         # save the default terminal
         self._safelyWriteToPipe("set terminal push", 'terminal')
@@ -1099,10 +1120,25 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
     def _gnuplotStdin(self):
         if self.gnuplotProcess:
             return self.gnuplotProcess.stdin
-        return sys.stdout
+
+        # debug dump. I return stdout
+
+        # In python2 I just return stdout. But the python3 people have no idea
+        # what they're doing. The normal pipe return by Popen is a FileIO, so I
+        # can ONLY write bytes to it; if I write a string to it, it barfs. So I
+        # normally need to do the encode/decode dance. But sys.stdout is a
+        # TextIOWrapper, which means that I must write STRINGS and it'll barf if
+        # I write bytes. I can apparently reach inside and grab the
+        # corresponding FileIO object to make it work like the pipe, so I do
+        # that
+        try:
+            return sys.stdout.buffer.raw
+        except:
+            return sys.stdout
 
     def _printGnuplotPipe(self, string):
-        self._gnuplotStdin().write( string )
+
+        self._gnuplotStdin().write( string.encode() )
         self._logEvent("Sent to child process {} bytes ==========\n{}=========================".
                        format(len(string), string))
 
@@ -1183,7 +1219,7 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
                 # simply do a non-blocking read). Very little data will be
                 # coming in anyway, so doing this a byte at a time is an
                 # irrelevant inefficiency
-                byte = self.gnuplotProcess.stderr.read(1)
+                byte = self.gnuplotProcess.stderr.read(1).decode()
                 fromerr += byte
                 self._logEvent("Read byte '{}' ({}) from gnuplot child process".format(byte, hex(ord(byte))))
             else:
@@ -1280,10 +1316,10 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         pipe = self._gnuplotStdin()
         if self.plotOptions.get('ascii'):
             if curve.get('matrix'):
-                np.savetxt( pipe,
-                            nps.glue(*curve['_data'], axis=-2).astype(np.float64,copy=False),
-                            '%s' )
-                pipe.write("\ne\n")
+                np.savetxt(pipe,
+                           nps.glue(*curve['_data'], axis=-2).astype(np.float64,copy=False),
+                           '%s')
+                pipe.write(b"\ne\n")
             else:
                 # Previously I was doing this:
                 #     np.savetxt( pipe,
@@ -1303,20 +1339,22 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
 labels with spaces in them
 
                     '''
-                    if type(e) is np.string_:
-                        pipe.write('"')
-                        pipe.write(str(e))
-                        pipe.write('"')
+                    if type(e) is np.string_ or type(e) is np.str_:
+                        pipe.write(b'"')
+                        pipe.write(str(e).encode())
+                        pipe.write(b'"')
                     else:
-                        pipe.write(str(e))
+                        pipe.write(str(e).encode())
 
                 for i in range(curve['_data'][0].shape[-1]):
                     for j in range(Ncurves-1):
                         write_element(curve['_data'][j][i])
-                        pipe.write(' ')
+                        pipe.write(b' ')
                     write_element(curve['_data'][Ncurves-1][i])
-                    pipe.write('\n')
-                pipe.write("e\n")
+                    pipe.write(b'\n')
+
+
+                pipe.write(b"e\n")
 
         else:
             nps.mv(nps.cat(*curve['_data']), 0, -1).astype(np.float64,copy=False).tofile(pipe)

@@ -1,11 +1,7 @@
 * COMPATIBILITY
 
-Only Python 2 is supported. I have no plans to support Python 3 (it forces me to
-care about unicode, which is an unreasonable burden), but patches are welcome.
-
-Everything should work on all platforms that support Gnuplot and Python. That
-said, only Debian GNU/Linux has been tested at this point. Comments and/or
-patches are welcome.
+Python 2 and Python 3 should both be supported. Please report a bug if either
+one doesn't work.
 
 * REPOSITORY
 
