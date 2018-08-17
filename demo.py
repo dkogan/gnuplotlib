@@ -294,7 +294,7 @@ try:
     gp.plot( np.arange(5), cmds = 'pause 20' )
 except gp.GnuplotlibError as e:
     print("OK! Got err I was supposed to get:\n[[[[[[[\n{}\n]]]]]]]\n".format(e))
-except:
-    print("ERROR! Got some other error I was NOT supposed to get\n")
+except Exception as e:
+    print("ERROR! Got some other error I was NOT supposed to get: {}\n".format(e))
 else:
     print("ERROR! An error was supposed to be reported but it was not\n")
