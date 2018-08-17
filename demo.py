@@ -291,7 +291,7 @@ else:
 sys.stderr.write('gnuplotlib can detect I/O hangs. Here I ask for a delay, so I should detect this and quit after a few seconds:\n')
 sys.stderr.write("=================================\n")
 try:
-    gp.plot( np.arange(5), cmds = 'pause 10' )
+    gp.plot( np.arange(5), cmds = 'pause 20' )
 except gp.GnuplotlibError as e:
     print("OK! Got err I was supposed to get:\n[[[[[[[\n{}\n]]]]]]]\n".format(e))
 except:
