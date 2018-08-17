@@ -78,6 +78,12 @@ gp.plot( x**2, np.abs(x)/2, x*50,
          tuplesize = 4 )
 time.sleep(sleep_interval)
 
+# labels
+gp.plot(np.arange(5),np.arange(5)+1,
+        np.array( ['{} {}'.format(x,x+1) for x in range(5)], dtype=str),
+        _with='labels', tuplesize=3, ascii=1)
+time.sleep(sleep_interval)
+
 # Conchoids of de Sluze. Broadcasting example
 theta = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
 a     = np.arange(-4,3)[:, np.newaxis] # dim=(7,1)
