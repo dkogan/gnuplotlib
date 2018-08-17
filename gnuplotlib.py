@@ -1310,8 +1310,8 @@ labels with spaces in them
                     else:
                         pipe.write(str(e))
 
-                for i in xrange(curve['_data'][0].shape[-1]):
-                    for j in xrange(Ncurves-1):
+                for i in range(curve['_data'][0].shape[-1]):
+                    for j in range(Ncurves-1):
                         write_element(curve['_data'][j][i])
                         pipe.write(' ')
                     write_element(curve['_data'][Ncurves-1][i])
