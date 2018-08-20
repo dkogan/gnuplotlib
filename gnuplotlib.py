@@ -730,7 +730,7 @@ import numpysane as nps
 __version__ = '0.22'
 
 # note that 'with' is both a known plot and curve option
-knownPlotOptions = frozenset(('dump', 'ascii', 'log', 'notest',
+knownPlotOptions = frozenset(('dump', 'ascii', 'log', 'notest', 'wait',
 
                               '3d',
                               'cmds', 'set', 'unset', 'square', 'square_xy', 'title',
@@ -1188,7 +1188,7 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
         # yet arrived. I thus print out a checkpoint message and keep reading the
         # child's STDERR pipe until I get that message back. Any errors would have
         # been printed before this
-        if self.plotOptions.get('notest'):
+        if self.plotOptions.get('notest') and flags != 'waitforever':
             return None, None
 
         checkpoint = "gpsync{}xxx".format(self.sync_count)
@@ -1210,7 +1210,8 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
 
             self._logEvent("Trying to read from gnuplot")
 
-            rlist,wlist,xlist = select.select([self.gnuplotProcess.stderr],[], [], 15)
+            rlist,wlist,xlist = select.select([self.gnuplotProcess.stderr],[], [],
+                                              None if flags == 'waitforever' else 15)
 
             if rlist:
                 # read a byte. I'd like to read "as many bytes as are
@@ -1734,6 +1735,10 @@ labels with spaces in them
         # that need to write out a closing stanza
         self._safelyWriteToPipe('set output', 'output')
 
+        if self.plotOptions.get('wait'):
+            self._printGnuplotPipe('pause mouse close\n')
+            self._logEvent("Waiting for data from gnuplot")
+            self._checkpoint('waitforever')
 
 
 
