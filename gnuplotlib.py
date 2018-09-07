@@ -759,10 +759,14 @@ def _getGnuplotFeatures():
     # DISPLAY. I'm not actually plotting anything, so a DISPLAY can try to
     # X-forward and be really slow pointlessly
 
+    # I pass in the current environment, but with DISPLAY turned off
+    env = os.environ.copy()
+    env['DISPLAY'] = ''
+
     # first, I run 'gnuplot --help' to extract all the cmdline options as features
     helpstring = subprocess.check_output(['gnuplot', '--help'],
                                          stderr=subprocess.STDOUT,
-                                         env={'DISPLAY': ''}).decode()
+                                         env=env).decode()
 
     features = set( re.findall(r'--([a-zA-Z0-9_]+)', helpstring) )
 
@@ -771,7 +775,7 @@ def _getGnuplotFeatures():
     try:
         out = subprocess.check_output(('gnuplot', '-e', "set view equal"),
                                       stderr=subprocess.STDOUT,
-                                      env={'DISPLAY': ''}).decode()
+                                      env=env).decode()
     except:
         out = 'error!'
 
