@@ -764,9 +764,14 @@ def _getGnuplotFeatures():
     env['DISPLAY'] = ''
 
     # first, I run 'gnuplot --help' to extract all the cmdline options as features
-    helpstring = subprocess.check_output(['gnuplot', '--help'],
-                                         stderr=subprocess.STDOUT,
-                                         env=env).decode()
+    try:
+        helpstring = subprocess.check_output(['gnuplot', '--help'],
+                                             stderr=subprocess.STDOUT,
+                                             env=env).decode()
+    except FileNotFoundError:
+        print("Couldn't run gnuplot. Is it installed? Is it findable in the PATH?",
+              file=sys.stderr)
+        raise
 
     features = set( re.findall(r'--([a-zA-Z0-9_]+)', helpstring) )
 
