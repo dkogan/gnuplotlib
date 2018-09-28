@@ -369,13 +369,17 @@ equation) or an array/tuple of strings (for multiple equations). See the
 
 Instead of drawing a plot on screen, plot into a file instead. The output
 filename is the value associated with this key. The output format is inferred
-from the filename. Currently only eps, ps, pdf, png, svg are supported with some
-default sets of options. This option is simply a shorthand for the 'terminal'
-and 'output' options. If the defaults provided by the 'hardcopy' option are
-insufficient, use 'terminal' and 'output' manually. Example:
+from the filename. Currently only eps, ps, pdf, png, svg, gp are supported with
+some default sets of options. This option is simply a shorthand for the
+'terminal' and 'output' options. If the defaults provided by the 'hardcopy'
+option are insufficient, use 'terminal' and 'output' manually. Example:
 
     plot(..., hardcopy="plot.pdf")
     [ Plots into that file ]
+
+Note that the ".gp" format is special. Instead of asking gnuplot to make a plot
+using a specific terminal, writing to "xxx.gp" will create a self-plotting data
+file that is visualized with gnuplot.
 
 - terminal
 
@@ -698,10 +702,10 @@ To send any plot to a file, instead of to the screen, one can simply do
     plot(x, y,
          hardcopy = 'output.pdf')
 
-The 'hardcopy' option is a shorthand for the 'terminal' and 'output'
-options. If more control is desired, the latter can be used. For example to
-generate a PDF of a particular size with a particular font size for the text,
-one can do
+The 'hardcopy' option is a shorthand for the 'terminal' and 'output' options (in
+all cases except when writing a .gp file; see below). If more control is
+desired, the latter can be used. For example to generate a PDF of a particular
+size with a particular font size for the text, one can do
 
     plot(x, y,
          terminal = 'pdfcairo solid color font ",10" size 11in,8.5in',
@@ -709,6 +713,14 @@ one can do
 
 This command is equivalent to the 'hardcopy' shorthand used previously, but the
 fonts and sizes can be changed.
+
+If we write to a ".gp" file:
+
+    plot(x, y,
+         hardcopy = 'data.gp')
+
+then instead of running gnuplot, we create a self-plotting file. gnuplot is
+invoked when we execute that file.
 
 '''
 
@@ -819,6 +831,12 @@ class GnuplotlibError(Exception):
 
 
 
+def _data_dump_only(plotOptions):
+    '''Returns True if we're dumping a script, NOT actually running gnuplot'''
+    return \
+        plotOptions.get('dump') or \
+        plotOptions.get('terminal') == 'gp' or \
+        re.match(".*\.gp$",plotOptions.get('hardcopy',''))
 
 
 class gnuplotlib:
@@ -827,11 +845,16 @@ class gnuplotlib:
 
         # some defaults
         self.plotOptions      = _dictDeUnderscore(plotOptions)
+        self._dumpPipe        = None
         self.t0               = time.time()
         self.checkpoint_stuck = False
         self.sync_count       = 1
 
-        plotOptionsCmds = self._getPlotOptionsCmds()
+        self._plotOptionsCmds = self._getPlotOptionsCmds()
+
+        if _data_dump_only(self.plotOptions):
+            self.gnuplotProcess = None
+            return
 
         # if we already have a gnuplot process, reset it. Otherwise make a new
         # one
@@ -843,43 +866,41 @@ class gnuplotlib:
             self._startgnuplot()
             self._logEvent("_startgnuplot() finished")
 
-        self._safelyWriteToPipe(plotOptionsCmds)
+        self._safelyWriteToPipe(self._plotOptionsCmds)
 
 
     def _startgnuplot(self):
 
         self._logEvent("_startgnuplot()")
 
-        if not self.plotOptions.get('dump'):
+        cmd = ['gnuplot']
 
-            cmd = ['gnuplot']
+        try:
+            self.fdDupSTDOUT = os.dup(sys.stdout.fileno())
+        except:
+            self.fdDupSTDOUT = None
 
-            try:
-                self.fdDupSTDOUT = os.dup(sys.stdout.fileno())
-            except:
-                self.fdDupSTDOUT = None
+        self.gnuplotProcess = \
+            subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
 
-            self.gnuplotProcess = \
-                subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                             # required to "autoflush" writes
+                             bufsize=0,
 
-                                 # required to "autoflush" writes
-                                 bufsize=0,
+                             # This was helpful in python3 to implicitly
+                             # encode() strings, but it broke the
+                             # select()/read() mechanism: select() would
+                             # look at the OS file descriptor, but read()
+                             # would look at some buffer, so you'd get into
+                             # a situation where
+                             #
+                             # - data was read from the OS into a buffer, and is available to be read()
+                             # - select() blocks waiting for MORE data
+                             #
+                             # I guess I leave this off and manully
+                             # encode/decode everything
 
-                                 # This was helpful in python3 to implicitly
-                                 # encode() strings, but it broke the
-                                 # select()/read() mechanism: select() would
-                                 # look at the OS file descriptor, but read()
-                                 # would look at some buffer, so you'd get into
-                                 # a situation where
-                                 #
-                                 # - data was read from the OS into a buffer, and is available to be read()
-                                 # - select() blocks waiting for MORE data
-                                 #
-                                 # I guess I leave this off and manully
-                                 # encode/decode everything
-
-                                 #encoding = 'utf-8',
-                )
+                             #encoding = 'utf-8',
+            )
 
         # save the default terminal
         self._safelyWriteToPipe("set terminal push", 'terminal')
@@ -1018,9 +1039,9 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
 'output' to get more control""")
 
             outputfile = self.plotOptions['hardcopy']
-            m = re.search(r'\.(eps|ps|pdf|png|svg)$', outputfile)
+            m = re.search(r'\.(eps|ps|pdf|png|svg|gp)$', outputfile)
             if not m:
-                raise GnuplotlibError("Only .eps, .ps, .pdf, .png and .svg hardcopy output supported")
+                raise GnuplotlibError("Only .eps, .ps, .pdf, .png, .svg and .gp hardcopy output supported")
 
             outputfileType = m.group(1)
 
@@ -1028,17 +1049,21 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
                              'ps':  'postscript noenhanced solid color landscape 10',
                              'pdf': 'pdf noenhanced solid color font ",10" size 11in,8.5in',
                              'png': 'png noenhanced size 1280,1024',
-                             'svg': 'svg noenhanced solid'}
+                             'svg': 'svg noenhanced solid',
+                             'gp':  'gp'}
 
             self.plotOptions['terminal'] = terminalOpts[outputfileType]
             self.plotOptions['output']   = outputfile
-
 
         if 'terminal' in self.plotOptions:
             if self.plotOptions['terminal'] in knownInteractiveTerminals:
                 # known interactive terminal
                 if 'output' in self.plotOptions and self.plotOptions['output'] != '':
                     sys.stderr.write("Warning: requested a known-interactive gnuplot terminal AND an output file. Is this REALLY what you want?\n")
+
+            if self.plotOptions['terminal'] == 'gp':
+                self.plotOptions['dump'  ] = 1
+                self.plotOptions['notest'] = 1
 
         # add the extra global options
         if 'cmds' in self.plotOptions:
@@ -1130,8 +1155,6 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
         if self.gnuplotProcess:
             return self.gnuplotProcess.stdin
 
-        # debug dump. I return stdout
-
         # In python2 I just return stdout. But the python3 people have no idea
         # what they're doing. The normal pipe return by Popen is a FileIO, so I
         # can ONLY write bytes to it; if I write a string to it, it barfs. So I
@@ -1140,6 +1163,13 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
         # I write bytes. I can apparently reach inside and grab the
         # corresponding FileIO object to make it work like the pipe, so I do
         # that
+        # debug dump. I return stdout
+        if self._dumpPipe:
+            try:
+                return self._dumpPipe.buffer.raw
+            except:
+                return self._dumpPipe
+
         try:
             return sys.stdout.buffer.raw
         except:
@@ -1697,39 +1727,50 @@ labels with spaces in them
         # number of data points
         plotcmd, testcmd, testdata = self._getPlotCmd( curves )
 
-        self._testPlotcmd(testcmd, testdata)
+        if self.plotOptions.get('terminal') == 'gp':
+            self._dumpPipe = open(self.plotOptions['output'],'w')
+            os.chmod(self.plotOptions['output'], 0o755)
 
-        # tests ok. Now set the terminal and actually make the plot!
-        if 'terminal' in self.plotOptions:
-            self._safelyWriteToPipe("set terminal " + self.plotOptions['terminal'],
-                                    'terminal')
+            import distutils.spawn
+            gnuplotpath = distutils.spawn.find_executable('gnuplot')
 
-        # I always set the output. If no plot option explicitly is given then I
-        # either "set output" for a known interactive terminal, or redirect to
-        # python's STDOUT otherwise
-        if 'output' in self.plotOptions:
-            if self.plotOptions['output'] != '':
-                # user requested an explicit output
-                self._safelyWriteToPipe('set output "' + self.plotOptions['output'] + '"',
-                                        'output')
-            else:
-                # user requested null output
-                self._safelyWriteToPipe('set output',
-                                        'output')
+            self._safelyWriteToPipe('#!' + gnuplotpath)
+            self._safelyWriteToPipe(self._plotOptionsCmds)
+
         else:
-            # user requested nothing. Is this a known interactive terminal or an
-            # unspecified terminal (unspecified terminal assumed to be
-            # interactive)? Then set the null output
-            if 'terminal' not in self.plotOptions or self.plotOptions['terminal'] in knownInteractiveTerminals:
-                self._safelyWriteToPipe('set output',
-                                        'output')
-            else:
-                if self.fdDupSTDOUT is None:
-                    raise Exception("I need to plot to STDOUT, but STDOUT wasn't available")
+            self._testPlotcmd(testcmd, testdata)
 
-                self.plotOptions['output'] = '/dev/fd/' + str(self.fdDupSTDOUT)
-                self._safelyWriteToPipe('set output "' + self.plotOptions['output'] + '"',
-                                        'output')
+            # tests ok. Now set the terminal and actually make the plot!
+            if 'terminal' in self.plotOptions:
+                self._safelyWriteToPipe("set terminal " + self.plotOptions['terminal'],
+                                        'terminal')
+
+            # I always set the output. If no plot option explicitly is given then I
+            # either "set output" for a known interactive terminal, or redirect to
+            # python's STDOUT otherwise
+            if 'output' in self.plotOptions:
+                if self.plotOptions['output'] != '':
+                    # user requested an explicit output
+                    self._safelyWriteToPipe('set output "' + self.plotOptions['output'] + '"',
+                                            'output')
+                else:
+                    # user requested null output
+                    self._safelyWriteToPipe('set output',
+                                            'output')
+            else:
+                # user requested nothing. Is this a known interactive terminal or an
+                # unspecified terminal (unspecified terminal assumed to be
+                # interactive)? Then set the null output
+                if 'terminal' not in self.plotOptions or self.plotOptions['terminal'] in knownInteractiveTerminals:
+                    self._safelyWriteToPipe('set output',
+                                            'output')
+                else:
+                    if self.fdDupSTDOUT is None:
+                        raise Exception("I need to plot to STDOUT, but STDOUT wasn't available")
+
+                    self.plotOptions['output'] = '/dev/fd/' + str(self.fdDupSTDOUT)
+                    self._safelyWriteToPipe('set output "' + self.plotOptions['output'] + '"',
+                                            'output')
 
         # all done. make the plot
         self._printGnuplotPipe( plotcmd + "\n")
@@ -1737,17 +1778,23 @@ labels with spaces in them
         for curve in curves:
             self._sendCurve(curve)
 
-        # read and report any warnings that happened during the plot
-        self._checkpoint('printwarnings')
-
-        # Reset the output. This is required for some terminals such as svg,
-        # that need to write out a closing stanza
-        self._safelyWriteToPipe('set output', 'output')
-
-        if self.plotOptions.get('wait'):
+        if self.plotOptions.get('terminal') == 'gp':
             self._printGnuplotPipe('pause mouse close\n')
-            self._logEvent("Waiting for data from gnuplot")
-            self._checkpoint('waitforever')
+            self._dumpPipe.close()
+            self._dumpPipe = None
+
+        else:
+            # read and report any warnings that happened during the plot
+            self._checkpoint('printwarnings')
+
+            # Reset the output. This is required for some terminals such as svg,
+            # that need to write out a closing stanza
+            self._safelyWriteToPipe('set output', 'output')
+
+            if self.plotOptions.get('wait'):
+                self._printGnuplotPipe('pause mouse close\n')
+                self._logEvent("Waiting for data from gnuplot")
+                self._checkpoint('waitforever')
 
 
 
@@ -1855,7 +1902,7 @@ def plot(*curves, **jointOptions):
     # object. There's no gnuplot session to reuse in that case, and otherwise
     # the dumping won't get activated
     global globalplot
-    if not globalplot or plotOptions.get('dump'):
+    if not globalplot or _data_dump_only(plotOptions):
         globalplot = gnuplotlib(**plotOptions)
     else:
         globalplot.__init__(**plotOptions)
