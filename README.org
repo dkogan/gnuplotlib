@@ -400,15 +400,19 @@ equation) or an array/tuple of strings (for multiple equations). See the
 
 Instead of drawing a plot on screen, plot into a file instead. The output
 filename is the value associated with this key. The output format is inferred
-from the filename. Currently only eps, ps, pdf, png, svg are supported with some
-default sets of options. This option is simply a shorthand for the 'terminal'
-and 'output' options. If the defaults provided by the 'hardcopy' option are
-insufficient, use 'terminal' and 'output' manually. Example:
+from the filename. Currently only eps, ps, pdf, png, svg, gp are supported with
+some default sets of options. This option is simply a shorthand for the
+'terminal' and 'output' options. If the defaults provided by the 'hardcopy'
+option are insufficient, use 'terminal' and 'output' manually. Example:
 
 #+BEGIN_SRC python
 plot(..., hardcopy="plot.pdf")
 [ Plots into that file ]
 #+END_SRC
+
+Note that the ".gp" format is special. Instead of asking gnuplot to make a plot
+using a specific terminal, writing to "xxx.gp" will create a self-plotting data
+file that is visualized with gnuplot.
 
 - terminal
 
@@ -779,10 +783,10 @@ plot(x, y,
      hardcopy = 'output.pdf')
 #+END_SRC
 
-The 'hardcopy' option is a shorthand for the 'terminal' and 'output'
-options. If more control is desired, the latter can be used. For example to
-generate a PDF of a particular size with a particular font size for the text,
-one can do
+The 'hardcopy' option is a shorthand for the 'terminal' and 'output' options (in
+all cases except when writing a .gp file; see below). If more control is
+desired, the latter can be used. For example to generate a PDF of a particular
+size with a particular font size for the text, one can do
 
 #+BEGIN_SRC python
 plot(x, y,
@@ -792,6 +796,16 @@ plot(x, y,
 
 This command is equivalent to the 'hardcopy' shorthand used previously, but the
 fonts and sizes can be changed.
+
+If we write to a ".gp" file:
+
+#+BEGIN_SRC python
+plot(x, y,
+     hardcopy = 'data.gp')
+#+END_SRC
+
+then instead of running gnuplot, we create a self-plotting file. gnuplot is
+invoked when we execute that file.
 
 * INTERFACE
 ** plot()
