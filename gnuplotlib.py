@@ -867,19 +867,19 @@ class gnuplotlib:
 
         if _data_dump_only(self.plotOptions):
             self.gnuplotProcess = None
-            return
-
-        # if we already have a gnuplot process, reset it. Otherwise make a new
-        # one
-        if hasattr(self, 'gnuplotProcess') and self.gnuplotProcess:
-            self._printGnuplotPipe( "reset\nset output\n" )
-            self._checkpoint()
         else:
-            self.gnuplotProcess = None
-            self._startgnuplot()
-            self._logEvent("_startgnuplot() finished")
+            # if we already have a gnuplot process, reset it. Otherwise make a new
+            # one
+            if hasattr(self, 'gnuplotProcess') and self.gnuplotProcess:
+                self._printGnuplotPipe( "reset\nset output\n" )
+                self._checkpoint()
+            else:
+                self.gnuplotProcess = None
+                self._startgnuplot()
+                self._logEvent("_startgnuplot() finished")
 
-        self._safelyWriteToPipe(self._plotOptionsCmds)
+        if self.plotOptions.get('terminal') != 'gp':
+            self._safelyWriteToPipe(self._plotOptionsCmds)
 
 
     def _startgnuplot(self):
