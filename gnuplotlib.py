@@ -267,17 +267,16 @@ persist. I.e.
 - when the python program exits, the gnuplot process and any visible plots go
   away
 
-So if you want to write a program that just shows a plot and does nothing else,
-you MUST put some sort of blocking call after the 'plot()' and before the python
-program exits. Something as simple as the below works:
+If you want to write a program that just shows a plot, and exits when the user
+closes the plot window, you should do any of
 
-    gp.plot( ... )
-    import time
-    time.sleep(100000)
+- add 'wait':1 to the plot options dict
+- call wait() on your gnuplotlib object
+- call the global gnuplotlib.wait(), if you have a global plot
 
-The plot will then stay up until the python process is interrupted, with C-c for
-instance. This is an ugly hack, and I have ideas about improving it, but this
-hasn't been a priority so far.
+Please note that it's not at all trivial to detect if a current plot window
+exists. If not, this function will end up waiting forever, and the user will
+need to Ctrl-C.
 
 * OPTIONS
 
@@ -477,6 +476,14 @@ Don't check for failure after each gnuplot command. And don't test all the plot
 options before creating the plot. This is generally only useful for debugging or
 for more sparse 'dump' functionality.
 
+- wait
+
+When we're done asking gnuplot to make a plot, we ask gnuplot to tell us when
+the user closes the interactive plot window that popped up. The python process
+will block until the user is done looking at the data. This can also be achieved
+by calling the wait() gnuplotlib method or the global gnuplotlib.wait()
+function.
+
 ** Curve options
 
 The curve options describe details of specific curves. They are in a dict, whose
@@ -555,6 +562,12 @@ Generates 3D plots. Shorthand for 'plot(..., _3d=True)'
 
 Generates an image plot. Shorthand for 'plot(..., _with='image', tuplesize=3)'
 
+** global wait(...)
+
+Blocks until the user closes the interactive plot window. Useful for python
+applications that want blocking plotting behavior. This can also be achieved by
+calling the wait() gnuplotlib method or by adding'wait':1 to the plot options
+dict
 
 * RECIPES
 
