@@ -1713,6 +1713,19 @@ labels with spaces in them
         return curves
 
 
+    def wait(self):
+        r'''Waits until the open interactive plot window is closed
+
+        Note: it's not at all trivial to detect if a current plot window exists.
+        If not, this function will end up waiting forever, and the user needs to
+        Ctrl-C
+        '''
+
+        self._printGnuplotPipe('pause mouse close\n')
+        self._logEvent("Waiting for data from gnuplot")
+        self._checkpoint('waitforever')
+
+
     def plot(self, *curves, **curveOptions_base):
         r'''Main gnuplotlib API entry point'''
 
@@ -1792,9 +1805,7 @@ labels with spaces in them
             self._safelyWriteToPipe('set output', 'output')
 
             if self.plotOptions.get('wait'):
-                self._printGnuplotPipe('pause mouse close\n')
-                self._logEvent("Waiting for data from gnuplot")
-                self._checkpoint('waitforever')
+                self.wait()
 
 
 
@@ -1938,7 +1949,6 @@ def plot3d(*curves, **jointOptions):
     plot(*curves, **jointOptions)
 
 
-
 def plotimage(*curves, **jointOptions):
 
     r'''A simple wrapper around class gnuplotlib to plot image maps
@@ -1965,6 +1975,36 @@ def plotimage(*curves, **jointOptions):
     jointOptions['tuplesize'] = 3
     plot(*curves, **jointOptions)
 
+
+def wait():
+    r'''Waits until the open interactive plot window is closed
+
+    SYNOPSIS
+
+        import numpy as np
+        import gnuplotlib as gp
+
+        gp.plot(np.arange(5))
+
+        # interactive plot pops up
+
+        gp.wait()
+
+        # We get here when the user closes the plot window
+
+    DESCRIPTION
+
+    This applies to the global gnuplotlib object.
+
+    It's not at all trivial to detect if a current plot window exists. If not,
+    this function will end up waiting forever, and the user needs to Ctrl-C
+
+    '''
+    global globalplot
+    if not globalplot:
+        raise Exception("There isn't a plot to wait on")
+
+    globalplot.wait()
 
 
 
