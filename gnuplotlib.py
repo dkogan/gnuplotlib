@@ -1717,8 +1717,9 @@ labels with spaces in them
         r'''Waits until the open interactive plot window is closed
 
         Note: it's not at all trivial to detect if a current plot window exists.
-        If not, this function will end up waiting forever, and the user needs to
-        Ctrl-C
+        If not, this function will end up waiting forever, and the user will
+        need to Ctrl-C
+
         '''
 
         self._printGnuplotPipe('pause mouse close\n')
@@ -1997,7 +1998,7 @@ def wait():
     This applies to the global gnuplotlib object.
 
     It's not at all trivial to detect if a current plot window exists. If not,
-    this function will end up waiting forever, and the user needs to Ctrl-C
+    this function will end up waiting forever, and the user will need to Ctrl-C
 
     '''
     global globalplot
