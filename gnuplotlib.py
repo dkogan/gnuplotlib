@@ -802,15 +802,17 @@ def _getGnuplotFeatures():
 
 
     # then I try to set a square aspect ratio for 3D to see if it works
+    equal_3d_works = True
     try:
         out = subprocess.check_output(('gnuplot', '-e', "set view equal"),
                                       stderr=subprocess.STDOUT,
                                       env=env).decode()
+        if re.search("(undefined variable)|(unrecognized option)", out, re.I):
+            equal_3d_works = False
     except:
-        out = 'error!'
+        equal_3d_works = False
 
-    # no output if works; some output if error
-    if len(out) == 0:
+    if equal_3d_works:
         features.add('equal_3d')
 
     return frozenset(features)
@@ -940,8 +942,8 @@ class gnuplotlib:
                ( self.plotOptions.get('square_xy') or self.plotOptions.get('square') ):
 
                 sys.stderr.write("Your gnuplot doesn't support square aspect ratios for 3D plots, so I'm ignoring that\n")
-                del self.plotOptions['square_xy']
-                del self.plotOptions['square']
+                if 'square_xy' in self.plotOptions: del self.plotOptions['square_xy']
+                if 'square'    in self.plotOptions: del self.plotOptions['square'   ]
         else:
             if self.plotOptions.get('square_xy'):
                 raise GnuplotlibError("'square_xy' only makes sense with '3d'")
