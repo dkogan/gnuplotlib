@@ -173,7 +173,7 @@ thus exactly 1 array short. This is thus equivalent to
 
     plot(numpy.arange(5), numpy.array([1,5,3,4,4]) )
 
-If plotting in 3D, an implicit domain will be used if we are exactly 2 arrayss
+If plotting in 3D, an implicit domain will be used if we are exactly 2 arrays
 short. In this case, gnuplotlib will use a 2D grid as a domain. Example:
 
     xy = numpy.arange(21*21).reshape(21*21)
