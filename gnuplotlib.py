@@ -465,10 +465,10 @@ is enabled (see below)
 - ascii
 
 If set, ASCII data is passed to gnuplot instead of binary data. Binary is the
-default because it is much more efficient (and thus faster). Binary input works
-for most plots, but not for all of them. An example where binary plotting
-doesn't work is 'with labels', and this option exists to force ASCII
-communication
+default because it is much more efficient (and thus faster). Usually there's no
+reason to touch this option. Binary input works for most plots, but not for all
+of them. An example where binary plotting doesn't work is 'with labels', and
+gnuplotlib will use ascii there regardless of this setting
 
 - notest
 
@@ -1366,10 +1366,24 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
                file=sys.stderr )
 
 
+    def _plotCurveInASCII(self, curve):
+        '''Should this curve be plotted in ascii?
+
+        Mostly this just looks at the plot-level setting. But 'with labels' is
+        an exception: such curves are ascii-only
+
+        '''
+        return \
+            self.plotOptions.get('ascii') or \
+            ( curve.get('with') and re.match(" *labels\\b", curve['with'], re.I) )
+
+
     def _sendCurve(self, curve):
 
         pipe = self._gnuplotStdin()
-        if self.plotOptions.get('ascii'):
+
+        if self._plotCurveInASCII(curve):
+
             if curve.get('matrix'):
                 np.savetxt(pipe,
                            nps.glue(*curve['_data'], axis=-2).astype(np.float64,copy=False),
@@ -1516,7 +1530,7 @@ labels with spaces in them
         for curve in curves:
             optioncmds = optioncmd(curve)
 
-            if not self.plotOptions.get('ascii'):
+            if not self._plotCurveInASCII(curve):
                 # I get 2 formats: one real, and another to test the plot cmd, in case it
                 # fails. The test command is the same, but with a minimal point count. I
                 # also get the number of bytes in a single data point here
