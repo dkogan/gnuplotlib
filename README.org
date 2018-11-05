@@ -37,6 +37,12 @@ g2.plot( np.cos(theta),
          np.vstack((np.sin(theta), -np.sin(theta))),
          z )
 [ Two 3D spirals together in a new window ]
+
+
+x = np.arange(1000)
+gp.plot( (x*x, dict(histogram=1,            binwidth=10000)),
+         (x*x, dict(histogram='cumulative', y2=1)))
+[ A density and cumulative histogram of x^2 are plotted together ]
 #+END_SRC
 
 
@@ -282,6 +288,37 @@ gp.plot( c,s,
 
 Here the data are points evently spaced around a unit circle. Along with these
 points we plot a unit circle as a parametric equation.
+
+** Histograms
+
+It is possible to use gnuplot's internal histogram support, which uses gnuplot
+to handle all the binning. A simple example:
+
+#+BEGIN_SRC python
+x = np.arange(1000)
+gp.plot( (x*x, dict(histogram = 'freq,        binwidth=10000)),
+         (x*x, dict(histogram = 'cumulative', y2=1))
+#+END_SRC
+
+To use this, pass 'histogram = HISTOGRAM_TYPE' as a curve option. If the type is
+any non-string that evaluates to True, we use the 'freq' type: a basic frequency
+histogram. Otherwise, the types are whatever gnuplot supports. See the output of
+'help smooth' in gnuplot. The most common types are
+
+- freq:       frequency
+- cumulative: integral of freq. Runs from 0 to N, where N is the number
+#+BEGIN_SRC python
+          of samples
+#+END_SRC
+- cnormal:    like 'cumulative', but rescaled to run from 0 to 1
+
+The 'binwidth' curve option specifies the size of the bins. This must match for
+ALL histogram curves in a plot. If omitted, this is assumed to be 1. As usual,
+the user can specify whatever styles they want using the 'with' curve option. If
+omitted, you get reasonable defaults: boxes for 'freq' histograms and lines for
+cumulative ones.
+
+This only makes sense with 2d plots with tuplesize=1
 
 ** Plot persistence and blocking
 
@@ -565,6 +602,21 @@ parabola:
 #+BEGIN_SRC python
 gp.plot(np.arange(100), using='(sqrt($1)):2')
 #+END_SRC
+
+- histogram
+
+If given and if it evaluates to True, gnuplot will plot the histogram of this
+data instead of the data itself. See the "Histograms" section above for more
+details. If this curve option is a string, it's expected to be one of the
+smoothing style gnuplot understands (see 'help smooth'). Otherwise we assume the
+most common style: a frequency histogram. This only makes sense with 2d plots
+and tuplesize=1
+
+- binwidth
+
+Used for the histogram support. See the "Histograms" section above for more
+details. This sets the width of the histogram bins. If omitted, the width is set
+to 1.
 
 * INTERFACE
 

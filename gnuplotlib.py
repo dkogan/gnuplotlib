@@ -39,6 +39,13 @@ r'''a gnuplot-based plotting backend for numpy
     [ Two 3D spirals together in a new window ]
 
 
+    x = np.arange(1000)
+    gp.plot( (x*x, dict(histogram=1,            binwidth=10000)),
+             (x*x, dict(histogram='cumulative', y2=1)))
+    [ A density and cumulative histogram of x^2 are plotted together ]
+
+
+
 * DESCRIPTION
 
 This module allows numpy data to be plotted using Gnuplot as a backend. As much
@@ -255,6 +262,33 @@ things:
 
 Here the data are points evently spaced around a unit circle. Along with these
 points we plot a unit circle as a parametric equation.
+
+** Histograms
+
+It is possible to use gnuplot's internal histogram support, which uses gnuplot
+to handle all the binning. A simple example:
+
+    x = np.arange(1000)
+    gp.plot( (x*x, dict(histogram = 'freq,        binwidth=10000)),
+             (x*x, dict(histogram = 'cumulative', y2=1))
+
+To use this, pass 'histogram = HISTOGRAM_TYPE' as a curve option. If the type is
+any non-string that evaluates to True, we use the 'freq' type: a basic frequency
+histogram. Otherwise, the types are whatever gnuplot supports. See the output of
+'help smooth' in gnuplot. The most common types are
+
+- freq:       frequency
+- cumulative: integral of freq. Runs from 0 to N, where N is the number
+              of samples
+- cnormal:    like 'cumulative', but rescaled to run from 0 to 1
+
+The 'binwidth' curve option specifies the size of the bins. This must match for
+ALL histogram curves in a plot. If omitted, this is assumed to be 1. As usual,
+the user can specify whatever styles they want using the 'with' curve option. If
+omitted, you get reasonable defaults: boxes for 'freq' histograms and lines for
+cumulative ones.
+
+This only makes sense with 2d plots with tuplesize=1
 
 ** Plot persistence and blocking
 
@@ -529,6 +563,21 @@ parabola:
 
     gp.plot(np.arange(100), using='(sqrt($1)):2')
 
+- histogram
+
+If given and if it evaluates to True, gnuplot will plot the histogram of this
+data instead of the data itself. See the "Histograms" section above for more
+details. If this curve option is a string, it's expected to be one of the
+smoothing style gnuplot understands (see 'help smooth'). Otherwise we assume the
+most common style: a frequency histogram. This only makes sense with 2d plots
+and tuplesize=1
+
+- binwidth
+
+Used for the histogram support. See the "Histograms" section above for more
+details. This sets the width of the histogram bins. If omitted, the width is set
+to 1.
+
 * INTERFACE
 
 ** class gnuplotlib
@@ -767,7 +816,8 @@ knownPlotOptions = frozenset(('dump', 'ascii', 'log', 'notest', 'wait',
                               'zmax',  'zmin',  'zrange',  'zinv',  'zlabel',
                               'cbmin', 'cbmax', 'cbrange'))
 
-knownCurveOptions = frozenset(('legend', 'y2', 'with', 'tuplesize', 'using'))
+knownCurveOptions = frozenset(('legend', 'y2', 'with', 'tuplesize', 'using',
+                               'histogram', 'binwidth'))
 
 knownInteractiveTerminals = frozenset(('x11', 'wxt', 'qt', 'aquaterm'))
 
@@ -1504,6 +1554,17 @@ labels with spaces in them
             basecmd += "set ytics nomirror\n"
             basecmd += "set y2tics\n"
 
+        binwidth = None
+        for curve in curves:
+            if curve.get('histogram'):
+                binwidth = 1 # default. Used if nothing else is specified
+                if curve.get('binwidth'):
+                    binwidth = curve['binwidth']
+                    break
+        if binwidth is not None:
+            basecmd += \
+                "set boxwidth {w}\nhistbin(x) = {w} * floor(0.5 + x/{w})\n".format(w=binwidth)
+
         if self.plotOptions.get('3d'): basecmd += 'splot '
         else:                          basecmd += 'plot '
 
@@ -1635,7 +1696,7 @@ labels with spaces in them
         curves = [ reformat(curve) for curve in curves ]
 
 
-
+        binwidth = None
         for curve in curves:
 
             # make sure all the curve options are valid
@@ -1650,6 +1711,41 @@ labels with spaces in them
             # tuplesize=3. This means that the tuplesize can be omitted for
             # basic plots but MUST be given for anything fancy
             Ndata = len(curve['_data'])
+
+            if curve.get('histogram'):
+
+                if self.plotOptions.get('3d'):
+                    raise GnuplotlibError("histograms don't make sense in 3d")
+                if 'tuplesize' in curve and curve['tuplesize'] != 1:
+                    raise GnuplotlibError("histograms only make sense with tuplesize=1. I'll assume this if you don't specify a tuplesize")
+                curve['tuplesize'] = 1
+
+                if 'using' in curve:
+                    raise GnuplotlibError("'using' cannot be given with 'histogram'. I'll make up my own 'using' in this case")
+
+                if type(curve['histogram']) is not str:
+                    curve['histogram'] = 'freq'
+                histogram_type = curve['histogram']
+
+                curve['using'] = '(histbin($1)):(1.0) smooth ' + histogram_type
+
+                if 'with' not in curve:
+                    if re.match('freq|fnorm', histogram_type) and 'with' not in curve:
+                        curve['with'] = 'boxes fill solid border lt -1'
+                    else:
+                        curve['with'] = 'lines'
+
+                if 'binwidth' in curve:
+                    if binwidth is not None and binwidth != curve['binwidth']:
+                        raise GnuplotlibError("Histogram binwidths must all match. This is a gnuplot limitation mostly. Got: {} and {}". \
+                                              format(binwidth,curve['binwidth']))
+                    binwidth = curve['binwidth']
+
+            else:
+                if 'binwidth' in curve:
+                    raise GnuplotlibError("'binwidth' only makes sense with 'histogram'")
+
+
             if not 'tuplesize' in curve:
                 curve['tuplesize'] = 3 if self.plotOptions.get('3d') else 2
 
