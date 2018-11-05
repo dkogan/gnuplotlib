@@ -278,8 +278,7 @@ histogram. Otherwise, the types are whatever gnuplot supports. See the output of
 'help smooth' in gnuplot. The most common types are
 
 - freq:       frequency
-- cumulative: integral of freq. Runs from 0 to N, where N is the number
-              of samples
+- cumulative: integral of freq. Runs from 0 to N, where N is the number of samples
 - cnormal:    like 'cumulative', but rescaled to run from 0 to 1
 
 The 'binwidth' curve option specifies the size of the bins. This must match for

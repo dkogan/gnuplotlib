@@ -46,6 +46,7 @@ gp.plot( (x*x, dict(histogram=1,            binwidth=10000)),
 #+END_SRC
 
 
+
 * DESCRIPTION
 
 This module allows numpy data to be plotted using Gnuplot as a backend. As much
@@ -306,10 +307,7 @@ histogram. Otherwise, the types are whatever gnuplot supports. See the output of
 'help smooth' in gnuplot. The most common types are
 
 - freq:       frequency
-- cumulative: integral of freq. Runs from 0 to N, where N is the number
-#+BEGIN_SRC python
-          of samples
-#+END_SRC
+- cumulative: integral of freq. Runs from 0 to N, where N is the number of samples
 - cnormal:    like 'cumulative', but rescaled to run from 0 to 1
 
 The 'binwidth' curve option specifies the size of the bins. This must match for
