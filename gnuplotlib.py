@@ -1325,7 +1325,11 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
                 # irrelevant inefficiency
                 byte = self.gnuplotProcess.stderr.read(1).decode()
                 fromerr += byte
-                self._logEvent("Read byte '{}' ({}) from gnuplot child process".format(byte, hex(ord(byte))))
+                if byte is not None and len(byte):
+                    self._logEvent("Read byte '{}' ({}) from gnuplot child process".format(byte,
+                                                                                           hex(ord(byte))))
+                else:
+                    self._logEvent("read() returned no data")
             else:
                 self._logEvent("Gnuplot read timed out")
                 self.checkpoint_stuck = True
