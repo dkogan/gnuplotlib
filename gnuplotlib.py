@@ -1147,7 +1147,10 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
             if self.checkpoint_stuck:
                 self.gnuplotProcess.terminate()
             else:
-                self._printGnuplotPipe( "exit\n" )
+                try:
+                    self._printGnuplotPipe( "exit\n" )
+                except:
+                    pass
 
             try:
                 self.gnuplotProcess.wait()
