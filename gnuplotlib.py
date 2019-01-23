@@ -212,8 +212,8 @@ but pass in only 2 arrays (y, color).
 
 Gnuplot can plot both data and equations. This module exists largely for the
 data-plotting case, but sometimes it can be useful to plot equations together
-with some data. This is supported by the 'equation' plot option. This plot
-option is either a string (for a single equation) or a list/tuple containing
+with some data. This is supported by the 'equation...' plot options. These plot
+options are either a string (for a single equation) or a list/tuple containing
 multiple strings for multiple equations. An example:
 
     import numpy as np
@@ -390,12 +390,18 @@ gnuplotlib will flip the y axis to make things look reasonable. If any y-axis
 ranges are given, however (with any of the ymin,ymax,yrange,yinv plot options),
 then it is up to the user to flip the axis, if that's what they want.
 
-- equation
+- equation, equation_above, equation_below
 
-This option allows equations represented as formula strings to be plotted along
-with data passed in as numpy arrays. This can be a string (for a single
+These options allows equations represented as formula strings to be plotted
+along with data passed in as numpy arrays. These can be a string (for a single
 equation) or an array/tuple of strings (for multiple equations). See the
 "Symbolic equations" section above.
+
+By default, the equations are plotted BEFORE other data, so the data plotted
+later may obscure some of the equation. Depending on what we're doing, this may
+or may not be what we want. To plot the equations AFTER other data, use
+'equation_above' instead of 'equation'. The 'equation_below' option is a synonym
+for 'equation'
 
 - hardcopy
 
@@ -808,7 +814,8 @@ knownPlotOptions = frozenset(('dump', 'ascii', 'log', 'notest', 'wait',
                               '3d',
                               'cmds', 'set', 'unset', 'square', 'square_xy', 'title',
                               'hardcopy', 'terminal', 'output',
-                              'with', 'equation', 'rgbimage',
+                              'with', 'rgbimage',
+                              'equation', 'equation_above', 'equation_below',
                               'xmax',  'xmin',  'xrange',  'xinv',  'xlabel',
                               'y2max', 'y2min', 'y2range', 'y2inv', 'y2label',
                               'ymax',  'ymin',  'yrange',  'yinv',  'ylabel',
@@ -1574,23 +1581,28 @@ labels with spaces in them
         if self.plotOptions.get('3d'): basecmd += 'splot '
         else:                          basecmd += 'plot '
 
-        plotCurveCmdsNonData = []
-        plotCurveCmds        = []
-        plotCurveCmdsMinimal = [] # same as above, but with a single data point per plot only
+        plotCurveCmdsNonDataBefore = []
+        plotCurveCmdsNonDataAfter  = []
+        plotCurveCmds              = []
+        plotCurveCmdsMinimal       = [] # same as above, but with a single data point per plot only
 
-        # send all equations
-        if 'equation' in self.plotOptions:
-            if isinstance(self.plotOptions['equation'], (list, tuple)):
-                plotCurveCmdsNonData += self.plotOptions['equation']
-            else:
-                plotCurveCmdsNonData.append(self.plotOptions['equation'])
+        # send all pre-data equations
+        def set_equation(equation, cmds):
+            if equation in self.plotOptions:
+                if isinstance(self.plotOptions[equation], (list, tuple)):
+                    cmds += self.plotOptions[equation]
+                else:
+                    cmds.append(self.plotOptions[equation])
+
+        set_equation('equation',       plotCurveCmdsNonDataBefore)
+        set_equation('equation_below', plotCurveCmdsNonDataBefore)
 
         if 'rgbimage' in self.plotOptions:
             if not os.access     (self.plotOptions['rgbimage'], os.R_OK) or \
                not os.path.isfile(self.plotOptions['rgbimage']):
                 raise GnuplotlibError("Requested image '{}' is not a readable file".format(self.plotOptions['rgbimage']))
 
-            plotCurveCmdsNonData.append('"{0}" binary filetype=auto flipy with rgbimage title "{0}"'.format(self.plotOptions['rgbimage']))
+            plotCurveCmdsNonDataBefore.append('"{0}" binary filetype=auto flipy with rgbimage title "{0}"'.format(self.plotOptions['rgbimage']))
 
         testData             = '' # data to make a minimal plot
 
@@ -1646,9 +1658,11 @@ labels with spaces in them
 
                 testData += testData_curve
 
+        set_equation('equation_above', plotCurveCmdsNonDataAfter)
+
         # the command to make the plot and to test the plot
-        cmd        =  basecmd + ','.join(plotCurveCmdsNonData + plotCurveCmds)
-        cmdMinimal = (basecmd + ','.join(plotCurveCmdsNonData + plotCurveCmdsMinimal)) \
+        cmd        =  basecmd + ','.join(plotCurveCmdsNonDataBefore + plotCurveCmds        + plotCurveCmdsNonDataAfter)
+        cmdMinimal = (basecmd + ','.join(plotCurveCmdsNonDataBefore + plotCurveCmdsMinimal + plotCurveCmdsNonDataAfter)) \
             if plotCurveCmdsMinimal else cmd
 
         return (cmd, cmdMinimal, testData)

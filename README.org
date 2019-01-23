@@ -233,8 +233,8 @@ but pass in only 2 arrays (y, color).
 
 Gnuplot can plot both data and equations. This module exists largely for the
 data-plotting case, but sometimes it can be useful to plot equations together
-with some data. This is supported by the 'equation' plot option. This plot
-option is either a string (for a single equation) or a list/tuple containing
+with some data. This is supported by the 'equation...' plot options. These plot
+options are either a string (for a single equation) or a list/tuple containing
 multiple strings for multiple equations. An example:
 
 #+BEGIN_SRC python
@@ -421,12 +421,18 @@ gnuplotlib will flip the y axis to make things look reasonable. If any y-axis
 ranges are given, however (with any of the ymin,ymax,yrange,yinv plot options),
 then it is up to the user to flip the axis, if that's what they want.
 
-- equation
+- equation, equation_above, equation_below
 
-This option allows equations represented as formula strings to be plotted along
-with data passed in as numpy arrays. This can be a string (for a single
+These options allows equations represented as formula strings to be plotted
+along with data passed in as numpy arrays. These can be a string (for a single
 equation) or an array/tuple of strings (for multiple equations). See the
 "Symbolic equations" section above.
+
+By default, the equations are plotted BEFORE other data, so the data plotted
+later may obscure some of the equation. Depending on what we're doing, this may
+or may not be what we want. To plot the equations AFTER other data, use
+'equation_above' instead of 'equation'. The 'equation_below' option is a synonym
+for 'equation'
 
 - hardcopy
 
