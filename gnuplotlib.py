@@ -1368,13 +1368,14 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         #    as a command. The plot command itself will never be invalid, so this
         #    doesn't actually mask out any errors
         #
-        # 2. "invalid range" errors caused by requested plot bounds (xmin, xmax,
-        #    etc) tossing out any test-plot data. The point of the plot-command
-        #    testing is to make sure the command is valid, so any out-of-boundedness
-        #    of the test data is irrelevant
+        # 2. "invalid range" and "Terminal canvas area too small to hold plot"
+        #    errors caused by the data or labels being out of bounds. The point
+        #    of the plot-command testing is to make sure the command is valid,
+        #    so any out-of-boundedness of the test data is irrelevant
         #
         # 3. image grid complaints
         if flags == 'ignore_known_test_failures':
+
             r = re.compile(r'''^gnuplot>\s*(?:{}|e\b).*$                  # report of the actual invalid command
                                \n^\s+\^\s*$                               # ^ mark pointing to where the error happened
                                \n^.*invalid\s+command.*$'''               # actual 'invalid command' complaint
@@ -1402,7 +1403,16 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
             # Newer gnuplot sometimes says 'x_min should not equal x_max!' when
             # complaining about ranges. Ignore those here
             r = re.compile(r'^.*_min should not equal .*_max!.*$',        # actual 'invalid range' complaint
-                           re.X + re.M)
+                           re.M)
+            fromerr = r.sub('', fromerr)
+
+            # Labels or titles that are too long can complain about stuff being
+            # too small to hold plot
+            r = re.compile(r'''^.*too small to hold plot.*$''',
+                           re.M)
+            fromerr = r.sub('', fromerr)
+            r = re.compile(r'''^.*Check plot boundary.*$''',
+                           re.M)
             fromerr = r.sub('', fromerr)
 
             # 'with image' plots can complain about an uninteresting domain. Exact error:
