@@ -1151,13 +1151,7 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
 
     def __del__(self):
         if hasattr(self, 'gnuplotProcess') and self.gnuplotProcess:
-            if self.checkpoint_stuck:
-                self.gnuplotProcess.terminate()
-            else:
-                try:
-                    self._printGnuplotPipe( "exit\n" )
-                except:
-                    pass
+            self.gnuplotProcess.terminate()
 
             try:
                 self.gnuplotProcess.wait()
