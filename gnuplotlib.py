@@ -1151,7 +1151,11 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
 
     def __del__(self):
         if hasattr(self, 'gnuplotProcess') and self.gnuplotProcess:
-            self.gnuplotProcess.terminate()
+
+            try:
+                self.gnuplotProcess.terminate()
+            except:
+                pass
 
             try:
                 self.gnuplotProcess.wait()
