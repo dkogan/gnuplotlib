@@ -1945,6 +1945,25 @@ labels with spaces in them
         for curve in curves:
             self._sendCurve(curve)
 
+        # There's some bug in gnuplot right now, where it sometimes reads too
+        # many bytes after receiving inline data, which swallows the initial
+        # bytes in a subsequent command, breaking things. I workaround by
+        # stuffing newlines into the pipe. These don't do anything, and gnuplot
+        # is allowed to steal some number of them without breaking anything. I
+        # running gnuplot=5.2.6+dfsg1-1 on Debian. I can tickle the bug by doing
+        # this:
+        #   gp.plot(np.arange(5))
+        # Error:
+        # ...
+        #   File "/home/dima/projects/gnuplotlib/gnuplotlib.py", line 1221, in _safelyWriteToPipe
+        #     raise GnuplotlibError(barfmsg)
+        # gnuplotlib.GnuplotlibError: Gnuplot error: '
+        # "
+        #          ^
+        #          line 0: invalid command
+        # ' while sending cmd 'set output'
+        self._printGnuplotPipe('\n\n\n\n')
+
         if self.plotOptions.get('terminal') == 'gp':
             self._printGnuplotPipe('pause mouse close\n')
             self._dumpPipe.close()
