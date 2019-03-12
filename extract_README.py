@@ -138,9 +138,9 @@ with open('README.org', 'w') as f_target_org:
         write_orgized(inspect.getdoc(mod))
         write( '\n' )
 
-        # extract the global function docstrings. I'm not sure why I'm doing
-        # that for the docstrings, but not for the class or methods. I guess the
-        # bulk of the documentation isn't there, but in the module docstring.
+        # extract the global function docstrings. I'm doing that for the global
+        # functions, but not for the class or methods because the methods have
+        # very little of their own documentation
         write('* GLOBAL FUNCTIONS\n')
 
         for func in dirmod():
