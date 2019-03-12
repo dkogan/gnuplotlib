@@ -124,10 +124,10 @@ passed separately. If we're making anything fancier than a simple 2D or 3D plot
 (2- and 3- tuples respectively) then the 'tuplesize' curve option MUST be passed
 in.
 
-Furthermore, broadcasting is fully supported, so multiple curves can be plotted
-by stacking data inside the passed-in arrays. Broadcasting works across curve
-options also, so things like curve labels and styles can also be stacked inside
-arrays. An example:
+Furthermore, broadcasting (https://github.com/dkogan/gnuplotlib) is fully
+supported, so multiple curves can be plotted by stacking data inside the
+passed-in arrays. Broadcasting works across curve options also, so things like
+curve labels and styles can also be stacked inside arrays. An example:
 
     th    = np.linspace(0, 6*np.pi, 200)
     z     = np.linspace(0, 5,       200)
