@@ -37,18 +37,23 @@ def dirmod():
 with open('README.org', 'w') as f_target_org:
     with open('README', 'w') as f_target:
 
-        def write(s):
-            f_target.    write(s)
-            f_target_org.write(s)
+        def write(s, verbatim):
+            r'''Writes the given string to README and README.org
 
-        def write_orgized(s):
-            r'''Writes the given string, reformatted slightly with org in mind.
+            if verbatim: we simply write the string, and call it good
 
-            The only change this function applies, is to look for indented block
-            (signifying examples) and to wrap then in a #+BEGIN_SRC or
-            #+BEGIN_EXAMPLE.
+            Otherwise, we massage the string slightly for org:
+
+            - we look for indented blocks (signifying examples), and wrap them
+            in a #+BEGIN_SRC or #+BEGIN_EXAMPLE.
 
             '''
+
+            if verbatim:
+                f_target.    write(s)
+                f_target_org.write(s)
+                return
+
 
             # the non-org version is written as is
             f_target.write(s)
@@ -128,20 +133,20 @@ with open('README.org', 'w') as f_target_org:
 
 
         header = '* NAME\n{}: '.format(modname)
-        write( header )
+        write( header, verbatim=True )
 
 
 
 
 
 
-        write_orgized(inspect.getdoc(mod))
-        write( '\n' )
+        write(inspect.getdoc(mod), verbatim=False)
+        write( '\n', verbatim=True )
 
         # extract the global function docstrings. I'm doing that for the global
         # functions, but not for the class or methods because the methods have
         # very little of their own documentation
-        write('* GLOBAL FUNCTIONS\n')
+        write('* GLOBAL FUNCTIONS\n', verbatim=True)
 
         for func in dirmod():
             if re.match('_', func):
@@ -152,9 +157,9 @@ with open('README.org', 'w') as f_target_org:
 
             doc = inspect.getdoc(mod.__dict__[func])
             if doc:
-                write('** {}()\n'.format(func))
-                write_orgized( doc )
-                write( '\n' )
+                write('** {}()\n'.format(func), verbatim=True)
+                write( doc, verbatim=False )
+                write( '\n', verbatim=True )
 
         with open('README.footer.org', 'r') as f_footer:
-            write( f_footer.read() )
+            write( f_footer.read(), verbatim=True )
