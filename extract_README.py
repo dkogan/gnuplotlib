@@ -47,6 +47,8 @@ with open('README.org', 'w') as f_target_org:
             - we look for indented blocks (signifying examples), and wrap them
             in a #+BEGIN_SRC or #+BEGIN_EXAMPLE.
 
+            - we find links, and add markup to make them valid org links
+
             '''
 
             if verbatim:
@@ -69,6 +71,9 @@ with open('README.org', 'w') as f_target_org:
 
             sio = StringIO.StringIO(s)
             for l in sio:
+
+                # handle links
+                l = re.sub( "([^ ]+) *\((https?://[^ ]+)\)", "[[\\2][\\1]]", l)
 
                 if in_quote is None:
                     if len(l) <= 1:
