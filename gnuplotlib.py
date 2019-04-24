@@ -1299,7 +1299,7 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
         # yet arrived. I thus print out a checkpoint message and keep reading the
         # child's STDERR pipe until I get that message back. Any errors would have
         # been printed before this
-        if self.plotOptions.get('notest') and flags != 'waitforever':
+        if self.plotOptions.get('notest') and flags != 'waitforever' and flags != 'final':
             return None, None
 
         checkpoint = "gpsync{}xxx".format(self.sync_count)
@@ -1981,6 +1981,11 @@ labels with spaces in them
 
             if self.plotOptions.get('wait'):
                 self.wait()
+
+        # I force gnuplot to tell me it's done before exiting. Without this 'set
+        # terminal dumb' plots don't end up rendering anything: we kill the
+        # process before it has time to do anything
+        self._checkpoint('final')
 
 
 
