@@ -1299,7 +1299,12 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
         # yet arrived. I thus print out a checkpoint message and keep reading the
         # child's STDERR pipe until I get that message back. Any errors would have
         # been printed before this
-        if self.plotOptions.get('notest') and flags != 'waitforever' and flags != 'final':
+        waitforever                = re.search('waitforever',                flags)
+        final                      = re.search('final',                      flags)
+        printwarnings              = re.search('printwarnings',              flags)
+        ignore_known_test_failures = re.search('ignore_known_test_failures', flags)
+
+        if self.plotOptions.get('notest') and not waitforever and not final:
             return None, None
 
         checkpoint = "gpsync{}xxx".format(self.sync_count)
@@ -1322,7 +1327,7 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
             self._logEvent("Trying to read from gnuplot")
 
             rlist,wlist,xlist = select.select([self.gnuplotProcess.stderr],[], [],
-                                              None if flags == 'waitforever' else 15)
+                                              None if waitforever else 15)
 
             if rlist:
                 # read a byte. I'd like to read "as many bytes as are
@@ -1351,7 +1356,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         warningre = re.compile(r'^.*(?:warning:\s*(.*?)\s*$)\n?', re.M + re.I)
         warnings  = warningre.findall(fromerr)
 
-        if flags == 'printwarnings':
+        if printwarnings:
             for w in warnings:
                 sys.stderr.write("Gnuplot warning: {}\n".format(w))
 
@@ -1372,7 +1377,7 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
         #    so any out-of-boundedness of the test data is irrelevant
         #
         # 3. image grid complaints
-        if flags == 'ignore_known_test_failures':
+        if ignore_known_test_failures:
 
             r = re.compile(r'''^gnuplot>\s*(?:{}|e\b).*$                  # report of the actual invalid command
                                \n^\s+\^\s*$                               # ^ mark pointing to where the error happened
