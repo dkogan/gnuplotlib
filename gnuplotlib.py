@@ -951,11 +951,26 @@ class gnuplotlib:
         except:
             self.fdDupSTDOUT = None
 
+
+        # I need this to make fdDupSTDOUT available to the child gnuplot. This
+        # would happen by default, but in python3 I need to do this extra thing
+        # for some reason. And it's a new thing that didn't exist in python2, so
+        # I need to explicitly allow this to fail in python2
+        try:
+            os.set_inheritable(self.fdDupSTDOUT, True)
+        except AttributeError:
+            pass
+
         self.gnuplotProcess = \
             subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
 
                              # required to "autoflush" writes
                              bufsize=0,
+
+                             # I need this to make fdDupSTDOUT available to the
+                             # child gnuplot. close_fds=False was default in
+                             # python2, but was changed in python3
+                             close_fds = False,
 
                              # This was helpful in python3 to implicitly
                              # encode() strings, but it broke the
