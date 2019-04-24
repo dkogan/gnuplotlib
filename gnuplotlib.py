@@ -1304,7 +1304,7 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
         printwarnings              = re.search('printwarnings',              flags)
         ignore_known_test_failures = re.search('ignore_known_test_failures', flags)
 
-        if self.plotOptions.get('notest') and not waitforever and not final:
+        if self.plotOptions.get('notest') and not waitforever and not final and not printwarnings:
             return None, None
 
         checkpoint = "gpsync{}xxx".format(self.sync_count)
@@ -1990,7 +1990,7 @@ labels with spaces in them
         # I force gnuplot to tell me it's done before exiting. Without this 'set
         # terminal dumb' plots don't end up rendering anything: we kill the
         # process before it has time to do anything
-        self._checkpoint('final')
+        self._checkpoint('final printwarnings')
 
 
 
