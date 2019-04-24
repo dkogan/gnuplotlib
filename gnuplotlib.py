@@ -1499,6 +1499,8 @@ labels with spaces in them
         else:
             nps.mv(nps.cat(*curve['_data']), 0, -1).astype(np.float64,copy=False).tofile(pipe)
 
+        self._logEvent("Sent the data to child process")
+
 
     def _getPlotCmd(self, curves):
 
