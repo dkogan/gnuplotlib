@@ -297,7 +297,7 @@ to handle all the binning. A simple example:
 
 #+BEGIN_SRC python
 x = np.arange(1000)
-gp.plot( (x*x, dict(histogram = 'freq,        binwidth=10000)),
+gp.plot( (x*x, dict(histogram = 'freq',       binwidth=10000)),
          (x*x, dict(histogram = 'cumulative', y2=1))
 #+END_SRC
 
