@@ -269,7 +269,7 @@ It is possible to use gnuplot's internal histogram support, which uses gnuplot
 to handle all the binning. A simple example:
 
     x = np.arange(1000)
-    gp.plot( (x*x, dict(histogram = 'freq,        binwidth=10000)),
+    gp.plot( (x*x, dict(histogram = 'freq',       binwidth=10000)),
              (x*x, dict(histogram = 'cumulative', y2=1))
 
 To use this, pass 'histogram = HISTOGRAM_TYPE' as a curve option. If the type is
