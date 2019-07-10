@@ -1732,6 +1732,10 @@ labels with spaces in them
                 if k not in curve[-1]:
                     curve[-1][k] = curveOptions_base[k]
 
+            for x in curve[0:-1]:
+                if x.size <= 0:
+                    raise GnuplotlibError("Can't plot a length-0 numpy array")
+
         # I convert the curve definition from a list of
         #    (data, data, data, ..., {options})
         # to a dict
