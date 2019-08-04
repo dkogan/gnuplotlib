@@ -1742,10 +1742,19 @@ labels with spaces in them
         #    {options, '_data': (data, data, data, ....)}
         #
         # The former is nicer as a user interface, but the latter is easier for
-        # the programmer (me!) to deal with
+        # the programmer (me!) to deal with.
+        #
+        # Also handle tuplesize<0 by splitting the innermost dimension
         def reformat(curve):
-            d          = _dictDeUnderscore(curve[-1])
-            d['_data'] = list(curve[0:-1])
+            d = _dictDeUnderscore(curve[-1])
+
+            if 'tuplesize' in d and d['tuplesize'] < 0:
+                if len(curve)-1 != 1:
+                    raise GnuplotlibError("tuplesize<0 means that only a single numpy array of data should be given: all data is in this array")
+                d['tuplesize'] = -d['tuplesize']
+                d['_data']     = list(nps.mv(curve[0], -1, 0))
+            else:
+                d['_data'] = list(curve[0:-1])
             return d
         curves = [ reformat(curve) for curve in curves ]
 
