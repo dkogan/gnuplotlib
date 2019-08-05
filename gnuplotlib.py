@@ -208,6 +208,28 @@ values for x,y and identical values for z, size and color. We label the curves
 differently by passing an array for the 'legend' curve option. This array
 contains strings, and is broadcast like everything else.
 
+*** Negative tuplesize
+
+If we have all the data elements in a single array, plotting them is a bit
+awkward. Here're two ways:
+
+    xy = .... # Array of shape (N,2). Each slice is (x,y)
+
+    gp.plot(xy[:,0], xy[:,1])
+
+    gp.plot(*xy.T)
+
+The *xy.T version is concise, but is only possible if we're plotting one curve:
+python syntax doesn't allow any arguments after and *-expanded tuple. With more
+than one curve you're left with the first version, which is really verbose,
+especially with a large tuplesize. gnuplotlib handles this case with a
+shorthand: negative tuplesize. The above can be represented nicely like this:
+
+    gp.plot(xy, tuplesize = -2)
+
+This means that each point has 2 values, but that instead of reading each one in
+a separate array, we have ONE array, with the values in the last dimension.
+
 *** Implicit domains
 
 gnuplotlib looks for tuplesize different arrays for each curve. It is common for
@@ -598,9 +620,17 @@ If true, requests that this curve be plotted on the y2 axis instead of the main 
 
 - tuplesize
 
-Specifies how many values represent each data point. For 2D plots this defaults
-to 2; for 3D plots this defaults to 3. These defaults are correct for simple
-plots
+Described in the "Data arguments" section above. Specifies how many values
+represent each data point. For 2D plots this defaults to 2; for 3D plots this
+defaults to 3. These defaults are correct for simple plots. For each curve we
+expect to get tuplesize separate arrays of data unless any of these are true
+
+  - If tuplesize < 0, we expect to get a single numpy array, with each data
+    tuple in the last dimension. See the "Negative tuplesize" section above for
+    detail.
+
+  - If we receive fewer than tuplesize arrays, we may be using "Implicit
+    domains". See the "Implicit domains" section above for detail.
 
 - using
 
