@@ -54,80 +54,122 @@ making available the full power and flexibility of the Gnuplot backend. Gnuplot
 is described in great detail at its upstream website: http://www.gnuplot.info
 
 gnuplotlib has an object-oriented interface (via class gnuplotlib) and a few
-helper class-less functions (plot(), plot3d(), plotimage()). Each instance of
-class gnuplotlib has a gnuplot process associated with it, which has (usually) a
-plot window to go with it. If multiple simultaneous plot windows are desired,
-create a separate class gnuplotlib object for each.
+global class-less functions (plot(), plot3d(), plotimage()). Each instance of
+class gnuplotlib has a separate gnuplot process and a plot window. If multiple
+simultaneous plot windows are desired, create a separate class gnuplotlib object
+for each.
 
-The helper functions reuse a single global gnuplotlib instance, so each such
+The global functions reuse a single global gnuplotlib instance, so each such
 invocation rewrites over the previous gnuplot window.
 
-When making a plot with the object-oriented interface, the gnuplotlib object is
-created with a set of plot options, then the plot is made by passing it curves,
-possibly with some curve options per curve. Something like this:
+The object-oriented interface is used like this:
 
     import gnuplotlib as gp
     g = gp.gnuplotlib(plot_options)
     g.plot( curve, curve, .... )
 
-A call to plot(...) is simpler:
+The global functions consolidate this into a single call:
 
     import gnuplotlib as gp
-    gp.plot( curve, curve, ...., plot_and_default_curve_options )
+    gp.plot( curve, curve, ...., plot_options_and_default_curve_options )
 
-plot3d(...) simply calls plot(...) with an extra plot option _3d=True.
-plotimage(...) simply calls plot(...) with extra plot options _with='image',
-tuplesize=3.
+Each plot contains multiple curves (different datasets to be plotted). Plot
+generation is controlled by two sets of options:
 
-If just a single curve is plotted, 'curve' can simply be a sequence of numpy
-arrays representing coordinates of each point. For instance:
+- Plot options: parameters that affect the whole plot, like the title of the
+  plot, the axis labels, the extents, 2D/3D selection, etc. These are passed
+  into the gnuplotlib constructor or appear as keyword arguments in a global
+  plot() call. All the plot options are described below in "Plot options".
 
-    plot( x, y )
+- Curve options: parameters that affect only a single curve. These are given as
+  a python dict after all the numpy arrays in a curve. Each is described below
+  in "Curve options".
+
+Each curve is passed in as a python tuple (data, data, data, ..., curve_options)
+where each "data" is a numpy array, and "curve_options" is a dict. If we're
+plotting a single curve, the tuple can be inlined. Thus the following are all
+equivalent ways of making the same plot:
+
+    import gnuplotlib as gp
+    import numpy      as np
+    x = np.arange(10)
+    y = x*x
+
+    # Global function. Non-inlined curves
+    gp.plot( (x,y, dict(_with = 'lines')), title = 'parabola')
+
+    # Global function. Inlined curves (possible because we have only one curve)
+    gp.plot( x,y, _with = 'lines', title = 'parabola' )
+
+    # Object-oriented function. Non-inlined curves.
+    p1 = gp.gnuplotlib(title = 'parabola')
+    p1.plot((x,y, dict(_with = 'lines')),)
+
+    # Object-oriented function. Inlined curves.
+    p2 = gp.gnuplotlib(title = 'parabola')
+    p2.plot(x,y, _with = 'lines')
 
 If multiple curves are to be drawn on the same plot, then each 'curve' must live
-in a separate tuple. The last element of any such tuple can be a dict of curve
-options, if desired. For instance:
+in a separate tuple:
 
-    plot( (x1,y1),
-          (x2,y2, {'legend': 'Second curve'}) )
+    import gnuplotlib as gp
+    import numpy      as np
+    x = np.arange(10)
+    y = x*x
+    z = x*x*x
 
-The plot_and_default_curve_options passed to plot(...) are kwargs. The curve
-options present here are used as defaults for each curve; these defaults can be
-overriden as desired. For instance:
+    # Global function
+    gp.plot( (x,y, dict(_with = 'lines', legend = 'parabola')),
+             (x,z, dict(_with = 'lines', legend = 'cubic')),
+             title = 'parabola and cubic')
 
-    plot( (x1,y1),
-          (x2,y2, {'with':'points'}),
-          _with='lines')
+    # Object-oriented function
+    p = gp.gnuplotlib(title = 'parabola and cubic')
+    p.plot((x,y, dict(_with = 'lines', legend = 'parabola')),
+           (x,z, dict(_with = 'lines', legend = 'cubic')),)
+
+Another way to plot multiple curves is to use broadcasting; described below.
+
+The plot_and_default_curve_options passed to the global plot(...) calls are
+keyword arguments. The curve options present here are used as defaults for each
+curve; these defaults can be overriden in each curve, as desired. For instance:
+
+    gp.plot( (x1,y1),
+             (x2,y2, dict(_with = 'points'})),
+             _with = 'lines')
 
 would plot the first curve with lines, but the second with points.
 
-** Options arguments
+plot3d(...) is equivalent to plot(..., _3d=True)
 
-Plot generation is controlled by two sets of options:
-
-- Plot options: parameters that affect the whole plot, like the title of the
-  plot, the axis labels, the extents, 2d/3d selection, etc. All the plot options
-  are described below in "Plot options".
-
-- Curve options: parameters that affect only a single curve. Each is described
-  below in "Curve options".
+plotimage(...) is equivalent to plot(..., _with='image', tuplesize=3)
 
 ** Data arguments
 
 The 'curve' arguments in the plot(...) argument list represent the actual data
 being plotted. Each output data point is a tuple (set of values, not a python
 "tuple") whose size varies depending on what is being plotted. For example if
-we're making a simple 2D x-y plot, each tuple has 2 values; if we're making a 3d
-plot with each point having variable size and color, each tuple has 5 values
-(x,y,z,size,color). In the plot(...) argument list each tuple element must be
-passed separately. If we're making anything fancier than a simple 2D or 3D plot
-(2- and 3- tuples respectively) then the 'tuplesize' curve option MUST be passed
-in.
+we're making a simple 2D x-y plot, each tuple has 2 values. If we're making a 3D
+plot with each point having variable size and color, each tuple has 5 values:
+(x,y,z,size,color). When passing data to plot(), each tuple element is passed
+separately. So if we want to plot N 2D points we pass the two numpy arrays of
+shape (N,):
 
-Furthermore, broadcasting (https://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)
-is fully supported, so multiple curves can be plotted by stacking data inside
-the passed-in arrays. Broadcasting works across curve options also, so things
-like curve labels and styles can also be stacked inside arrays. An example:
+    gp.plot( x,y )
+
+By default, gnuplotlib assumes tuplesize==2 when plotting in 2D and tuplesize==3
+when plotting in 3D. If we're doing anything else, then the 'tuplesize' curve
+option MUST be passed in:
+
+    gp.plot( x,y,z,size,color, tuplesize = 5, _3d = True )
+
+This is required because you may be using implicit domains (see below) and/or
+broadcasting.
+
+Broadcasting (https://docs.scipy.org/doc/numpy/user/basics.broadcasting.html) is
+fully supported, so multiple curves can be plotted by stacking data inside the
+passed-in arrays. Broadcasting works across curve options also, so things like
+curve labels and styles can also be stacked inside arrays:
 
     th    = np.linspace(0, 6*np.pi, 200)
     z     = np.linspace(0, 5,       200)
@@ -136,64 +178,72 @@ like curve labels and styles can also be stacked inside arrays. An example:
 
 
     # without broadcasting:
-    plot3d( (  np.cos(th),  np.sin(th)
-              z, size, color,
-              { 'legend': 'spiral 1'}),
+    gp.plot3d( (  np.cos(th),  np.sin(th),
+                 z, size, color,
+                 dict(legend = 'spiral 1') ),
 
-            ( -np.cos(th), -np.sin(th)
-              z, size, color,
-              { 'legend': 'spiral 2'})
+               ( -np.cos(th), -np.sin(th),
+                 z, size, color,
+                 dict(legend = 'spiral 2') ),
 
-            title     = 'double helix', tuplesize = 5,
-            _with = 'points pointsize variable pointtype 7 palette' )
+               tuplesize = 5,
+               title = 'double helix',
+               _with = 'points pointsize variable pointtype 7 palette' )
 
 
     # identical plot using broadcasting:
-    plot3d( ( np.cos(th) * np.array([[1,-1]]).T,
-              np.sin(th) * np.array([[1,-1]]).T,
-              z, size, color, { 'legend': np.array(('spiral 1', 'spiral 2'))})
+    gp.plot3d( ( np.cos(th) * np.array([[1,-1]]).T,
+                 np.sin(th) * np.array([[1,-1]]).T,
+                 z, size, color,
+                 dict( legend = np.array(('spiral 1', 'spiral 2')))),
 
-            title     = 'double helix', tuplesize = 5,
-            _with = 'points pointsize variable pointtype 7 palette' )
+               tuplesize = 5,
+               title = 'double helix',
+               _with = 'points pointsize variable pointtype 7 palette' )
 
-This is a 3d plot with variable size and color. There are 5 values in the tuple,
-which we specify. The first 2 arrays have dimensions (2,N); all the other arrays
-have a single dimension. Thus the broadcasting rules generate 2 distinct curves,
-with varying values for x,y and identical values for z, size and color. We label
-the curves differently by passing an array for the 'legend' curve option. This
-array contains strings, and is broadcast like everything else.
+This is a 3D plot with variable size and color. There are 5 values in the tuple,
+which we specify. The first 2 arrays have shape (2,N); all the other arrays have
+shape (N,). Thus the broadcasting rules generate 2 distinct curves, with varying
+values for x,y and identical values for z, size and color. We label the curves
+differently by passing an array for the 'legend' curve option. This array
+contains strings, and is broadcast like everything else.
 
 *** Implicit domains
 
-When a particular tuplesize is specified, gnuplotlib will attempt to read that
-many arrays. If there aren't enough arrays available, gnuplotlib will throw an
-error, unless an implicit domain can be used. This happens if we are EXACTLY 1
-or 2 arrays short (usually when making 2D and 3D plots respectively).
+gnuplotlib looks for tuplesize different arrays for each curve. It is common for
+the first few arrays to be predictable by gnuplotlib, and in those cases it's a
+chore to require for the user to pass those in. Thus, if there are fewer than
+tuplesize arrays available, gnuplotlib will try to use an implicit domain. This
+happens if we are EXACTLY 1 or 2 arrays short (usually when making 2D and 3D
+plots respectively).
 
-When making a simple 2D plot, if exactly 1 dimension is missing, gnuplotlib will
-use numpy.arange(N) as the domain. This is why code like
+If exactly 1 dimension is missing, gnuplotlib will use np.arange(N) as the
+domain: we plot the given values in a row, one after another. Thus
 
-    plot(numpy.array([1,5,3,4,4]))
+    gp.plot(np.array([1,5,3,4,4]))
 
-works. Only one array is given here, but the default tuplesize is 2, and we are
-thus exactly 1 array short. This is thus equivalent to
+is equivalent to
 
-    plot(numpy.arange(5), numpy.array([1,5,3,4,4]) )
+    gp.plot(np.arange(5), np.array([1,5,3,4,4]) )
 
-If plotting in 3D, an implicit domain will be used if we are exactly 2 arrays
-short. In this case, gnuplotlib will use a 2D grid as a domain. Example:
+Only 1 array was given, but the default tuplesize is 2, so we are 1 array short.
 
-    xy = numpy.arange(21*21).reshape(21*21)
-    plot( xy, _with = 'points', _3d=True)
+If we are exactly 2 arrays short, gnuplotlib will use a 2D grid as a domain.
+Example:
+
+    xy = np.arange(21*21).reshape(21*21)
+    gp.plot( xy, _with = 'points', _3d=True)
 
 Here the only given array has dimensions (21,21). This is a 3D plot, so we are
 exactly 2 arrays short. Thus, gnuplotlib generates an implicit domain,
-corresponding to a 21-by-21 grid.
+corresponding to a 21-by-21 grid. Note that in all other cases, each curve takes
+in tuplesize 1-dimensional arrays, while here it takes tuplesize-2 2-dimensional
+arrays.
 
-Note that while the DEFAULT tuplesize depends on whether we're making a 3d plot,
-once we have a tuplesize, the logic doesn't care if a 3d plot is being made. It
-can make sense to have a 2D implicit domain when making 2D plots. For example,
-one can be plotting a color map:
+Also, note that while the DEFAULT tuplesize depends on whether we're making a 3D
+plot, once a tuplesize is given, the logic doesn't care if a 3D plot is being
+made. It can make sense to have a 2D implicit domain when making 2D plots. For
+example, one can be plotting a color map:
 
     x,y = np.ogrid[-10:11,-10:11]
     gp.plot( x**2 + y**2,
@@ -249,8 +299,7 @@ lines, you can issue
 
     gp.plot( ....., equation = 'x**2 with lines linewidth 2')
 
-As before, see the gnuplot documentation for details. You can also do fancy
-things:
+As before, see the gnuplot documentation for details. You can do fancy things:
 
     x   = np.arange(100, dtype=float) / 100 * np.pi * 2;
     c,s = np.cos(x), np.sin(x)
@@ -287,7 +336,7 @@ the user can specify whatever styles they want using the 'with' curve option. If
 omitted, you get reasonable defaults: boxes for 'freq' histograms and lines for
 cumulative ones.
 
-This only makes sense with 2d plots with tuplesize=1
+This only makes sense with 2D plots with tuplesize=1
 
 ** Plot persistence and blocking
 
@@ -574,7 +623,7 @@ If given and if it evaluates to True, gnuplot will plot the histogram of this
 data instead of the data itself. See the "Histograms" section above for more
 details. If this curve option is a string, it's expected to be one of the
 smoothing style gnuplot understands (see 'help smooth'). Otherwise we assume the
-most common style: a frequency histogram. This only makes sense with 2d plots
+most common style: a frequency histogram. This only makes sense with 2D plots
 and tuplesize=1
 
 - binwidth
@@ -718,7 +767,7 @@ just printing the numerical value of the parameter is sufficient.
 
 General style control works identically for 3D plots as in 2D plots.
 
-To plot a set of 3d points, with a square aspect ratio (squareness requires
+To plot a set of 3D points, with a square aspect ratio (squareness requires
 Gnuplot >= 4.4):
 
     plot3d(x, y, z, square = 1)
