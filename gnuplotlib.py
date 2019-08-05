@@ -2067,7 +2067,8 @@ labels with spaces in them
         # I force gnuplot to tell me it's done before exiting. Without this 'set
         # terminal dumb' plots don't end up rendering anything: we kill the
         # process before it has time to do anything
-        self._checkpoint('final printwarnings')
+        if not _data_dump_only(self.plotOptions):
+            self._checkpoint('final printwarnings')
 
 
 
