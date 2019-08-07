@@ -1391,6 +1391,10 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
     # errors is returned. Warnings are explicitly stripped out
     def _checkpoint(self, flags=''):
 
+        if _data_dump_only(self.plotOptions):
+            # There is no child process. There's nothing to checkpoint
+            return None, None
+
         # I have no way of knowing if the child process has sent its error data
         # yet. It may be that an error has already occurred, but the message hasn't
         # yet arrived. I thus print out a checkpoint message and keep reading the
@@ -1401,6 +1405,9 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
         printwarnings              = re.search('printwarnings',              flags)
         ignore_known_test_failures = re.search('ignore_known_test_failures', flags)
 
+        # I always checkpoint() before exiting. Even if notest==1. Without this
+        # 'set terminal dumb' plots don't end up rendering anything: we kill the
+        # process before it has time to make the plot
         if self.plotOptions.get('notest') and not waitforever and not final and not printwarnings:
             return None, None
 
@@ -2101,8 +2108,7 @@ labels with spaces in them
         # I force gnuplot to tell me it's done before exiting. Without this 'set
         # terminal dumb' plots don't end up rendering anything: we kill the
         # process before it has time to do anything
-        if not _data_dump_only(self.plotOptions):
-            self._checkpoint('final printwarnings')
+        self._checkpoint('final printwarnings')
 
 
 
