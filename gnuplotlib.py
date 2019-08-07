@@ -1890,7 +1890,6 @@ labels with spaces in them
                 if 'binwidth' in curve:
                     raise GnuplotlibError("'binwidth' only makes sense with 'histogram'")
 
-
             if not 'tuplesize' in curve:
                 curve['tuplesize'] = 3 if self.plotOptions.get('3d') else 2
 
