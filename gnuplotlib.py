@@ -1807,17 +1807,7 @@ labels with spaces in them
 
         # add an options dict if there isn't one, apply the base curve
         # options to each curve
-        for curve in curves:
-            if not type(curve[-1]) is dict:
-                curve.append({})
-            for k in curveOptions_base:
-                if k not in curve[-1]:
-                    curve[-1][k] = curveOptions_base[k]
-
-            for x in curve[0:-1]:
-                if x.size <= 0:
-                    raise GnuplotlibError("Can't plot a length-0 numpy array")
-
+        #
         # I convert the curve definition from a list of
         #    (data, data, data, ..., {options})
         # to a dict
@@ -1828,15 +1818,27 @@ labels with spaces in them
         #
         # Also handle tuplesize<0 by splitting the innermost dimension
         def reformat(curve):
-            d = _dictDeUnderscore(curve[-1])
+
+            if type(curve[-1]) is dict:
+                d     = _dictDeUnderscore(curve[-1])
+                curve = curve[:-1]
+            else:
+                d = {}
+            for k in _dictDeUnderscore(curveOptions_base):
+                if k not in d:
+                    d[k] = curveOptions_base[k]
+
+            for x in curve:
+                if x.size <= 0:
+                    raise GnuplotlibError("Can't plot a length-0 numpy array")
 
             if 'tuplesize' in d and d['tuplesize'] < 0:
-                if len(curve)-1 != 1:
+                if len(curve) != 1:
                     raise GnuplotlibError("tuplesize<0 means that only a single numpy array of data should be given: all data is in this array")
                 d['tuplesize'] = -d['tuplesize']
                 d['_data']     = list(nps.mv(curve[0], -1, 0))
             else:
-                d['_data'] = list(curve[0:-1])
+                d['_data'] = list(curve)
             return d
         curves = [ reformat(curve) for curve in curves ]
 
