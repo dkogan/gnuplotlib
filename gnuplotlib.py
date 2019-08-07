@@ -161,7 +161,10 @@ By default, gnuplotlib assumes tuplesize==2 when plotting in 2D and tuplesize==3
 when plotting in 3D. If we're doing anything else, then the 'tuplesize' curve
 option MUST be passed in:
 
-    gp.plot( x,y,z,size,color, tuplesize = 5, _3d = True )
+    gp.plot( x,y,z,size,color,
+             tuplesize = 5,
+             _3d = True,
+             _with = 'points ps variable palette )
 
 This is required because you may be using implicit domains (see below) and/or
 broadcasting.
