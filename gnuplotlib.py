@@ -135,7 +135,7 @@ keyword arguments. The curve options present here are used as defaults for each
 curve; these defaults can be overriden in each curve, as desired. For instance:
 
     gp.plot( (x1,y1),
-             (x2,y2, dict(_with = 'points'})),
+             (x2,y2, dict(_with = 'points')),
              _with = 'lines')
 
 would plot the first curve with lines, but the second with points.
