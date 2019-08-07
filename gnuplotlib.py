@@ -888,7 +888,7 @@ import numpy as np
 import numpysane as nps
 
 # setup.py assumes the version is a simple string in '' quotes
-__version__ = '0.29'
+__version__ = '0.30'
 
 # note that 'with' is both a known plot and curve option
 knownPlotOptions = frozenset(('dump', 'ascii', 'log', 'notest', 'wait',
