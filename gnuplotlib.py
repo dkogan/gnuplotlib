@@ -1812,6 +1812,8 @@ labels with spaces in them
             else:
                 raise GnuplotlibError("all data arguments should be of type ndarray (one curve) or tuples")
 
+        curveOptions_base = _dictDeUnderscore(curveOptions_base)
+
         # add an options dict if there isn't one, apply the base curve
         # options to each curve
         #
@@ -1831,7 +1833,7 @@ labels with spaces in them
                 curve = curve[:-1]
             else:
                 d = {}
-            for k in _dictDeUnderscore(curveOptions_base):
+            for k in curveOptions_base:
                 if k not in d:
                     d[k] = curveOptions_base[k]
 
