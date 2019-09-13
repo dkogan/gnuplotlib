@@ -2060,7 +2060,7 @@ labels with spaces in them
                                             'output')
                 else:
                     if self.fdDupSTDOUT is None:
-                        raise Exception("I need to plot to STDOUT, but STDOUT wasn't available")
+                        raise GnuplotlibError("I need to plot to STDOUT, but STDOUT wasn't available")
 
                     self.plotOptions['output'] = '/dev/fd/' + str(self.fdDupSTDOUT)
                     self._safelyWriteToPipe('set output "' + self.plotOptions['output'] + '"',
@@ -2307,7 +2307,7 @@ def wait():
     '''
     global globalplot
     if not globalplot:
-        raise Exception("There isn't a plot to wait on")
+        raise GnuplotlibError("There isn't a plot to wait on")
 
     globalplot.wait()
 
