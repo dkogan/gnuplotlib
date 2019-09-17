@@ -262,6 +262,79 @@ gp.plot3d( (zz, {'tuplesize': 3, 'with': np.array(('image','lines'))}),
            square = 1,
            wait = 1)
 
+################################
+# multiplot
+################################
+
+# basics
+gp.plot( (x**2,),
+         (-x, x**3),
+         ( theta,
+           1./np.cos(theta) + a*np.cos(theta), # broadcasted. dim=(7,1000)
+
+           dict( _with  = 'lines',
+                 set    = 'polar',
+                 square = True,
+                 yrange = [-5,5],
+                 legend = a.ravel())),
+         (x_3d, y_3d, z_3d,
+          dict( _with = 'points',
+                title  = 'sphere',
+                square = True,
+                legend = 'sphere',
+                _3d    = True)),
+         wait=1,
+         multiplot='title "basic multiplot" layout 2,2', )
+
+# fancy contours stacked on top of one another
+xx,yy = np.meshgrid(np.linspace(-5,5,100),
+                    np.linspace(-5,5,100))
+zz = np.sin(xx) + yy*yy/30.
+gp.plot3d( (zz,
+            dict(tuplesize=3,
+                 _with = np.array(('lines nosurface',
+                                   'labels boxed nosurface')),
+                 _set = ( 'origin 0,0',
+                     'size 1,1',
+                     'view 60,30,1,1',
+                     'xrange [0:100]',
+                     'yrange [0:100]',
+                     'zrange [0:150]',
+                     'contour base',
+                     'xyplane at 10' )) ),
+
+           (zz,
+            dict(tuplesize=3,
+                 _with = np.array(('lines nosurface',
+                                   'labels boxed nosurface')),
+                 _set = ( 'origin 0,0',
+                     'size 1,1',
+                     'view 60,30,1,1',
+                     'xrange [0:100]',
+                     'yrange [0:100]',
+                     'zrange [0:150]',
+                     'contour base',
+                     'xyplane at 50' )) ),
+
+           (zz,
+            dict(tuplesize=3,
+                 _with = np.array(('lines nosurface',
+                                   'labels boxed nosurface')),
+                 _set = ( 'origin 0,0',
+                     'size 1,1',
+                     'view 60,30,1,1',
+                     'xrange [0:100]',
+                     'yrange [0:100]',
+                     'zrange [0:150]',
+                     'contour base',
+                     'xyplane at 150' )) ),
+
+           wait=1,
+           square=1,
+           multiplot='layout 3,1')
+
+
+
 
 ################################
 # testing some error detection
