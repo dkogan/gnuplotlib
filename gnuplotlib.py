@@ -1766,6 +1766,7 @@ labels with spaces in them
                         format(matrix     = matrix,
                                using      = using,
                                optioncmds = optioncmds))
+                plotCurveCmdsMinimal.append( plotCurveCmds[-1] ) # same testing command
 
                 testData_curve = ''
                 if curve.get('matrix'):
@@ -1780,9 +1781,8 @@ labels with spaces in them
         set_equation('equation_above', plotCurveCmdsNonDataAfter)
 
         # the command to make the plot and to test the plot
-        cmd        =  basecmd + ','.join(plotCurveCmdsNonDataBefore + plotCurveCmds        + plotCurveCmdsNonDataAfter)
-        cmdMinimal = (basecmd + ','.join(plotCurveCmdsNonDataBefore + plotCurveCmdsMinimal + plotCurveCmdsNonDataAfter)) \
-            if plotCurveCmdsMinimal else cmd
+        cmd        = basecmd + ','.join(plotCurveCmdsNonDataBefore + plotCurveCmds        + plotCurveCmdsNonDataAfter)
+        cmdMinimal = basecmd + ','.join(plotCurveCmdsNonDataBefore + plotCurveCmdsMinimal + plotCurveCmdsNonDataAfter)
 
         return (cmd, cmdMinimal, testData)
 
