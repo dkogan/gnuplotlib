@@ -17,7 +17,6 @@ x_3d = (np.cos(ph) * np.cos(th))          .ravel()
 y_3d = (np.cos(ph) * np.sin(th))          .ravel()
 z_3d = (np.sin(ph) * np.ones( th.shape )) .ravel()
 
-sleep_interval = 1
 
 
 
@@ -29,26 +28,20 @@ sleep_interval = 1
 
 # first, some very basic stuff. Testing implicit domains, multiple curves in
 # arguments, packed broadcastable data, etc
-gp.plot(x**2)
-time.sleep(sleep_interval)
-gp.plot(-x, x**3)
-time.sleep(sleep_interval)
-gp.plot((x**2))
-time.sleep(sleep_interval)
-gp.plot((-x, x**3, {'with': 'lines'}), (x**2,))
-time.sleep(sleep_interval)
-gp.plot( x, np.vstack((x**3, x**2)) )
-time.sleep(sleep_interval)
-gp.plot( np.vstack((-x**3, x**2)), _with='lines' )
-time.sleep(sleep_interval)
-gp.plot( (np.vstack((x**3, -x**2)), {'with': 'points'} ))
-time.sleep(sleep_interval)
+gp.plot(x**2, wait=1)
+gp.plot(-x, x**3, wait=1)
+gp.plot((x**2), wait=1)
+gp.plot((-x, x**3, {'with': 'lines'}), (x**2,), wait=1)
+gp.plot( x, np.vstack((x**3, x**2)) , wait=1)
+gp.plot( np.vstack((-x**3, x**2)), _with='lines' , wait=1)
+gp.plot( (np.vstack((x**3, -x**2)), {'with': 'points'} ), wait=1)
 
 #################################
 # some more varied plotting, using the object-oriented interface
 plot1 = gp.gnuplotlib(_with = 'linespoints',
                       xmin  = -10,
-                      title = 'Error bars and other things')
+                      title = 'Error bars and other things',
+                      wait = 1)
 
 plot1.plot( ( np.vstack((x, x*2, x*3)), x**2 - 300,
               {'with':   'lines lw 4',
@@ -63,7 +56,6 @@ plot1.plot( ( np.vstack((x, x*2, x*3)), x**2 - 300,
              {"with": 'lines',
               'legend': 'shifted cubics',
               'tuplesize': 2}))
-time.sleep(sleep_interval)
 
 #################################
 
@@ -75,14 +67,14 @@ time.sleep(sleep_interval)
 gp.plot( x**2, np.abs(x)/2, x*50,
          cbrange = '-600:600',
          _with   = 'points pointtype 7 pointsize variable palette',
-         tuplesize = 4 )
-time.sleep(sleep_interval)
+         tuplesize = 4,
+         wait = 1)
 
 # labels
 gp.plot(np.arange(5),np.arange(5)+1,
         np.array( ['{} {}'.format(x,x+1) for x in range(5)], dtype=str),
-        _with='labels', tuplesize=3, ascii=1)
-time.sleep(sleep_interval)
+        _with='labels', tuplesize=3, ascii=1,
+        wait = 1)
 
 # Conchoids of de Sluze. Broadcasting example
 theta = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
@@ -94,8 +86,8 @@ gp.plot( theta,
          set    = 'polar',
          square = True,
          yrange = [-5,5],
-         legend = a.ravel() )
-time.sleep(sleep_interval)
+         legend = a.ravel(),
+         wait = 1)
 
 
 ################################
@@ -107,8 +99,8 @@ gp.plot3d( x_3d, y_3d, z_3d,
            _with = 'points',
            title  = 'sphere',
            square = True,
-           legend = 'sphere')
-time.sleep(sleep_interval)
+           legend = 'sphere',
+           wait = 1)
 
 # sphere, ellipse together
 gp.plot3d( (x_3d * np.array([[1,2]]).T,
@@ -118,8 +110,8 @@ gp.plot3d( (x_3d * np.array([[1,2]]).T,
 
            title  = 'sphere, ellipse',
            square = True,
-           _with  = 'points')
-time.sleep(sleep_interval)
+           _with  = 'points',
+           wait = 1)
 
 
 # similar, written to a png
@@ -131,8 +123,8 @@ gp.plot3d( (x_3d * np.array([[1,2]]).T,
            title    = 'sphere, ellipse',
            square   = True,
            _with    = 'points',
-           hardcopy = 'spheres.png')
-time.sleep(sleep_interval)
+           hardcopy = 'spheres.png',
+           wait = 1)
 
 
 
@@ -144,8 +136,8 @@ gp.plot3d( ( z,  {'legend': 'zplus'}),
            (-z,  {'legend': 'zminus'}),
            (z*2, {'legend': 'zplus2'}),
 
-           _with = 'points', title  = 'gridded paraboloids', ascii=True)
-time.sleep(sleep_interval)
+           _with = 'points', title  = 'gridded paraboloids', ascii=True,
+           wait = 1)
 
 # 3d, variable color, variable pointsize
 th    = np.linspace(0, 6*np.pi, 200)
@@ -159,8 +151,8 @@ gp.plot3d( ( np.cos(th) * np.array([[1,-1]]).T,
 
            title     = 'double helix',
            tuplesize = 5,
-           _with = 'points pointsize variable pointtype 7 palette' )
-time.sleep(sleep_interval)
+           _with = 'points pointsize variable pointtype 7 palette',
+           wait = 1)
 
 
 # implicit domain heat map
@@ -169,8 +161,8 @@ z   = x*x + y*y
 gp.plot3d(z,
           title = 'Paraboloid heat map',
           set   = 'view map',
-          _with = 'image')
-time.sleep(sleep_interval)
+          _with = 'image',
+          wait = 1)
 
 # same, but as a 2d gp.plot, _with a curve drawn on top for good measure
 x,y = np.ogrid[-10:11, -10:11]
@@ -187,8 +179,8 @@ gp.plot( ( z, {'tuplesize': 3,
          xmin = 0,
          xmax = 20,
          ymin = 0,
-         ymax = 20 )
-time.sleep(sleep_interval)
+         ymax = 20,
+         wait = 1)
 
 
 
@@ -207,8 +199,8 @@ gp.plot(z,
         square    = 1,
         tuplesize = 3,
         _with     = 'points palette pt 7',
-        ascii     = False)
-time.sleep(sleep_interval)
+        ascii     = False,
+        wait      = 1)
 
 # 4d matrix curve
 gp.plot(z, x,
@@ -216,8 +208,8 @@ gp.plot(z, x,
         square    = 1,
         tuplesize = 4,
         _with     = 'points palette ps variable pt 7',
-        ascii     = False)
-time.sleep(sleep_interval)
+        ascii     = False,
+        wait      = 1)
 
 # Using broadcasting to plot each slice with a different style
 gp.plot((np.rollaxis( np.dstack((x,z)), 2,0),
@@ -226,8 +218,8 @@ gp.plot((np.rollaxis( np.dstack((x,z)), 2,0),
 
         title  = 'Two 3D matrix plots. Binary.',
         square = 1,
-        ascii = False)
-time.sleep(sleep_interval)
+        ascii  = False,
+        wait   = 1)
 
 # # Gnuplot doesn't support this
 # gp.plot(z, x,
@@ -235,9 +227,9 @@ time.sleep(sleep_interval)
 #         square    = 1,
 #         tuplesize = 4,
 #         _with     = 'points palette ps variable pt 7',
-#         ascii     = True)
-# time.sleep(sleep_interval)
-
+#         ascii     = True,
+#         wait      = 1)
+#
 # 2 3d matrix curves
 gp.plot((np.rollaxis( np.dstack((x,z)), 2,0),
          {'tuplesize': 3,
@@ -245,8 +237,8 @@ gp.plot((np.rollaxis( np.dstack((x,z)), 2,0),
 
         title  = 'Two 3D matrix plots. Binary.',
         square = 1,
-        ascii = True)
-time.sleep(sleep_interval)
+        ascii  = True,
+        wait   = 1)
 
 ###################################
 # fancy contours just because I can
@@ -267,8 +259,8 @@ gp.plot3d( (z, {'tuplesize': 3, 'with': np.array(('image','lines'))}),
                      'unset grid',
                      'unset surface',
                      'set view 0,0'],
-           square = 1 )
-time.sleep(sleep_interval)
+           square = 1,
+           wait = 1)
 
 
 ################################
