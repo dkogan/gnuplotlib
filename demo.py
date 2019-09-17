@@ -280,7 +280,7 @@ except:
 else:
     print("ERROR! An error was supposed to be reported but it was not\n")
 
-sys.stderr.write('gnuplotlib can detect I/O hangs. Here I ask for a delay, so I should detect this and quit after a few seconds:\n')
+sys.stderr.write('gnuplotlib can detect I/O hangs. Here I ask for a delay, so I should detect this and quit after a few seconds...\n')
 sys.stderr.write("=================================\n")
 try:
     gp.plot( np.arange(5), cmds = 'pause 20' )
