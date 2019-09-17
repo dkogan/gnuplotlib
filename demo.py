@@ -130,24 +130,24 @@ gp.plot3d( (x_3d * np.array([[1,2]]).T,
 
 
 # some paraboloids plotted on an implicit 2D domain
-x,y = np.ogrid[-10:11, -10:11]
-z   = x*x + y*y
-gp.plot3d( ( z,  {'legend': 'zplus'}),
-           (-z,  {'legend': 'zminus'}),
-           (z*2, {'legend': 'zplus2'}),
+xx,yy = np.ogrid[-10:11, -10:11]
+zz    = xx*xx + yy*yy
+gp.plot3d( ( zz,  {'legend': 'zplus'}),
+           (-zz,  {'legend': 'zminus'}),
+           (zz*2, {'legend': 'zplus2'}),
 
            _with = 'points', title  = 'gridded paraboloids', ascii=True,
            wait = 1)
 
 # 3d, variable color, variable pointsize
-th    = np.linspace(0, 6*np.pi, 200)
-z     = np.linspace(0, 5,       200)
-size  = 0.5 + np.abs(np.cos(th))
-color = np.sin(2*th)
+th2   = np.linspace(0, 6*np.pi, 200)
+zz    = np.linspace(0, 5,       200)
+size  = 0.5 + np.abs(np.cos(th2))
+color = np.sin(2*th2)
 
-gp.plot3d( ( np.cos(th) * np.array([[1,-1]]).T,
-             np.sin(th) * np.array([[1,-1]]).T,
-             z, size, color, { 'legend': np.array(('spiral 1', 'spiral 2'))}),
+gp.plot3d( ( np.cos(th2) * np.array([[1,-1]]).T,
+             np.sin(th2) * np.array([[1,-1]]).T,
+             zz, size, color, { 'legend': np.array(('spiral 1', 'spiral 2'))}),
 
            title     = 'double helix',
            tuplesize = 5,
@@ -156,21 +156,21 @@ gp.plot3d( ( np.cos(th) * np.array([[1,-1]]).T,
 
 
 # implicit domain heat map
-x,y = np.ogrid[-10:11, -10:11]
-z   = x*x + y*y
-gp.plot3d(z,
+xx,yy = np.ogrid[-10:11, -10:11]
+zz    = xx*xx + yy*yy
+gp.plot3d(zz,
           title = 'Paraboloid heat map',
           set   = 'view map',
           _with = 'image',
           wait = 1)
 
 # same, but as a 2d gp.plot, _with a curve drawn on top for good measure
-x,y = np.ogrid[-10:11, -10:11]
-z   = x*x + y*y
-x   = np.linspace(0,20,100)
-gp.plot( ( z, {'tuplesize': 3,
+xx,yy = np.ogrid[-10:11, -10:11]
+zz    = xx*xx + yy*yy
+xx    = np.linspace(0,20,100)
+gp.plot( ( zz, {'tuplesize': 3,
                'with':      'image'}),
-         (x, 20*np.cos(x/20 * np.pi/2),
+         (xx, 20*np.cos(xx/20 * np.pi/2),
 
           {'tuplesize': 2,
            'with':      'lines'}),
@@ -187,14 +187,14 @@ gp.plot( ( z, {'tuplesize': 3,
 ################################
 # 2D implicit domain demos
 ################################
-x,y = np.mgrid[-10:11, -10:11]
-z   = np.sqrt(x*x + y*y)
+xx,yy = np.mgrid[-10:11, -10:11]
+zz    = np.sqrt(xx*xx + yy*yy)
 
-x  = x[:, 2:12]
-z  = z[:, 2:12]
+xx  = xx[:, 2:12]
+zz  = zz[:, 2:12]
 
 # single 3d matrix curve
-gp.plot(z,
+gp.plot(zz,
         title     = 'Single 3D matrix plot. Binary.',
         square    = 1,
         tuplesize = 3,
@@ -203,7 +203,7 @@ gp.plot(z,
         wait      = 1)
 
 # 4d matrix curve
-gp.plot(z, x,
+gp.plot(zz, xx,
         title     = '4D matrix plot. Binary.',
         square    = 1,
         tuplesize = 4,
@@ -212,7 +212,7 @@ gp.plot(z, x,
         wait      = 1)
 
 # Using broadcasting to plot each slice with a different style
-gp.plot((np.rollaxis( np.dstack((x,z)), 2,0),
+gp.plot((np.rollaxis( np.dstack((xx,zz)), 2,0),
          {'tuplesize': 3,
           'with': np.array(('points palette pt 7','points ps variable pt 6'))}),
 
@@ -231,7 +231,7 @@ gp.plot((np.rollaxis( np.dstack((x,z)), 2,0),
 #         wait      = 1)
 #
 # 2 3d matrix curves
-gp.plot((np.rollaxis( np.dstack((x,z)), 2,0),
+gp.plot((np.rollaxis( np.dstack((xx,zz)), 2,0),
          {'tuplesize': 3,
           'with': np.array(('points palette pt 7','points ps variable pt 6'))}),
 
@@ -243,14 +243,14 @@ gp.plot((np.rollaxis( np.dstack((x,z)), 2,0),
 ###################################
 # fancy contours just because I can
 ###################################
-y,x = np.mgrid[0:61,0:61]
-x -= 30
-y -= 30
-z = np.sin(x / 4.0) * y
+yy,xx = np.mgrid[0:61,0:61]
+xx -= 30
+yy -= 30
+zz = np.sin(xx / 4.0) * yy
 
 # single 3d matrix curve. Two plots: the image and the contours together.
 # Broadcasting the styles
-gp.plot3d( (z, {'tuplesize': 3, 'with': np.array(('image','lines'))}),
+gp.plot3d( (zz, {'tuplesize': 3, 'with': np.array(('image','lines'))}),
 
            title = 'matrix plot with contours',
            cmds  = [ 'set contours base',
