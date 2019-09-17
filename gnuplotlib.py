@@ -999,10 +999,15 @@ class GnuplotlibError(Exception):
 
 def _data_dump_only(processOptions):
     '''Returns True if we're dumping a script, NOT actually running gnuplot'''
+    def is_gp():
+        h = processOptions.get('hardcopy')
+        return \
+            type(h) is str and \
+            re.match(".*\.gp$", h)
     return \
         processOptions.get('dump') or \
         processOptions.get('terminal') == 'gp' or \
-        re.match(".*\.gp$",processOptions.get('hardcopy',''))
+        is_gp()
 
 def split_dict(d, *keysets):
     r'''Given a dict and some sets of keys, split into sub-dicts with keys
@@ -1065,7 +1070,7 @@ def massageProcessOptionsAndGetCmds(processOptions):
 
     # handle 'hardcopy'. This simply ties in to 'output' and 'terminal', handled
     # later
-    if 'hardcopy' in processOptions:
+    if processOptions.get('hardcopy') is not None:
         # 'hardcopy' is simply a shorthand for 'terminal' and 'output', so they
         # can't exist together
         if 'terminal' in processOptions or 'output' in processOptions:
