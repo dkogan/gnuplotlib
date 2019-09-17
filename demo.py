@@ -332,7 +332,7 @@ gp.plot3d( (zz,
 
            wait=1,
            square=1,
-           multiplot='layout 3,1')
+           multiplot=True)
 
 
 
