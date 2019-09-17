@@ -2297,7 +2297,7 @@ labels with spaces in them
 
             if self.processOptions.get('multiplot'):
                 self._safelyWriteToPipe('set multiplot ' + \
-                                        self.processOptions['multiplot'] if type(self.processOptions['multiplot']) is str else '')
+                                        (self.processOptions['multiplot'] if type(self.processOptions['multiplot']) is str else ''))
             for curves,subplotOptionsCmds,plotcmd,testcmd,testdata in subplots:
                 if self.processOptions.get('multiplot'):
                     # we're multiplotting, so I need to wipe the slate clean so
@@ -2316,7 +2316,7 @@ labels with spaces in them
 
         if self.processOptions.get('multiplot'):
             self._safelyWriteToPipe('set multiplot ' + \
-                                    self.processOptions['multiplot'] if type(self.processOptions['multiplot']) is str else '')
+                                    (self.processOptions['multiplot'] if type(self.processOptions['multiplot']) is str else ''))
         for curves,subplotOptionsCmds,plotcmd,testcmd,testdata in subplots:
             if self.processOptions.get('multiplot'):
                 # we're multiplotting, so I need to wipe the slate clean so that
