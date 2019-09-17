@@ -17,6 +17,9 @@ x_3d = (np.cos(ph) * np.cos(th))          .ravel()
 y_3d = (np.cos(ph) * np.sin(th))          .ravel()
 z_3d = (np.sin(ph) * np.ones( th.shape )) .ravel()
 
+rho = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
+a   = np.arange(-4,3)[:, np.newaxis] # dim=(7,1)
+
 
 
 
@@ -77,10 +80,8 @@ gp.plot(np.arange(5),np.arange(5)+1,
         wait = 1)
 
 # Conchoids of de Sluze. Broadcasting example
-theta = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
-a     = np.arange(-4,3)[:, np.newaxis] # dim=(7,1)
-gp.plot( theta,
-         1./np.cos(theta) + a*np.cos(theta), # broadcasted. dim=(7,1000)
+gp.plot( rho,
+         1./np.cos(rho) + a*np.cos(rho), # broadcasted. dim=(7,1000)
 
          _with  = 'lines',
          set    = 'polar',
@@ -269,8 +270,8 @@ gp.plot3d( (zz, {'tuplesize': 3, 'with': np.array(('image','lines'))}),
 # basics
 gp.plot( (x**2,),
          (-x, x**3),
-         ( theta,
-           1./np.cos(theta) + a*np.cos(theta), # broadcasted. dim=(7,1000)
+         ( rho,
+           1./np.cos(rho) + a*np.cos(rho), # broadcasted. dim=(7,1000)
 
            dict( _with  = 'lines',
                  set    = 'polar',
