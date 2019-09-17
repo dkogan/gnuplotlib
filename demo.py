@@ -6,6 +6,29 @@ import sys
 
 import gnuplotlib as gp
 
+
+# some simple infrastructure
+def print_red(x):
+    """print the message in red"""
+    sys.stdout.write("\x1b[31m" + x + "\x1b[0m\n")
+def print_green(x):
+    """Print the message in green"""
+    sys.stdout.write("\x1b[32m" + x + "\x1b[0m\n")
+def check_expected_error(what, f):
+    sys.stderr.write(what + '\n')
+    sys.stderr.write("=================================\n")
+    try:
+        f()
+    except gp.GnuplotlibError as e:
+        print_green("OK! Got err I was supposed to get:\n[[[[[[[\n{}\n]]]]]]]".format(e))
+    except Exception as e:
+        print_red("ERROR! Got some other error I was NOT supposed to get: {}".format(e))
+    else:
+        print_red("ERROR! An error was supposed to be reported but it was not")
+
+
+
+
 # data I use for 2D testing
 x = np.arange(21) - 10
 
@@ -19,9 +42,6 @@ z_3d = (np.sin(ph) * np.ones( th.shape )) .ravel()
 
 rho = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
 a   = np.arange(-4,3)[:, np.newaxis] # dim=(7,1)
-
-
-
 
 
 
@@ -345,24 +365,29 @@ for hardcopy in (None, "stacked-contours.png"):
 
 sys.stderr.write("\n\n\n")
 sys.stderr.write("==== Testing error detection ====\n")
-sys.stderr.write('I should complain about an invalid "with":\n')
-sys.stderr.write("=================================\n")
-try:
-    gp.plot(np.arange(5), _with = 'bogusstyle')
-except gp.GnuplotlibError as e:
-    print("OK! Got err I was supposed to get:\n[[[[[[[\n{}\n]]]]]]]\n".format(e))
-except:
-    print("ERROR! Got some other error I was NOT supposed to get\n")
-else:
-    print("ERROR! An error was supposed to be reported but it was not\n")
 
-sys.stderr.write('gnuplotlib can detect I/O hangs. Here I ask for a delay, so I should detect this and quit after a few seconds...\n')
-sys.stderr.write("=================================\n")
-try:
-    gp.plot( np.arange(5), cmds = 'pause 20' )
-except gp.GnuplotlibError as e:
-    print("OK! Got err I was supposed to get:\n[[[[[[[\n{}\n]]]]]]]\n".format(e))
-except Exception as e:
-    print("ERROR! Got some other error I was NOT supposed to get: {}\n".format(e))
-else:
-    print("ERROR! An error was supposed to be reported but it was not\n")
+check_expected_error('I should complain about an invalid "with"',
+                     lambda: gp.plot(np.arange(5), _with = 'bogusstyle'))
+
+check_expected_error('Error detection in multiplots',
+                     lambda: gp.plot( (x**2,),
+                                      (-x, x**3),
+                                      ( rho,
+                                        1./np.cos(rho) + a*np.cos(rho), # broadcasted. dim=(7,1000)
+
+                                        dict( _with  = 'lines',
+                                              set    = 'poflar',
+                                              square = True,
+                                              yrange = [-5,5],
+                                              legend = a.ravel())),
+                                      (x_3d, y_3d, z_3d,
+                                       dict( _with = 'points',
+                                             title  = 'sphere',
+                                             square = True,
+                                             legend = 'sphere',
+                                             _3d    = True)),
+                                      wait=1,
+                                      multiplot='title "basic multiplot" layout 2,2', ) )
+
+check_expected_error('gnuplotlib can detect I/O hangs. Here I ask for a delay, so I should detect this and quit after a few seconds...',
+                     lambda: gp.plot( np.arange(5), cmds = 'pause 20' ))
