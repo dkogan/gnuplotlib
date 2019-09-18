@@ -906,7 +906,6 @@ knownSubplotOptions   = frozenset(('cmds',   # both process and subplot
                                    'unset',  # both process and subplot
                                    '3d',
                                    'square', 'square_xy', 'title',
-                                   'hardcopy', 'terminal', 'output',
                                    'with',   # both a plot option and a curve option
                                    'rgbimage',
                                    'equation', 'equation_above', 'equation_below',
