@@ -1241,11 +1241,12 @@ class gnuplotlib:
 
         plotOptions = _dictDeUnderscore(plotOptions)
 
-        self.processOptions,self.curveOptions_base,self.subplotOptions_base = \
+        self.curveOptions_base,self.subplotOptions_base,self.processOptions = \
             split_dict(plotOptions,
-                       (knownProcessOptions, 'process'),
                        (knownCurveOptions,   'curve'),
-                       (knownSubplotOptions, 'subplot'),)
+                       (knownSubplotOptions, 'subplot'),
+                       (knownProcessOptions, 'process'))
+
         self.processOptionsCmds = massageProcessOptionsAndGetCmds(self.processOptions)
 
         if _data_dump_only(self.processOptions):
