@@ -59,6 +59,22 @@ gp.plot( x, np.vstack((x**3, x**2)) , wait=1)
 gp.plot( np.vstack((-x**3, x**2)), _with='lines' , wait=1)
 gp.plot( (np.vstack((x**3, -x**2)), {'with': 'points'} ), wait=1)
 
+# Make sure xrange settings don't get overridden. The label below should be out
+# of bounds, and not visible
+gp.plot( ( np.arange(10), ),
+         ( np.array((5,),), np.array((2,),), np.array(("Seeing this is a bug!",),),
+           dict(_with = 'labels',
+                tuplesize = 3)),
+         _set  = 'yrange [5:10]',
+         unset = 'grid',
+         wait  = True)
+
+# This should make an empty plot. It should NOT timeout, which is what it's
+# doing now
+gp.plot( np.arange(10),
+         _set = 'xrange [10:20]',
+         wait = True)
+
 #################################
 # some more varied plotting, using the object-oriented interface
 plot1 = gp.gnuplotlib(_with = 'linespoints',
