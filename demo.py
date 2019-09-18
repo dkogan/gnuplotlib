@@ -69,11 +69,12 @@ gp.plot( ( np.arange(10), ),
          unset = 'grid',
          wait  = True)
 
-# This should make an empty plot. It should NOT timeout, which is what it's
-# doing now
-gp.plot( np.arange(10),
-         _set = 'xrange [10:20]',
-         wait = True)
+# # This should make no plot at all, with a warning that all the data is out of
+# # bounds. I haven't written a test harness to look at stderr output yet, so I
+# # disable this check
+# gp.plot( np.arange(10),
+#          _set = 'xrange [10:20]',
+#          wait = True)
 
 #################################
 # some more varied plotting, using the object-oriented interface

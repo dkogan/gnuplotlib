@@ -1501,16 +1501,12 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
 
         fromerr = re.search(r'\s*(.*?)\s*{}$'.format(checkpoint), fromerr, re.M + re.S).group(1)
 
-        warningre = re.compile(r'^.*(?:warning:\s*(.*?)\s*$)\n?', re.M + re.I)
+        warningre = re.compile(r'^\s*(.*?(?:warning|undefined).*?)\s*$', re.M + re.I)
         warnings  = warningre.findall(fromerr)
 
         if printwarnings:
             for w in warnings:
-                sys.stderr.write("Gnuplot warning: {}\n".format(w))
-
-
-        # I've now read all the data up-to the checkpoint. Strip out all the warnings
-        fromerr = warningre.sub('',fromerr)
+                sys.stderr.write("Gnuplot warns: {}\n".format(w))
 
         # if asked, ignore and get rid of all the errors known to happen during
         # plot-command testing. These include
@@ -1534,7 +1530,6 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
                            re.X + re.M)
             fromerr = r.sub('', fromerr)
 
-
             # ignore a simple 'invalid range' error observed when, say only the
             # xmin bound is set and all the data is below it
             r = re.compile(r'''^gnuplot>\s*plot.*$                        # the test plot command
@@ -1547,13 +1542,13 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
             # > xmax (inverted x axis) and when there's out-of-bounds data
             r = re.compile(r'''^gnuplot>\s*plot.*$                        # the test plot command
                                \n^\s+\^\s*$                               # ^ mark pointing to where the error happened
-                               \n^.*all\s*points.*undefined.*$''',        # actual 'invalid range' complaint
+                               \n^.*all\s*points.*undefined.*$''',        # actual 'all points undefined' complaint
                            re.X + re.M)
             fromerr = r.sub('', fromerr)
 
             # Newer gnuplot sometimes says 'x_min should not equal x_max!' when
             # complaining about ranges. Ignore those here
-            r = re.compile(r'^.*_min should not equal .*_max!.*$',        # actual 'invalid range' complaint
+            r = re.compile(r'^.*_min should not equal .*_max!.*$',        # actual 'min != max' complaint
                            re.M)
             fromerr = r.sub('', fromerr)
 
@@ -1571,6 +1566,9 @@ and/or gnuplot itself. Please report this as a gnuplotlib bug''')
             r = re.compile(r'^.*Image grid must be at least.*$',
                            re.X + re.M)
             fromerr = r.sub('', fromerr)
+
+        # I've now read all the data up-to the checkpoint. Strip out all the warnings
+        fromerr = warningre.sub('',fromerr)
 
         fromerr = fromerr.strip()
 
