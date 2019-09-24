@@ -1885,7 +1885,7 @@ labels with spaces in them
                 if len(curve) != 1:
                     raise GnuplotlibError("tuplesize<0 means that only a single numpy array of data should be given: all data is in this array")
                 d['tuplesize'] = -d['tuplesize']
-                d['_data']     = list(nps.mv(curve[0], -1, 0))
+                d['_data']     = list(nps.mv(nps.atleast_dims(curve[0],-2), -1, 0))
             else:
                 d['_data'] = list(curve)
             return d

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import numpy as np
+import numpysane as nps
 import time
 import sys
 
@@ -52,6 +53,18 @@ a   = np.arange(-4,3)[:, np.newaxis] # dim=(7,1)
 # first, some very basic stuff. Testing implicit domains, multiple curves in
 # arguments, packed broadcastable data, etc
 gp.plot(x**2, wait=1)
+gp.plot(( np.transpose(nps.cat(x,x**2)),
+          dict(_with='linespoints pt 4 ps 2'),
+         ),
+        ( 5,60,
+          dict(tuplesize=2,
+               _with='linespoints pt 5 ps 2'),
+        ),
+        ( np.array((3,40)),
+          dict(_with='linespoints pt 6 ps 2'),
+        ),
+        tuplesize = -2,
+        wait=1)
 gp.plot(-x, x**3, wait=1)
 gp.plot((x**2), wait=1)
 gp.plot((-x, x**3, {'with': 'lines'}), (x**2,), wait=1)
