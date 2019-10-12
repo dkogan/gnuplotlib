@@ -427,10 +427,11 @@ Identical to 'with'. In python 'with' is a reserved word so it is illegal to use
 it as a keyword arg key, so '_with' exists as an alias. Same issue exists with
 3d/_3d
 
-- square, square_xy
+- square, square_xy, square-xy, squarexy
 
-If true, these request a square aspect ratio. For 3D plots, square_xy plots with
-a square aspect ratio in x and y, but scales z. Using either of these in 3D
+If True, these request a square aspect ratio. For 3D plots, square_xy plots with
+a square aspect ratio in x and y, but scales z. square_xy and square-xy and
+squarexy are synonyms. Using any of these in 3D
 requires Gnuplot >= 4.4
 
 - {x,y,y2,z,cb}{min,max,range,inv}
@@ -905,7 +906,8 @@ knownSubplotOptions   = frozenset(('cmds',   # both process and subplot
                                    'set',    # both process and subplot
                                    'unset',  # both process and subplot
                                    '3d',
-                                   'square', 'square_xy', 'title',
+                                   'square', 'square_xy', 'square-xy', 'squarexy',
+                                   'title',
                                    'with',   # both a plot option and a curve option
                                    'rgbimage',
                                    'equation', 'equation_above', 'equation_below',
@@ -1126,6 +1128,20 @@ def massageSubplotOptionsAndGetCmds(subplotOptions):
         subplotOptions['with'] = 'linespoints'
 
     # make sure I'm not passed invalid combinations of options
+
+    # At most 1 'square...' option may be given
+    Nsquare = 0
+    for opt in ('square', 'square_xy', 'square-xy', 'squarexy'):
+        if subplotOptions.get(opt):
+            Nsquare += 1
+    if Nsquare > 1:
+        raise GnuplotlibError("At most 1 'square...' option could be enabled. Instead I got {}".format(Nsquare))
+
+    # square_xy and square-xy and squarexy are synonyms. Map all these to
+    # square_xy
+    if subplotOptions.get('square-xy') or subplotOptions.get('squarexy'):
+        subplotOptions['square_xy'] = True
+
     if subplotOptions.get('3d'):
         if 'y2min' in subplotOptions or 'y2max' in subplotOptions:
             raise GnuplotlibError("'3d' does not make sense with 'y2'...")
