@@ -466,10 +466,11 @@ Identical to 'with'. In python 'with' is a reserved word so it is illegal to use
 it as a keyword arg key, so '_with' exists as an alias. Same issue exists with
 3d/_3d
 
-- square, square_xy
+- square, square_xy, square-xy, squarexy
 
-If true, these request a square aspect ratio. For 3D plots, square_xy plots with
-a square aspect ratio in x and y, but scales z. Using either of these in 3D
+If True, these request a square aspect ratio. For 3D plots, square_xy plots with
+a square aspect ratio in x and y, but scales z. square_xy and square-xy and
+squarexy are synonyms. In 2D, these are all synonyms. Using any of these in 3D
 requires Gnuplot >= 4.4
 
 - {x,y,y2,z,cb}{min,max,range,inv}
@@ -965,6 +966,21 @@ then instead of running gnuplot, we create a self-plotting file. gnuplot is
 invoked when we execute that file.
 
 * GLOBAL FUNCTIONS
+** split_dict()
+Given a dict and some sets of keys, split into sub-dicts with keys
+
+Can be used to split a combined plot/curve options dict into separate dicts.
+If an option exists in multiple sets, the first matching one is used. If an
+option does not appear in ANY of the given sets, I barf
+
+** massageProcessOptionsAndGetCmds()
+Compute commands to set the given process options, and massage the input, as
+needed
+
+** massageSubplotOptionsAndGetCmds()
+Compute commands to set the given subplot options, and massage the input, as
+needed
+
 ** plot()
 A simple wrapper around class gnuplotlib
 
@@ -1127,7 +1143,7 @@ Dima Kogan <dima@secretsauce.net>
 
 * LICENSE AND COPYRIGHT
 
-Copyright 2015-2018 Dima Kogan.
+Copyright 2015-2019 Dima Kogan.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License (version 3 or higher) as
