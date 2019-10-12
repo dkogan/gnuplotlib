@@ -431,7 +431,7 @@ it as a keyword arg key, so '_with' exists as an alias. Same issue exists with
 
 If True, these request a square aspect ratio. For 3D plots, square_xy plots with
 a square aspect ratio in x and y, but scales z. square_xy and square-xy and
-squarexy are synonyms. Using any of these in 3D
+squarexy are synonyms. In 2D, these are all synonyms. Using any of these in 3D
 requires Gnuplot >= 4.4
 
 - {x,y,y2,z,cb}{min,max,range,inv}
@@ -1153,8 +1153,9 @@ def massageSubplotOptionsAndGetCmds(subplotOptions):
             if 'square_xy' in subplotOptions: del subplotOptions['square_xy']
             if 'square'    in subplotOptions: del subplotOptions['square'   ]
     else:
+        # In 2D square_xy is the same as square
         if subplotOptions.get('square_xy'):
-            raise GnuplotlibError("'square_xy' only makes sense with '3d'")
+            subplotOptions['square'] = True
 
 
     # grid on by default
