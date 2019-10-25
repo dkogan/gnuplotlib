@@ -24,7 +24,11 @@ exec( 'import {} as mod'.format(modname) )
 
 import inspect
 import re
-import StringIO
+try:
+    from StringIO import StringIO ## for Python 2
+except ImportError:
+    from io import StringIO ## for Python 3
+
 
 def dirmod():
     r'''Same as dir(mod), but returns only functions, in the definition order'''
@@ -69,7 +73,7 @@ with open('README.org', 'w') as f_target_org:
 
             prev_indented = False
 
-            sio = StringIO.StringIO(s)
+            sio = StringIO(s)
             for l in sio:
 
                 # handle links
