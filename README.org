@@ -966,21 +966,6 @@ then instead of running gnuplot, we create a self-plotting file. gnuplot is
 invoked when we execute that file.
 
 * GLOBAL FUNCTIONS
-** split_dict()
-Given a dict and some sets of keys, split into sub-dicts with keys
-
-Can be used to split a combined plot/curve options dict into separate dicts.
-If an option exists in multiple sets, the first matching one is used. If an
-option does not appear in ANY of the given sets, I barf
-
-** massageProcessOptionsAndGetCmds()
-Compute commands to set the given process options, and massage the input, as
-needed
-
-** massageSubplotOptionsAndGetCmds()
-Compute commands to set the given subplot options, and massage the input, as
-needed
-
 ** plot()
 A simple wrapper around class gnuplotlib
 
