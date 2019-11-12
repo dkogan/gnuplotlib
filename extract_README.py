@@ -31,10 +31,15 @@ except ImportError:
 
 
 def dirmod():
-    r'''Same as dir(mod), but returns only functions, in the definition order'''
+    r'''Returns all non-internal functions in a module
+
+    Same as dir(mod), but returns only functions, in the order of definition.
+    Anything starting with _ is skipped
+
+    '''
     with open('{}.py'.format(modname), 'r') as f:
         for l in f:
-            m = re.match(r'def +([a-zA-Z0-9_]+)\(', l)
+            m = re.match(r'def +([a-zA-Z0-9][a-zA-Z0-9_]*)\(', l)
             if m:
                 yield m.group(1)
 
@@ -158,9 +163,6 @@ with open('README.org', 'w') as f_target_org:
         write('* GLOBAL FUNCTIONS\n', verbatim=True)
 
         for func in dirmod():
-            if re.match('_', func):
-                continue
-
             if not inspect.isfunction(mod.__dict__[func]):
                 continue
 
