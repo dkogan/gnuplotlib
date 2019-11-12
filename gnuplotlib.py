@@ -1010,7 +1010,7 @@ def _data_dump_only(processOptions):
         processOptions.get('terminal') == 'gp' or \
         is_gp()
 
-def split_dict(d, *keysets):
+def _split_dict(d, *keysets):
     r'''Given a dict and some sets of keys, split into sub-dicts with keys
 
     Can be used to split a combined plot/curve options dict into separate dicts.
@@ -1055,7 +1055,7 @@ def _get_cmds__setunset(cmds,options):
             else:
                 cmds.append(setunset + ' ' + options[setunset])
 
-def massageProcessOptionsAndGetCmds(processOptions):
+def _massageProcessOptionsAndGetCmds(processOptions):
     r'''Compute commands to set the given process options, and massage the input, as
     needed
 
@@ -1112,7 +1112,7 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
     return cmds
 
 
-def massageSubplotOptionsAndGetCmds(subplotOptions):
+def _massageSubplotOptionsAndGetCmds(subplotOptions):
     r'''Compute commands to set the given subplot options, and massage the input, as
     needed
 
@@ -1259,12 +1259,12 @@ class gnuplotlib:
         plotOptions = _dictDeUnderscore(plotOptions)
 
         self.curveOptions_base,self.subplotOptions_base,self.processOptions = \
-            split_dict(plotOptions,
-                       (knownCurveOptions,   'curve'),
-                       (knownSubplotOptions, 'subplot'),
-                       (knownProcessOptions, 'process'))
+            _split_dict(plotOptions,
+                        (knownCurveOptions,   'curve'),
+                        (knownSubplotOptions, 'subplot'),
+                        (knownProcessOptions, 'process'))
 
-        self.processOptionsCmds = massageProcessOptionsAndGetCmds(self.processOptions)
+        self.processOptionsCmds = _massageProcessOptionsAndGetCmds(self.processOptions)
 
         if _data_dump_only(self.processOptions):
             self.gnuplotProcess = None
@@ -2240,9 +2240,9 @@ labels with spaces in them
             # process options are only allowed in self.__init__(), so I'm not
             # handling those here
             curveOptions_here, subplotOptions_here = \
-                split_dict( jointOptions,
-                            (knownCurveOptions,   'curve'),
-                            (knownSubplotOptions, 'subplot'),)
+                _split_dict( jointOptions,
+                             (knownCurveOptions,   'curve'),
+                             (knownSubplotOptions, 'subplot'),)
 
             subplotOptions = dict(subplotOptions_base)
             subplotOptions.update(subplotOptions_here)
@@ -2261,7 +2261,7 @@ labels with spaces in them
                                       subplotOptions_base,
                                       curveOptions_base )
 
-            subplotOptionsCmds = massageSubplotOptionsAndGetCmds(subplotOptions)
+            subplotOptionsCmds = _massageSubplotOptionsAndGetCmds(subplotOptions)
 
             curves = self._massageAndValidateArgs(curves,
                                                   curveOptions,
