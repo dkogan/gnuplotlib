@@ -2332,7 +2332,7 @@ labels with spaces in them
             # stdout output, then eventually the buffer fills up and gnuplot blocks.
             # So keep it going to /dev/null, or make sure to read the test plot from
             # stdout
-            self._printGnuplotPipe( "set output '/dev/null'\n" )
+            self._printGnuplotPipe( f"set output '{os.devnull}'\n" )
             self._printGnuplotPipe( "set terminal dumb\n" )
 
             if self.processOptions.get('multiplot'):
