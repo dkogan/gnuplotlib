@@ -478,14 +478,14 @@ or may not be what we want. To plot the equations AFTER other data, use
 'equation_above' instead of 'equation'. The 'equation_below' option is a synonym
 for 'equation'
 
-- hardcopy
+- hardcopy, output
 
-Instead of drawing a plot on screen, plot into a file instead. The output
-filename is the value associated with this key. The output format is inferred
-from the filename. Currently only eps, ps, pdf, png, svg, gp are supported with
-some default sets of options. This option is simply a shorthand for the
-'terminal' and 'output' options. If the defaults provided by the 'hardcopy'
-option are insufficient, use 'terminal' and 'output' manually. Example:
+These are synonymous. Instead of drawing a plot on screen, plot into a file
+instead. The output filename is the value associated with this key. If the
+"terminal" plot option is given, that sets the output format; otherwise the
+output format is inferred from the filename. Currently only eps, ps, pdf, png,
+svg, gp are supported with some default sets of options. For any other formats
+you MUST provide the 'terminal' option as well. Example:
 
     plot(..., hardcopy="plot.pdf")
     [ Plots into that file ]
@@ -500,17 +500,12 @@ Selects the gnuplot terminal (backend). This determines how Gnuplot generates
 its output. Common terminals are 'x11', 'qt', 'pdf', 'dumb' and so on. See the
 Gnuplot docs for all the details.
 
-- output
-
-Sets the plot output file. You generally only need to set this if you're
-generating a hardcopy, such as a PDF.
-
-There are several gnuplot terminals that are known (at this time) to be
-interactive: "x11", "qt" and so on. For these no "output" setting is desired.
-For noninteractive terminals ("pdf", "dumb" and so on) the output will go to the
-file defined here. If this plot option isn't defined or set to the empty string,
-the output will be redirected to the standard output of the python process
-calling gnuplotlib.
+There are several gnuplot terminals that are known to be interactive: "x11",
+"qt" and so on. For these no "output" setting is desired. For noninteractive
+terminals ("pdf", "dumb" and so on) the output will go to the file defined by
+the output/hardcopy key. If this plot option isn't defined or set to the empty
+string, the output will be redirected to the standard output of the python
+process calling gnuplotlib.
 
     >>> gp.plot( np.linspace(-5,5,30)**2,
     ...          unset='grid', terminal='dumb 80 40' )
@@ -852,17 +847,17 @@ To send any plot to a file, instead of to the screen, one can simply do
     plot(x, y,
          hardcopy = 'output.pdf')
 
-The 'hardcopy' option is a shorthand for the 'terminal' and 'output' options (in
-all cases except when writing a .gp file; see below). If more control is
-desired, the latter can be used. For example to generate a PDF of a particular
-size with a particular font size for the text, one can do
+For common output formats, the gnuplot terminal is inferred the filename. If
+this isn't possible or if we want to tightly control the output, the 'terminal'
+plot option can be given explicitly. For example to generate a PDF of a
+particular size with a particular font size for the text, one can do
 
     plot(x, y,
          terminal = 'pdfcairo solid color font ",10" size 11in,8.5in',
-         output   = 'output.pdf')
+         hardcopy = 'output.pdf')
 
 This command is equivalent to the 'hardcopy' shorthand used previously, but the
-fonts and sizes can be changed.
+fonts and sizes have been changed.
 
 If we write to a ".gp" file:
 
@@ -1069,21 +1064,20 @@ def _massageProcessOptionsAndGetCmds(processOptions):
 
     _get_cmds__setunset(cmds, processOptions)
 
-    # handle 'hardcopy'. This simply ties in to 'output' and 'terminal', handled
-    # later
+    # "hardcopy" and "output" are synonyms. Use "output" from this point on
     if processOptions.get('hardcopy') is not None:
-        # 'hardcopy' is simply a shorthand for 'terminal' and 'output', so they
-        # can't exist together
-        if 'terminal' in processOptions or 'output' in processOptions:
-            raise GnuplotlibError(
-                """The 'hardcopy' option can't coexist with either 'terminal' or 'output'.  If the
-defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
-'output' to get more control""")
+        if processOptions.get('output') is not None:
+            raise GnuplotlibError("Pass in at most ONE of 'hardcopy' and 'output'")
+        processOptions['output'] = processOptions['hardcopy']
+        del processOptions['hardcopy']
 
-        outputfile = processOptions['hardcopy']
+    if processOptions.get('output') is not None and \
+       processOptions.get('terminal') is None:
+
+        outputfile = processOptions['output']
         m = re.search(r'\.(eps|ps|pdf|png|svg|gp)$', outputfile)
         if not m:
-            raise GnuplotlibError("Only .eps, .ps, .pdf, .png, .svg and .gp hardcopy output supported")
+            raise GnuplotlibError("Only .eps, .ps, .pdf, .png, .svg and .gp output filenames are supported if no 'terminal' plot option is given")
 
         outputfileType = m.group(1)
 
@@ -1095,12 +1089,11 @@ defaults are acceptable, use 'hardcopy' only, otherwise use 'terminal' and
                          'gp':  'gp'}
 
         processOptions['terminal'] = terminalOpts[outputfileType]
-        processOptions['output']   = outputfile
 
-    if 'terminal' in processOptions:
+    if processOptions.get('terminal') is not None:
         if processOptions['terminal'] in knownInteractiveTerminals:
             # known interactive terminal
-            if 'output' in processOptions and processOptions['output'] != '':
+            if processOptions.get('output', '') != '':
                 sys.stderr.write("Warning: requested a known-interactive gnuplot terminal AND an output file. Is this REALLY what you want?\n")
 
         if processOptions['terminal'] == 'gp':
@@ -2186,12 +2179,12 @@ labels with spaces in them
                 # knownInteractiveTerminals, then I don't know, and these could
                 # both be False. Note that a very common case is hardcopy=None
                 # and terminal=None, which would mean the default which USUALLY
-                # in interactive
+                # is interactive
                 terminal = self.processOptions.get('terminal',
                                                    self.terminal_default)
-                is_non_interactive = self.processOptions.get('hardcopy')
+                is_non_interactive = self.processOptions.get('output')
                 is_interactive     = \
-                    not self.processOptions.get('hardcopy') and \
+                    not self.processOptions.get('output') and \
                     terminal in knownInteractiveTerminals
 
                 # This is certain
