@@ -366,54 +366,30 @@ gp.plot( (x**2,),
 # several plots directly onto one another
 xx,yy = np.meshgrid(np.linspace(-5,5,100),
                     np.linspace(-5,5,100))
-zz = np.sin(xx) + yy*yy/30.
+zz0 = np.sin(xx) + yy*yy/8.
+zz1 = np.sin(xx) + yy*yy/10.
+zz2 = np.sin(xx) + yy*yy/12.
 
+commonset = ( 'origin 0,0',
+              'size 1,1',
+              'view 60,20,1,1',
+              'xrange [0:100]',
+              'yrange [0:100]',
+              'zrange [0:150]',
+              'contour base' )
 for hardcopy in (None, "stacked-contours.png", "stacked-contours.gp",):
-    gp.plot3d( (zz,
-                dict(tuplesize=3,
-                     _with = np.array(('lines nosurface',
-                                       'labels boxed nosurface')),
-                     _set = ( 'origin 0,0',
-                         'size 1,1',
-                         'view 60,30,1,1',
-                         'xrange [0:100]',
-                         'yrange [0:100]',
-                         'zrange [0:150]',
-                         'contour base',
-                         'xyplane at 10' )) ),
 
-               (zz,
-                dict(tuplesize=3,
-                     _with = np.array(('lines nosurface',
-                                       'labels boxed nosurface')),
-                     _set = ( 'origin 0,0',
-                         'size 1,1',
-                         'view 60,30,1,1',
-                         'xrange [0:100]',
-                         'yrange [0:100]',
-                         'zrange [0:150]',
-                         'contour base',
-                         'xyplane at 50' )) ),
+    gp.plot3d( (zz0, dict(_set = commonset + ('xyplane at 10' ,))),
+               (zz1, dict(_set = commonset + ('xyplane at 80' ,))),
+               (zz2, dict(_set = commonset + ('xyplane at 150',))),
 
-               (zz,
-                dict(tuplesize=3,
-                     _with = np.array(('lines nosurface',
-                                       'labels boxed nosurface')),
-                     _set = ( 'origin 0,0',
-                         'size 1,1',
-                         'view 60,30,1,1',
-                         'xrange [0:100]',
-                         'yrange [0:100]',
-                         'zrange [0:150]',
-                         'contour base',
-                         'xyplane at 150' )) ),
-
-               wait=1,
+               tuplesize=3,
+               _with = np.array(('lines nosurface',
+                                 'labels boxed nosurface')),
                square=1,
+               wait=True
                hardcopy=hardcopy,
                multiplot=True)
-
-
 
 
 ################################
