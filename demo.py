@@ -362,11 +362,13 @@ gp.plot( (x**2,),
          wait=1,
          multiplot='title "basic multiplot" layout 2,2', )
 
-# fancy contours stacked on top of one another
+# fancy contours stacked on top of one another. Using multiplot to render
+# several plots directly onto one another
 xx,yy = np.meshgrid(np.linspace(-5,5,100),
                     np.linspace(-5,5,100))
 zz = np.sin(xx) + yy*yy/30.
-for hardcopy in (None, "stacked-contours.png"):
+
+for hardcopy in (None, "stacked-contours.png", "stacked-contours.gp",):
     gp.plot3d( (zz,
                 dict(tuplesize=3,
                      _with = np.array(('lines nosurface',
