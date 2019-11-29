@@ -40,10 +40,18 @@ r'''a gnuplot-based plotting backend for numpy
 
 
     x = np.arange(1000)
-    gp.plot( (x*x, dict(histogram=1,            binwidth=10000)),
+    gp.plot( (x*x, dict(histogram=1,
+                        binwidth =10000)),
              (x*x, dict(histogram='cumulative', y2=1)))
-    [ A density and cumulative histogram of x^2 are plotted together ]
+    [ A density and cumulative histogram of x^2 are plotted on the same plot ]
 
+    gp.plot( (x*x, dict(histogram=1,
+                        binwidth =10000)),
+             (x*x, dict(histogram='cumulative')),
+             _xmin=0, _xmax=1e6,
+             multiplot='title "multiplot histograms" layout 2,1',
+             _set='lmargin at screen 0.05')
+    [ Same histograms, but plotted on two separate plots ]
 
 
 * DESCRIPTION
@@ -65,40 +73,87 @@ invocation rewrites over the previous gnuplot window.
 The object-oriented interface is used like this:
 
     import gnuplotlib as gp
-    g = gp.gnuplotlib(plot_options)
+    g = gp.gnuplotlib(options)
     g.plot( curve, curve, .... )
 
 The global functions consolidate this into a single call:
 
     import gnuplotlib as gp
-    gp.plot( curve, curve, ...., plot_options_and_default_curve_options )
+    gp.plot( curve, curve, ...., options )
 
-Each plot contains multiple curves (different datasets to be plotted). Plot
-generation is controlled by two sets of options:
+** Option arguments
 
-- Plot options: parameters that affect the whole plot, like the title of the
-  plot, the axis labels, the extents, 2D/3D selection, etc. These are passed
-  into the gnuplotlib constructor or appear as keyword arguments in a global
-  plot() call. All the plot options are described below in "Plot options".
+Each gnuplotlib object controls ONE gnuplot process. And each gnuplot process
+produces ONE plot window (or hardcopy) at a time. Each process usually produces
+ONE subplot at a time (unless we asked for a multiplot). And each subplot
+contains multiple datasets (referred to as "curves").
 
-- Curve options: parameters that affect only a single curve. These are given as
-  a python dict after all the numpy arrays in a curve. Each is described below
-  in "Curve options".
+These 3 objects (process, subplot, curve) are controlled by their own set of
+options, specified as a python dict. A FULL (much more verbose than you would
+ever be) non-multiplot plot command looks like
 
-Each curve is passed in as a python tuple (data, data, data, ..., curve_options)
-where each "data" is a numpy array, and "curve_options" is a dict. If we're
-plotting a single curve, the tuple can be inlined. Thus the following are all
-equivalent ways of making the same plot:
+    import gnuplotlib as gp
+    g = gp.gnuplotlib( subplot_options, process_options )
+
+    curve_options0 = dict(...)
+    curve_options1 = dict(...)
+
+    curve0 = (x0, y0, curve_options0)
+    curve1 = (x1, y1, curve_options1)
+
+    g.plot( curve0, curve1 )
+
+and a FULL multiplot command wraps this once more:
+
+    import gnuplotlib as gp
+    g = gp.gnuplotlib( process_options, multiplot=... )
+
+    curve_options0   = dict(...)
+    curve_options1   = dict(...)
+    curve0           = (x0, y0, curve_options0)
+    curve1           = (x1, y1, curve_options1)
+    subplot_options0 = dict(...)
+    subplot0         = (curve0, curve1, subplot_options0)
+
+    curve_options2   = dict(...)
+    curve_options3   = dict(...)
+    curve2           = (x2, y2, curve_options2)
+    curve3           = (x3, y3, curve_options3)
+    subplot_options1 = dict(...)
+    subplot1         = (curve2, curve3, subplot_options1)
+
+    g.plot( subplot_options0, subplot_options1 )
+
+This is verbose, and rarely will you actually specify everything in this much
+detail:
+
+- Anywhere that expects process options, you can pass the DEFAULT subplot
+  options and the DEFAULT curve options for all the children. These defaults may
+  be overridden in the appropriate place
+
+- Anywhere that expects plot options you can pass DEFAULT curve options for all
+  the child curves. And these can be overridden also
+
+- Broadcasting (see below) reduces the number of curves you have to explicitly
+  specify
+
+- Implicit domains (see below) reduce the number of numpy arrays you need to
+  pass when specifying each curve
+
+- If only a single curve tuple is to be plotted, it can be inlined
+
+The following are all equivalent ways of making the same plot:
 
     import gnuplotlib as gp
     import numpy      as np
     x = np.arange(10)
     y = x*x
 
-    # Global function. Non-inlined curves
+    # Global function. Non-inlined curves. Separate curve and subplot options
     gp.plot( (x,y, dict(_with = 'lines')), title = 'parabola')
 
-    # Global function. Inlined curves (possible because we have only one curve)
+    # Global function. Inlined curves (possible because we have only one curve).
+    # The curve, subplot options given together
     gp.plot( x,y, _with = 'lines', title = 'parabola' )
 
     # Object-oriented function. Non-inlined curves.
@@ -110,35 +165,83 @@ equivalent ways of making the same plot:
     p2.plot(x,y, _with = 'lines')
 
 If multiple curves are to be drawn on the same plot, then each 'curve' must live
-in a separate tuple:
+in a separate tuple, or we can use broadcasting to stack the extra data in new
+numpy array dimensions. Identical ways to make the same plot:
 
     import gnuplotlib as gp
     import numpy      as np
+    import numpysane  as nps
+
     x = np.arange(10)
     y = x*x
     z = x*x*x
 
-    # Global function
+    # Object-oriented function. Separate curve and subplot options
+    p = gp.gnuplotlib(title = 'parabola and cubic')
+    p.plot((x,y, dict(_with = 'lines', legend = 'parabola')),
+           (x,z, dict(_with = 'lines', legend = 'cubic')))
+
+    # Global function. Separate curve and subplot options
     gp.plot( (x,y, dict(_with = 'lines', legend = 'parabola')),
              (x,z, dict(_with = 'lines', legend = 'cubic')),
              title = 'parabola and cubic')
 
-    # Object-oriented function
-    p = gp.gnuplotlib(title = 'parabola and cubic')
-    p.plot((x,y, dict(_with = 'lines', legend = 'parabola')),
-           (x,z, dict(_with = 'lines', legend = 'cubic')),)
+    # Global function. Using the default _with
+    gp.plot( (x,y, dict(legend = 'parabola')),
+             (x,z, dict(legend = 'cubic')),
+             _with = 'lines',
+             title = 'parabola and cubic')
 
-Another way to plot multiple curves is to use broadcasting; described below.
+    # Global function. Using the default _with, inlining the curve options, omitting
+    # the 'x' array, and using the implicit domain instead
+    gp.plot( (y, dict(legend = 'parabola')),
+             (z, dict(legend = 'cubic')),
+             _with = 'lines',
+             title = 'parabola and cubic')
 
-The plot_and_default_curve_options passed to the global plot(...) calls are
-keyword arguments. The curve options present here are used as defaults for each
-curve; these defaults can be overriden in each curve, as desired. For instance:
+    # Global function. Using the default _with, inlining the curve options, omitting
+    # the 'x' array, and using the implicit domain instead. Using broadcasting for
+    # the data and for the legend, inlining the one curve
+    gp.plot( nps.cat(y,z),
+             legend = np.array(('parabola','cubic')),
+             _with  = 'lines',
+             title  = 'parabola and cubic')
 
-    gp.plot( (x1,y1),
-             (x2,y2, dict(_with = 'points')),
-             _with = 'lines')
+When making a multiplot (see below) we have multiple subplots in a plot. For
+instance I can plot a sin() and a cos() on top of each other:
 
-would plot the first curve with lines, but the second with points.
+    import gnuplotlib as gp
+    import numpy      as np
+    th = np.linspace(0, np.pi*2, 30)
+
+    gp.plot( (th, np.cos(th), dict(title="cos")),
+             (th, np.sin(th), dict(title="sin")),
+             _xrange = [0,2.*np.pi],
+             _yrange = [-1,1],
+             multiplot='title "multiplot sin,cos" layout 2,1')
+
+Process options are parameters that affect the whole plot window, like the
+output filename, whether to test each gnuplot command, etc. We have ONE set of
+process options for ALL the subplots. These are passed into the gnuplotlib
+constructor or appear as keyword arguments in a global plot() call. All of these
+are described below in "Process options".
+
+Subplot options are parameters that affect a subplot. Unless we're
+multiplotting, there's only one subplot, so we have a single set of process
+options and a single set of subplot options. Together these are sometimes
+referred to as "plot options". Examples are the title of the plot, the axis
+labels, the extents, 2D/3D selection, etc. If we aren't multiplotting, these are
+passed into the gnuplotlib constructor or appear as keyword arguments in a
+global plot() call. In a multiplot, these are passed as a python dict in the last
+element of each subplot tuple. Or the default values can be given where process
+options usually live. All of these are described below in "Subplot options".
+
+Curve options: parameters that affect only a single curve. These are given as a
+python dict in the last element of each curve tuple. Or the defaults can appear
+where process or subplot options are expected. Each is described below in "Curve
+options".
+
+A few helper global functions are available:
 
 plot3d(...) is equivalent to plot(..., _3d=True)
 
@@ -152,8 +255,8 @@ being plotted. Each output data point is a tuple (set of values, not a python
 we're making a simple 2D x-y plot, each tuple has 2 values. If we're making a 3D
 plot with each point having variable size and color, each tuple has 5 values:
 (x,y,z,size,color). When passing data to plot(), each tuple element is passed
-separately. So if we want to plot N 2D points we pass the two numpy arrays of
-shape (N,):
+separately by default (unless we have a negative tuplesize; see below). So if we
+want to plot N 2D points we pass the two numpy arrays of shape (N,):
 
     gp.plot( x,y )
 
@@ -167,7 +270,9 @@ option MUST be passed in:
              _with = 'points ps variable palette' )
 
 This is required because you may be using implicit domains (see below) and/or
-broadcasting.
+broadcasting, so gnuplotlib has no way to know the intended tuplesize.
+
+*** Broadcasting
 
 Broadcasting (https://docs.scipy.org/doc/numpy/user/basics.broadcasting.html) is
 fully supported, so multiple curves can be plotted by stacking data inside the
@@ -283,13 +388,75 @@ represent each data point. For example, if we want a 2D line plot with varying
 colors plotted with an implicit domain, set tuplesize=3 as before (x,y,color),
 but pass in only 2 arrays (y, color).
 
+** Multiplots
+
+Usually each gnuplotlib object makes one plot at a time. And as a result, we
+have one set of process options and subplot options at a time (known together as
+"plot options"). Sometimes this isn't enough, and we really want to draw
+multiple plots in a single window (or hardcopy) with a gnuplotlib.plot() call.
+This situation is called a "multiplot". We enter this mode by passing a
+"multiplot" process option, which is a string passed directly to gnuplot in its
+"set multiplot ..." command. See the corresponding gnuplot documentation for
+details:
+
+    gnuplot -e "help multiplot"
+
+Normally we make plots like this:
+
+    gp.plot( (x0, y0, curve_options0),
+             (x1, y1, curve_options1),
+             ...,
+             subplot_options, process_options)
+
+In multiplot mode, the gnuplotlib.plot() command takes on one more level of
+indirection:
+
+    gp.plot( ( (x0, y0, curve_options0),
+               (x1, y1, curve_options1),
+               ...
+               subplot_options0 ),
+
+             ( (x2, y2, curve_options2),
+               (x3, y3, curve_options3),
+               ...
+               subplot_options1 ),
+             ...,
+             process_options )
+
+The process options can appear at the end of the gp.plot() global call, or in
+the gnuplotlib() constructor. Subplot option and curve option defaults can
+appear there too. Subplot options and curve option defaults appear at the end of
+each subplot tuple.
+
+A few options are valid as both process and subplot options: 'cmds', 'set',
+'unset'. If one of these ('set' for instance) is given as BOTH a process and
+subplot option, we execute BOTH of them. This is different from the normal
+behavior, where the outer option is treated as a default to be overridden,
+instead of contributed to.
+
+Multiplot mode is useful, but has a number of limitations and quirks. For
+instance, interactive zooming, measuring isn't possible. And since each subplot
+is independent, extra commands may be needed to align axes in different
+subplots: "help margin" in gnuplot to see how to do this. Do read the gnuplot
+docs in detail when touching any of this. Sample to plot two sinusoids above one another:
+
+    import gnuplotlib as gp
+    import numpy      as np
+    th = np.linspace(0, np.pi*2, 30)
+
+    gp.plot( (th, np.cos(th), dict(title="cos")),
+             (th, np.sin(th), dict(title="sin")),
+             _xrange = [0,2.*np.pi],
+             _yrange = [-1,1],
+             multiplot='title "multiplot sin,cos" layout 2,1')
+
 ** Symbolic equations
 
 Gnuplot can plot both data and equations. This module exists largely for the
 data-plotting case, but sometimes it can be useful to plot equations together
-with some data. This is supported by the 'equation...' plot options. These plot
-options are either a string (for a single equation) or a list/tuple containing
-multiple strings for multiple equations. An example:
+with some data. This is supported by the 'equation...' subplot option. This is
+either a string (for a single equation) or a list/tuple containing multiple
+strings for multiple equations. An example:
 
     import numpy as np
     import numpy.random as nr
@@ -377,7 +544,7 @@ persist. I.e.
 If you want to write a program that just shows a plot, and exits when the user
 closes the plot window, you should do any of
 
-- add 'wait':1 to the plot options dict
+- add wait=True to the process options dict
 - call wait() on your gnuplotlib object
 - call the global gnuplotlib.wait(), if you have a global plot
 
@@ -387,96 +554,11 @@ need to Ctrl-C.
 
 * OPTIONS
 
-** Plot options
+** Process options
 
-The plot options are a dictionary, passed as the keyword arguments to the global
-plot() function or as the only arguments to the gnuplotlib contructor. The
-supported keys of this dict are as follows:
-
-- title
-
-Specifies the title of the plot
-
-- 3d
-
-If true, a 3D plot is constructed. This changes the default tuple size from 2 to
-3
-
-- _3d
-
-Identical to '3d'. In python, keyword argument keys cannot start with a number,
-so '_3d' is accepted for that purpose. Same issue exists with with/_with
-
-- set/unset
-
-These take either a string of a list. If given a string, a set or unset gnuplot
-command is executed with that argument. If given a list, elements of that list
-are set/unset separately. Example:
-
-    plot(..., set='grid', unset=['xtics', 'ytics])
-    [ turns on the grid, turns off the x and y axis tics ]
-
-- with
-
-If no 'with' curve option is given, use this as a default. See the description
-of the 'with' curve option for more detail
-
-- _with
-
-Identical to 'with'. In python 'with' is a reserved word so it is illegal to use
-it as a keyword arg key, so '_with' exists as an alias. Same issue exists with
-3d/_3d
-
-- square, square_xy, square-xy, squarexy
-
-If True, these request a square aspect ratio. For 3D plots, square_xy plots with
-a square aspect ratio in x and y, but scales z. square_xy and square-xy and
-squarexy are synonyms. In 2D, these are all synonyms. Using any of these in 3D
-requires Gnuplot >= 4.4
-
-- {x,y,y2,z,cb}{min,max,range,inv}
-
-If given, these set the extents of the plot window for the requested axes.
-Either min/max or range can be given but not both. min/max are numerical values.
-'*range' is a string 'min:max' with either one allowed to be omitted; it can
-also be a [min,max] tuple or list. '*inv' is a boolean that reverses this axis.
-If the bounds are known, this can also be accomplished by setting max < min.
-Passing in both max < min AND inv also results in a reversed axis.
-
-If no information about a range is given, it is not touched: the previous zoom
-settings are preserved.
-
-The y2 axis is the secondary y-axis that is enabled by the 'y2' curve option.
-The 'cb' axis represents the color axis, used when color-coded plots are being
-generated
-
-- xlabel, ylabel, zlabel, y2label
-
-These specify axis labels
-
-- rgbimage
-
-This should be set to a path containing an image file on disk. The data is then
-plotted on top of this image, which is very useful for annotations, computer
-vision, etc. Note that when plotting data, the y axis usually points up, but
-when looking at images, the y axis of the pixel coordinates points down instead.
-Thus, if the y axis extents aren't given and an rgbimage IS specified,
-gnuplotlib will flip the y axis to make things look reasonable. If any y-axis
-ranges are given, however (with any of the ymin,ymax,yrange,yinv plot options),
-then it is up to the user to flip the axis, if that's what they want.
-
-- equation, equation_above, equation_below
-
-These options allows equations represented as formula strings to be plotted
-along with data passed in as numpy arrays. These can be a string (for a single
-equation) or an array/tuple of strings (for multiple equations). See the
-"Symbolic equations" section above.
-
-By default, the equations are plotted BEFORE other data, so the data plotted
-later may obscure some of the equation. Depending on what we're doing, this may
-or may not be what we want. To plot the equations AFTER other data, use
-'equation_above' instead of 'equation'. The 'equation_below' option is a synonym
-for 'equation'
+The process options are a dictionary, passed as the keyword arguments to the
+global plot() function or to the gnuplotlib contructor. The supported keys of
+this dict are as follows:
 
 - hardcopy, output
 
@@ -548,11 +630,26 @@ process calling gnuplotlib.
      0 +-+---------+-----------+------A*A**A*A--------+-----------+---------+-+
        0           5           10          15         20          25          30
 
+- set/unset
+
+These take either a string of a list. If given a string, a set or unset gnuplot
+command is executed with that argument. If given a list, elements of that list
+are set/unset separately. Example:
+
+    plot(..., set='grid', unset=['xtics', 'ytics])
+    [ turns on the grid, turns off the x and y axis tics ]
+
+This is both a process and a subplot option. If both are given, BOTH are used,
+instead of the normal behavior of a subplot option overriding the process option
+
 - cmds
 
 Arbitrary extra commands to pass to gnuplot before the plots are created. These
 are passed directly to gnuplot, without any validation. The value is either a
 string of a list of strings, one per command
+
+This is both a process and a subplot option. If both are given, BOTH are used,
+instead of the normal behavior of a subplot option overriding the process option
 
 - dump
 
@@ -592,6 +689,113 @@ the user closes the interactive plot window that popped up. The python process
 will block until the user is done looking at the data. This can also be achieved
 by calling the wait() gnuplotlib method or the global gnuplotlib.wait()
 function.
+
+
+** Subplot options
+
+The subplot options are a dictionary, passed as the keyword arguments to the
+global plot() function or to the gnuplotlib contructor (when making single
+plots) or as the last element in each subplot tuple (when making multiplots).
+Default subplot options may be passed-in together with the process options. The
+supported keys of this dict are as follows:
+
+- title
+
+Specifies the title of the plot
+
+- 3d
+
+If true, a 3D plot is constructed. This changes the default tuple size from 2 to
+3
+
+- _3d
+
+Identical to '3d'. In python, keyword argument keys cannot start with a number,
+so '_3d' is accepted for that purpose. Same issue exists with with/_with
+
+- set/unset
+
+These take either a string of a list. If given a string, a set or unset gnuplot
+command is executed with that argument. If given a list, elements of that list
+are set/unset separately. Example:
+
+    plot(..., set='grid', unset=['xtics', 'ytics])
+    [ turns on the grid, turns off the x and y axis tics ]
+
+This is both a process and a subplot option. If both are given, BOTH are used,
+instead of the normal behavior of a subplot option overriding the process option
+
+- cmds
+
+Arbitrary extra commands to pass to gnuplot before the plots are created. These
+are passed directly to gnuplot, without any validation. The value is either a
+string of a list of strings, one per command
+
+This is both a process and a subplot option. If both are given, BOTH are used,
+instead of the normal behavior of a subplot option overriding the process option
+
+- with
+
+If no 'with' curve option is given, use this as a default. See the description
+of the 'with' curve option for more detail
+
+- _with
+
+Identical to 'with'. In python 'with' is a reserved word so it is illegal to use
+it as a keyword arg key, so '_with' exists as an alias. Same issue exists with
+3d/_3d
+
+- square, square_xy, square-xy, squarexy
+
+If True, these request a square aspect ratio. For 3D plots, square_xy plots with
+a square aspect ratio in x and y, but scales z. square_xy and square-xy and
+squarexy are synonyms. In 2D, these are all synonyms. Using any of these in 3D
+requires Gnuplot >= 4.4
+
+- {x,y,y2,z,cb}{min,max,range,inv}
+
+If given, these set the extents of the plot window for the requested axes.
+Either min/max or range can be given but not both. min/max are numerical values.
+'*range' is a string 'min:max' with either one allowed to be omitted; it can
+also be a [min,max] tuple or list. '*inv' is a boolean that reverses this axis.
+If the bounds are known, this can also be accomplished by setting max < min.
+Passing in both max < min AND inv also results in a reversed axis.
+
+If no information about a range is given, it is not touched: the previous zoom
+settings are preserved.
+
+The y2 axis is the secondary y-axis that is enabled by the 'y2' curve option.
+The 'cb' axis represents the color axis, used when color-coded plots are being
+generated
+
+- xlabel, ylabel, zlabel, y2label
+
+These specify axis labels
+
+- rgbimage
+
+This should be set to a path containing an image file on disk. The data is then
+plotted on top of this image, which is very useful for annotations, computer
+vision, etc. Note that when plotting data, the y axis usually points up, but
+when looking at images, the y axis of the pixel coordinates points down instead.
+Thus, if the y axis extents aren't given and an rgbimage IS specified,
+gnuplotlib will flip the y axis to make things look reasonable. If any y-axis
+ranges are given, however (with any of the ymin,ymax,yrange,yinv subplot
+options), then it is up to the user to flip the axis, if that's what they want.
+
+- equation, equation_above, equation_below
+
+These options allows equations represented as formula strings to be plotted
+along with data passed in as numpy arrays. These can be a string (for a single
+equation) or an array/tuple of strings (for multiple equations). See the
+"Symbolic equations" section above.
+
+By default, the equations are plotted BEFORE other data, so the data plotted
+later may obscure some of the equation. Depending on what we're doing, this may
+or may not be what we want. To plot the equations AFTER other data, use
+'equation_above' instead of 'equation'. The 'equation_below' option is a synonym
+for 'equation'
+
 
 ** Curve options
 
@@ -665,13 +869,14 @@ to 1.
 
 ** class gnuplotlib
 
-A gnuplotlib object abstracts a gnuplot process and a plot window. Invocation:
+A gnuplotlib object abstracts a gnuplot process and a plot window. A basic
+non-multiplot invocation:
 
     import gnuplotlib as gp
-    g = gp.gnuplotlib(plot_options)
+    g = gp.gnuplotlib(subplot_options, process_options)
     g.plot( curve, curve, .... )
 
-The plot options are passed into the constructor; the curve options and the data
+The subplot options are passed into the constructor; the curve options and the data
 are passed into the plot() method. One advantage of making plots this way is
 that there's a gnuplot process associated with each gnuplotlib instance, so as
 long as the object exists, the plot will be interactive. Calling 'g.plot()'
@@ -682,7 +887,7 @@ multiple times reuses the plot window instead of creating a new one.
 The convenience plotting routine in gnuplotlib. Invocation:
 
     import gnuplotlib as gp
-    gp.plot( curve, curve, ...., plot_and_default_curve_options )
+    gp.plot( curve, curve, ...., subplot_and_default_curve_options )
 
 Each 'plot()' call reuses the same window.
 
@@ -698,7 +903,7 @@ Generates an image plot. Shorthand for 'plot(..., _with='image', tuplesize=3)'
 
 Blocks until the user closes the interactive plot window. Useful for python
 applications that want blocking plotting behavior. This can also be achieved by
-calling the wait() gnuplotlib method or by adding'wait':1 to the plot options
+calling the wait() gnuplotlib method or by adding wait=1 to the process options
 dict
 
 * RECIPES
@@ -775,10 +980,12 @@ necessary to specify the color range here
          _with = 'circles palette', tuplesize = 4 )
 
 
-Broadcasting example: the Conchoids of de Sluze. The whole family of curves is
-generated all at once, and plotted all at once with broadcasting. Broadcasting
-is also used to generate the labels. Generally these would be strings, but here
-just printing the numerical value of the parameter is sufficient.
+*** Broadcasting example
+
+Let's plot the Conchoids of de Sluze. The whole family of curves is generated
+all at once, and plotted all at once with broadcasting. Broadcasting is also
+used to generate the labels. Generally these would be strings, but here just
+printing the numerical value of the parameter is sufficient.
 
     theta = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
     a     = np.arange(-4,3)[:, np.newaxis] # dim=(7,1)
