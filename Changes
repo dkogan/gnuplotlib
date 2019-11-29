@@ -1,0 +1,12 @@
+gnuplotlib (0.32)
+
+  * Major rework: support for multiplots. No breaking changes
+  * All errors raise a specific GnuplotlibError instead of Exception
+  * tuplesize<0 works with single points
+  * added convenience plot options square-xy and squarexy as synonyms for
+    square_xy
+  * "square_xy" works in 2D: synonym for "square"
+  * "hardcopy" and "output" are now synonyms
+  * Makefile uses python3
+
+ -- Dima Kogan <dima@secretsauce.net>  Thu, 28 Nov 2019 18:50:02 -0800
