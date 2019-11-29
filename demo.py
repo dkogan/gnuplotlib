@@ -321,6 +321,28 @@ gp.plot3d( (zz, {'tuplesize': 3, 'with': np.array(('image','lines'))}),
 ################################
 
 # basics
+gp.plot( th, nps.cat( np.cos(th), np.sin(th)),
+         title = 'broadcasting sin, cos',
+         _xrange = [0,2.*np.pi],
+         _yrange = [-1,1],
+         wait = 1)
+
+gp.plot( (th, np.cos(th)),
+         (th, np.sin(th)),
+         title = 'separate plots for sin, cos',
+         _xrange = [0,2.*np.pi],
+         _yrange = [-1,1],
+         wait = 1)
+
+gp.plot( (th, np.cos(th), dict(title="cos",
+                               _xrange = [0,2.*np.pi],
+                               _yrange = [-1,1],)),
+         (th, np.sin(th), dict(title="sin",
+                               _xrange = [0,2.*np.pi],
+                               _yrange = [-1,1])),
+         multiplot='title "multiplot sin,cos" layout 2,1',
+         wait = 1)
+
 gp.plot( (x**2,),
          (-x, x**3),
          ( rho,
