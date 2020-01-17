@@ -379,9 +379,9 @@ commonset = ( 'origin 0,0',
               'contour base' )
 for hardcopy in (None, "stacked-contours.png", "stacked-contours.gp",):
 
-    gp.plot3d( (zz0, dict(_set = commonset + ('xyplane at 10' ,))),
-               (zz1, dict(_set = commonset + ('xyplane at 80' ,))),
-               (zz2, dict(_set = commonset + ('xyplane at 150',))),
+    gp.plot3d( (zz0, dict(_set = commonset + ('xyplane at 10',))),
+               (zz1, dict(_set = commonset + ('xyplane at 80',  'border 15'), unset=('ztics',))),
+               (zz2, dict(_set = commonset + ('xyplane at 150', 'border 15'), unset=('ztics',))),
 
                tuplesize=3,
                _with = np.array(('lines nosurface',
