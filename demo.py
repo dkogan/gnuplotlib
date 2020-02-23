@@ -67,10 +67,10 @@ gp.plot(( np.transpose(nps.cat(x,x**2)),
         wait=1)
 gp.plot(-x, x**3, wait=1)
 gp.plot((x**2), wait=1)
-gp.plot((-x, x**3, {'with': 'lines'}), (x**2,), wait=1)
+gp.plot((-x, x**3, dict(_with = 'lines')), (x**2,), wait=1)
 gp.plot( x, np.vstack((x**3, x**2)) , wait=1)
 gp.plot( np.vstack((-x**3, x**2)), _with='lines' , wait=1)
-gp.plot( (np.vstack((x**3, -x**2)), {'with': 'points'} ), wait=1)
+gp.plot( (np.vstack((x**3, -x**2)), dict(_with = 'points') ), wait=1)
 
 # Make sure xrange settings don't get overridden. The label below should be out
 # of bounds, and not visible
@@ -100,18 +100,18 @@ plot1 = gp.gnuplotlib(_with = 'linespoints',
                       wait = 1)
 
 plot1.plot( ( np.vstack((x, x*2, x*3)), x**2 - 300,
-              {'with':   'lines lw 4',
-               'y2':     True,
-               'legend': 'parabolas'}),
+              dict(_with  = 'lines lw 4',
+                   y2     = True,
+                   legend = 'parabolas')),
 
             (x**2 * 10, x**2/40, x**2/2, # implicit domain
-             {'with':      'xyerrorbars',
-              'tuplesize': 4}),
+             dict(_with      =      'xyerrorbars',
+                  tuplesize = 4)),
 
             (x, np.vstack((x**3, x**3 - 100)),
-             {"with": 'lines',
-              'legend': 'shifted cubics',
-              'tuplesize': 2}))
+             dict(_with     = 'lines',
+                  legend    = 'shifted cubics',
+                  tuplesize = 2)))
 
 #################################
 
@@ -186,9 +186,9 @@ gp.plot3d( (x_3d * np.array([[1,2]]).T,
 # some paraboloids plotted on an implicit 2D domain
 xx,yy = np.ogrid[-10:11, -10:11]
 zz    = xx*xx + yy*yy
-gp.plot3d( ( zz,  {'legend': 'zplus'}),
-           (-zz,  {'legend': 'zminus'}),
-           (zz*2, {'legend': 'zplus2'}),
+gp.plot3d( ( zz,  dict(legend = 'zplus')),
+           (-zz,  dict(legend = 'zminus')),
+           (zz*2, dict(legend = 'zplus2')),
 
            _with = 'points', title  = 'gridded paraboloids', ascii=True,
            wait = 1)
@@ -222,12 +222,12 @@ gp.plot3d(zz,
 xx,yy = np.ogrid[-10:11, -10:11]
 zz    = xx*xx + yy*yy
 xx    = np.linspace(0,20,100)
-gp.plot( ( zz, {'tuplesize': 3,
-               'with':      'image'}),
+gp.plot( ( zz, dict(tuplesize = 3,
+                    _with     = 'image')),
          (xx, 20*np.cos(xx/20 * np.pi/2),
 
-          {'tuplesize': 2,
-           'with':      'lines'}),
+          dict(tuplesize = 2,
+               _with     = 'lines')),
 
          title  = 'Paraboloid heat map, 2D',
          xmin = 0,
@@ -267,8 +267,8 @@ gp.plot(zz, xx,
 
 # Using broadcasting to plot each slice with a different style
 gp.plot((np.rollaxis( np.dstack((xx,zz)), 2,0),
-         {'tuplesize': 3,
-          'with': np.array(('points palette pt 7','points ps variable pt 6'))}),
+         dict(tuplesize = 3,
+              _with     = np.array(('points palette pt 7','points ps variable pt 6')))),
 
         title  = 'Two 3D matrix plots. Binary.',
         square = 1,
@@ -286,8 +286,8 @@ gp.plot((np.rollaxis( np.dstack((xx,zz)), 2,0),
 #
 # 2 3d matrix curves
 gp.plot((np.rollaxis( np.dstack((xx,zz)), 2,0),
-         {'tuplesize': 3,
-          'with': np.array(('points palette pt 7','points ps variable pt 6'))}),
+         dict(tuplesize = 3,
+              _with     = np.array(('points palette pt 7','points ps variable pt 6')))),
 
         title  = 'Two 3D matrix plots. Binary.',
         square = 1,
@@ -304,7 +304,8 @@ zz = np.sin(xx / 4.0) * yy
 
 # single 3d matrix curve. Two plots: the image and the contours together.
 # Broadcasting the styles
-gp.plot3d( (zz, {'tuplesize': 3, 'with': np.array(('image','lines'))}),
+gp.plot3d( (zz, dict(tuplesize = 3,
+                     _with     = np.array(('image','lines')))),
 
            title = 'matrix plot with contours',
            cmds  = [ 'set contours base',
