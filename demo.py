@@ -388,7 +388,7 @@ for hardcopy in (None, "stacked-contours.png", "stacked-contours.gp",):
                _with = np.array(('lines nosurface',
                                  'labels boxed nosurface')),
                square=1,
-               wait=True
+               wait=True,
                hardcopy=hardcopy,
                multiplot=True)
 
