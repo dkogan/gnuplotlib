@@ -908,7 +908,7 @@ dict
 
 * RECIPES
 
-Some different plots appear here. A longer set of demos is given in demos.py.
+Some different plots appear here. A longer set of demos is given in demo.py.
 
 ** 2D plotting
 
