@@ -1,0 +1,529 @@
+* Demos
+
+#+BEGIN_SRC python :python python3 :results none :session gnuplotlib-demos
+import numpy      as np
+import numpysane  as nps
+import gnuplotlib as gp
+
+x    = np.arange(21) - 10
+th   = np.linspace(0,        np.pi*2, 30)
+ph   = np.linspace(-np.pi/2, np.pi*2, 30)[:,np.newaxis]
+x_3d = (np.cos(ph) * np.cos(th))          .ravel()
+y_3d = (np.cos(ph) * np.sin(th))          .ravel()
+z_3d = (np.sin(ph) * np.ones( th.shape )) .ravel()
+rho  = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
+a    = np.arange(-4,3)[:, np.newaxis] # dim=(7,1)
+
+xx,yy = np.ogrid[-10:11, -10:11]
+zz    = xx*xx + yy*yy
+
+th2   = np.linspace(0, 6*np.pi, 200)
+z     = np.linspace(0, 5,       200)
+size  = 0.5 + np.abs(np.cos(th2))
+color = np.sin(2*th2)
+
+x2    = np.linspace(0,20,100)
+xx_cut  = xx[:, 2:12]
+zz_cut  = zz[:, 2:12]
+
+
+yy_big,xx_big = np.mgrid[0:61,0:61]
+xx_big -= 30
+yy_big -= 30
+zz_big = np.sin(xx_big / 4.0) * yy_big
+#+END_SRC
+
+First, some very basic stuff. Testing implicit domains, multiple curves in
+arguments, packed broadcastable data, etc
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot(x**2, hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-1.svg]]
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot(( np.transpose(nps.cat(x,x**2)),
+          dict(_with='linespoints pt 4 ps 2'),
+         ),
+        ( 5,60,
+          dict(tuplesize=2,
+               _with='linespoints pt 5 ps 2'),
+        ),
+        ( np.array((3,40)),
+          dict(_with='linespoints pt 6 ps 2'),
+        ),
+        tuplesize = -2,
+        hardcopy = "demo-line43.svg")
+gp.plot(-x, x**3, hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-2.svg]]
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot((x**2), hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-3.svg]]
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot((-x, x**3, dict(_with = 'lines')), (x**2,), hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-4.svg]]
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot( x, np.vstack((x**3, x**2)) , hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-5.svg]]
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot( np.vstack((-x**3, x**2)), _with='lines' , hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-6.svg]]
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot( (np.vstack((x**3, -x**2)), dict(_with = 'points') ), hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-7.svg]]
+
+Make sure xrange settings don't get overridden. The label below should be out of
+bounds, and not visible
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot( ( np.arange(10), ),
+         ( np.array((5,),), np.array((2,),), np.array(("Seeing this is a bug!",),),
+           dict(_with = 'labels',
+                tuplesize = 3)),
+         ( np.array((5,),), np.array((7,),), np.array(("This SHOULD be visible. Another label should be out-of-view, below the x-axis",),),
+           dict(_with = 'labels',
+                tuplesize = 3)),
+         _set  = 'yrange [5:10]',
+         unset = 'grid',
+         hardcopy="demo-line82.svg")
+#+END_SRC
+
+[[file:demo-8.svg]]
+
+some more varied plotting, using the object-oriented interface
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+plot1 = gp.gnuplotlib(_with = 'linespoints',
+                      xmin  = -10,
+                      title = 'Error bars and other things',
+                      hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-9.svg]]
+
+#+BEGIN_SRC python :python python3 :results file link :session basic-2d
+plot1.plot( ( np.vstack((x, x*2, x*3)), x**2 - 300,
+              dict(_with  = 'lines lw 4',
+                   y2     = True,
+                   legend = 'parabolas')),
+
+            (x**2 * 10, x**2/40, x**2/2, # implicit domain
+             dict(_with      =      'xyerrorbars',
+                  tuplesize = 4)),
+
+            (x, np.vstack((x**3, x**3 - 100)),
+             dict(_with     = 'lines',
+                  legend    = 'shifted cubics',
+                  tuplesize = 2)),
+            hardcopy="demo-line104.svg")
+#+END_SRC
+
+[[file:demo-10.svg]]
+
+a way to control the point size
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot( x**2, np.abs(x)/2, x*50,
+         cbrange = '-600:600',
+         _with   = 'points pointtype 7 pointsize variable palette',
+         tuplesize = 4,
+         hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-11.svg]]
+
+labels
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot(np.arange(5),np.arange(5)+1,
+        np.array( ['{} {}'.format(x,x+1) for x in range(5)], dtype=str),
+        _with='labels', tuplesize=3, ascii=1,
+        hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-12.svg]]
+
+Conchoids of de Sluze. Broadcasting example
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot( rho,
+         1./np.cos(rho) + a*np.cos(rho), # broadcasted. dim=(7,1000)
+
+         _with  = 'lines',
+         set    = 'polar',
+         square = True,
+         yrange = [-5,5],
+         legend = a.ravel(),
+         hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-13.svg]]
+
+
+some 3d stuff
+
+gp.plot a sphere
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot3d( x_3d, y_3d, z_3d,
+           _with = 'points',
+           title  = 'sphere',
+           square = True,
+           legend = 'sphere',
+           hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-14.svg]]
+
+sphere, ellipse together
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot3d( (x_3d * np.array([[1,2]]).T,
+            y_3d * np.array([[1,2]]).T,
+            z_3d,
+            { 'legend': np.array(('sphere', 'ellipse'))}),
+
+           title  = 'sphere, ellipse',
+           square = True,
+           _with  = 'points',
+           hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-15.svg]]
+
+similar, written to a png
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot3d( (x_3d * np.array([[1,2]]).T,
+            y_3d * np.array([[1,2]]).T,
+            z_3d,
+            { 'legend': np.array(('sphere', 'ellipse'))}),
+
+           title    = 'sphere, ellipse',
+           square   = True,
+           _with    = 'points',
+           hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-16.svg]]
+
+some paraboloids plotted on an implicit 2D domain
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot3d( ( zz,  dict(legend = 'zplus')),
+           (-zz,  dict(legend = 'zminus')),
+           (zz*2, dict(legend = 'zplus2')),
+
+           _with = 'points', title  = 'gridded paraboloids', ascii=True,
+           hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-17.svg]]
+
+3d, variable color, variable pointsize
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot3d( ( np.cos(th2) * np.array([[1,-1]]).T,
+             np.sin(th2) * np.array([[1,-1]]).T,
+             z, size, color, { 'legend': np.array(('spiral 1', 'spiral 2'))}),
+
+           title     = 'double helix',
+           tuplesize = 5,
+           _with = 'points pointsize variable pointtype 7 palette',
+           hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-18.svg]]
+
+implicit domain heat map
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot3d(zz,
+          title = 'Paraboloid heat map',
+          set   = 'view map',
+          _with = 'image',
+          hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-19.svg]]
+
+same, but as a 2d gp.plot, _with a curve drawn on top for good measure
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot( ( zz, dict(tuplesize = 3,
+                    _with     = 'image')),
+         (x2, 20*np.cos(x2/20 * np.pi/2),
+
+          dict(tuplesize = 2,
+               _with     = 'lines')),
+
+         title  = 'Paraboloid heat map, 2D',
+         xmin = 0,
+         xmax = 20,
+         ymin = 0,
+         ymax = 20,
+         hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-20.svg]]
+
+2D implicit domain demos
+
+single 3d matrix curve
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot(zz_cut,
+        title     = 'Single 3D matrix plot. Binary.',
+        square    = 1,
+        tuplesize = 3,
+        _with     = 'points palette pt 7',
+        ascii     = False,
+        hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-21.svg]]
+
+4d matrix curve
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot(zz_cut, xx_cut,
+        title     = '4D matrix plot. Binary.',
+        square    = 1,
+        tuplesize = 4,
+        _with     = 'points palette ps variable pt 7',
+        ascii     = False,
+        hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-22.svg]]
+
+Using broadcasting to plot each slice with a different style
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot((np.rollaxis( np.dstack((xx_cut,zz_cut)), 2,0),
+         dict(tuplesize = 3,
+              _with     = np.array(('points palette pt 7','points ps variable pt 6')))),
+
+        title  = 'Two 3D matrix plots. Binary.',
+        square = 1,
+        ascii  = False,
+        hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-23.svg]]
+
+2 3d matrix curves
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot((np.rollaxis( np.dstack((xx_cut,zz_cut)), 2,0),
+         dict(tuplesize = 3,
+              _with     = np.array(('points palette pt 7','points ps variable pt 6')))),
+
+        title  = 'Two 3D matrix plots. Binary.',
+        square = 1,
+        ascii  = True,
+        hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-24.svg]]
+
+fancy contours just because I can
+
+single 3d matrix curve. Two plots: the image and the contours together.
+Broadcasting the styles
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot3d( (zz_big, dict(tuplesize = 3,
+                     _with     = np.array(('image','lines')))),
+
+           title = 'matrix plot with contours',
+           cmds  = [ 'set contours base',
+                     'set cntrparam bspline',
+                     'set cntrparam levels 15',
+                     'unset grid',
+                     'unset surface',
+                     'set view 0,0'],
+           square = 1,
+           hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-25.svg]]
+
+multiplot
+
+basics
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot( th, nps.cat( np.cos(th), np.sin(th)),
+         title = 'broadcasting sin, cos',
+         _xrange = [0,2.*np.pi],
+         _yrange = [-1,1],
+         hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-26.svg]]
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot( (th, np.cos(th)),
+         (th, np.sin(th)),
+         title = 'separate plots for sin, cos',
+         _xrange = [0,2.*np.pi],
+         _yrange = [-1,1],
+         hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-27.svg]]
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot( (th, np.cos(th), dict(title="cos",
+                               _xrange = [0,2.*np.pi],
+                               _yrange = [-1,1],)),
+         (th, np.sin(th), dict(title="sin",
+                               _xrange = [0,2.*np.pi],
+                               _yrange = [-1,1])),
+         multiplot='title "multiplot sin,cos" layout 2,1',
+         hardcopy = _org_babel_params['_file'])
+#+END_SRC
+
+[[file:demo-28.svg]]
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+gp.plot( (x**2,),
+         (-x, x**3),
+         ( rho,
+           1./np.cos(rho) + a*np.cos(rho), # broadcasted. dim=(7,1000)
+
+           dict( _with  = 'lines',
+                 set    = 'polar',
+                 square = True,
+                 yrange = [-5,5],
+                 legend = a.ravel())),
+         (x_3d, y_3d, z_3d,
+          dict( _with = 'points',
+                title  = 'sphere',
+                square = True,
+                legend = 'sphere',
+                _3d    = True)),
+         hardcopy = _org_babel_params['_file'],
+         multiplot='title "basic multiplot" layout 2,2', )
+#+END_SRC
+
+[[file:demo-29.svg]]
+
+fancy contours stacked on top of one another. Using multiplot to render
+several plots directly onto one another
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
+xx,yy = np.meshgrid(np.linspace(-5,5,100),
+                    np.linspace(-5,5,100))
+zz0 = np.sin(xx) + yy*yy/8.
+zz1 = np.sin(xx) + yy*yy/10.
+zz2 = np.sin(xx) + yy*yy/12.
+
+commonset = ( 'origin 0,0',
+              'size 1,1',
+              'view 60,20,1,1',
+              'xrange [0:100]',
+              'yrange [0:100]',
+              'zrange [0:150]',
+              'contour base' )
+gp.plot3d( (zz0, dict(_set = commonset + ('xyplane at 10',))),
+           (zz1, dict(_set = commonset + ('xyplane at 80',  'border 15'), unset=('ztics',))),
+           (zz2, dict(_set = commonset + ('xyplane at 150', 'border 15'), unset=('ztics',))),
+
+           tuplesize=3,
+           _with = np.array(('lines nosurface',
+                             'labels boxed nosurface')),
+           square=1,
+           hardcopy = _org_babel_params['_file'],
+           multiplot=True)
+#+END_SRC
+
+[[file:demo-30.svg]]
+
+* init                                                             :noexport:
+Local Variables:
+eval: (progn
+          (setq org-confirm-babel-evaluate nil)
+          (org-babel-do-load-languages
+           'org-babel-load-languages
+            '((python  . t)))
+          (local-set-key (kbd "<f12>") (lambda () (interactive) (insert (format "demo-line%d" (line-number-at-pos)))))
+          (auto-fill-mode)
+(defun dima-org-babel-python-var-to-python (var)
+  "Convert an elisp value to a python variable.
+  Like the original, but supports (a . b) cells and symbols
+"
+  (if (listp var)
+      (if (listp (cdr var))
+          (concat "[" (mapconcat #'org-babel-python-var-to-python var ", ") "]")
+        (format "\"\"\"%s\"\"\"" var))
+    (if (symbolp var)
+        (format "\"\"\"%s\"\"\"" var)
+      (if (eq var 'hline)
+          org-babel-python-hline-to
+        (format
+         (if (and (stringp var) (string-match "[\n\r]" var)) "\"\"%S\"\"" "%S")
+         (if (stringp var) (substring-no-properties var) var))))))
+(defun dima-alist-to-python-dict (alist)
+  "Generates a string defining a python dict from the given alist"
+  (let ((keyvalue-list
+         (mapcar (lambda (x)
+                   (format "%s = %s, "
+                           (replace-regexp-in-string
+                            "[^a-zA-Z0-9_]" "_"
+                            (symbol-name (car x)))
+                           (dima-org-babel-python-var-to-python (cdr x))))
+                 alist)))
+    (concat
+     "dict( "
+     (apply 'concat keyvalue-list)
+     ")")))
+(defun dima-org-babel-python-pass-all-params (f params)
+  (cons
+   (concat
+    "_org_babel_params = "
+    (dima-alist-to-python-dict params))
+   (funcall f params)))
+(unless
+    (advice-member-p
+     #'dima-org-babel-python-pass-all-params
+     #'org-babel-variable-assignments:python)
+  (advice-add
+   #'org-babel-variable-assignments:python
+   :around #'dima-org-babel-python-pass-all-params))
+(defun dima-org-babel-python-unique-plot-filename
+    (f &optional arg info params)
+  (funcall f arg info
+           (cons (cons ':file
+                       (format "demo-%d.svg"
+                               (condition-case nil
+                                   (setq dima-unique-plot-number (1+ dima-unique-plot-number))
+                                 (error (setq dima-unique-plot-number 0)))))
+                 params)))
+(unless
+    (advice-member-p
+     #'dima-org-babel-python-unique-plot-filename
+     #'org-babel-execute-src-block)
+  (advice-add
+   #'org-babel-execute-src-block
+   :around #'dima-org-babel-python-unique-plot-filename))
+)
+End:
