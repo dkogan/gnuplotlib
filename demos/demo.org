@@ -437,8 +437,12 @@ eval: (progn
           (org-babel-do-load-languages
            'org-babel-load-languages
             '((python  . t)))
-          (local-set-key (kbd "<f12>") (lambda () (interactive) (insert (format "demo-line%d" (line-number-at-pos)))))
-          (auto-fill-mode)
+;; This is all very convoluted. There are 3 different advices, commented in
+;; place
+;;
+;; THIS advice makes all the org-babel parameters available to python in the
+;; _org_babel_params dict. I care about _org_babel_params['_file'] specifically,
+;; but everything is available
 (defun dima-org-babel-python-var-to-python (var)
   "Convert an elisp value to a python variable.
   Like the original, but supports (a . b) cells and symbols
@@ -481,6 +485,9 @@ eval: (progn
   (advice-add
    #'org-babel-variable-assignments:python
    :around #'dima-org-babel-python-pass-all-params))
+;; This sets a default :file tag, set to a unique filename. I want each demo to
+;; produce an image, but I don't care what it is called. I omit the :file tag
+;; completely, and this advice takes care of it
 (defun dima-org-babel-python-unique-plot-filename
     (f &optional arg info params)
   (funcall f arg info
@@ -497,6 +504,14 @@ eval: (progn
   (advice-add
    #'org-babel-execute-src-block
    :around #'dima-org-babel-python-unique-plot-filename))
+;; I'm using github to display demo.org, so I'm not using the "normal" org
+;; exporter. I want the demo text to not contain the hardcopy= tags, but clearly
+;; I need the hardcopy tag when generating the plots. I add some python to
+;; override gnuplotlib.plot() to add the hardcopy tag somewhere where the reader
+;; won't see it. But where to put this python override code? If I put it into an
+;; org-babel block, it will be rendered, and the :export tags will be ignored,
+;; since github doesn't respect those (probably). So I put the extra stuff into
+;; an advice. Whew.
 (defun dima-org-babel-python-set-demo-output (f body params)
   (if (string-match "import gnuplotlib as gp" body)
       (setq body (concat body
