@@ -187,7 +187,7 @@ sphere, ellipse together
 gp.plot3d( (x_3d * np.array([[1,2]]).T,
             y_3d * np.array([[1,2]]).T,
             z_3d,
-            { 'legend': np.array(('sphere', 'ellipse'))}),
+            dict( legend = np.array(('sphere', 'ellipse')))),
 
            title  = 'sphere, ellipse',
            square = True,
@@ -202,7 +202,7 @@ similar, written to a png
 gp.plot3d( (x_3d * np.array([[1,2]]).T,
             y_3d * np.array([[1,2]]).T,
             z_3d,
-            { 'legend': np.array(('sphere', 'ellipse'))}),
+            dict( legend = np.array(('sphere', 'ellipse')))),
 
            title    = 'sphere, ellipse',
            square   = True,
@@ -228,7 +228,7 @@ gp.plot3d( ( zz,  dict(legend = 'zplus')),
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
 gp.plot3d( ( np.cos(th2) * np.array([[1,-1]]).T,
              np.sin(th2) * np.array([[1,-1]]).T,
-             z, size, color, { 'legend': np.array(('spiral 1', 'spiral 2'))}),
+             z, size, color, dict( legend = np.array(('spiral 1', 'spiral 2')))),
 
            title     = 'double helix',
            tuplesize = 5,
