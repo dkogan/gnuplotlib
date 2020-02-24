@@ -68,9 +68,9 @@ gp.plot(( np.transpose(nps.cat(x,x**2)),
 gp.plot(-x, x**3, wait=1)
 gp.plot((x**2), wait=1)
 gp.plot((-x, x**3, dict(_with = 'lines')), (x**2,), wait=1)
-gp.plot( x, np.vstack((x**3, x**2)) , wait=1)
-gp.plot( np.vstack((-x**3, x**2)), _with='lines' , wait=1)
-gp.plot( (np.vstack((x**3, -x**2)), dict(_with = 'points') ), wait=1)
+gp.plot( x, nps.cat(x**3, x**2) , wait=1)
+gp.plot( nps.cat(-x**3, x**2), _with='lines' , wait=1)
+gp.plot( (nps.cat(x**3, -x**2), dict(_with = 'points') ), wait=1)
 
 # Make sure xrange settings don't get overridden. The label below should be out
 # of bounds, and not visible
@@ -99,7 +99,7 @@ plot1 = gp.gnuplotlib(_with = 'linespoints',
                       title = 'Error bars and other things',
                       wait = 1)
 
-plot1.plot( ( np.vstack((x, x*2, x*3)), x**2 - 300,
+plot1.plot( ( nps.cat(x, x*2, x*3), x**2 - 300,
               dict(_with  = 'lines lw 4',
                    y2     = True,
                    legend = 'parabolas')),
@@ -108,7 +108,7 @@ plot1.plot( ( np.vstack((x, x*2, x*3)), x**2 - 300,
              dict(_with      =      'xyerrorbars',
                   tuplesize = 4)),
 
-            (x, np.vstack((x**3, x**3 - 100)),
+            (x, nps.cat(x**3, x**3 - 100),
              dict(_with     = 'lines',
                   legend    = 'shifted cubics',
                   tuplesize = 2)))
@@ -157,8 +157,8 @@ gp.plot3d( x_3d, y_3d, z_3d,
            wait = 1)
 
 # sphere, ellipse together
-gp.plot3d( (x_3d * np.array([[1,2]]).T,
-            y_3d * np.array([[1,2]]).T,
+gp.plot3d( (x_3d * nps.transpose(np.array([[1,2]])),
+            y_3d * nps.transpose(np.array([[1,2]])),
             z_3d,
             { 'legend': np.array(('sphere', 'ellipse'))}),
 
@@ -169,8 +169,8 @@ gp.plot3d( (x_3d * np.array([[1,2]]).T,
 
 
 # similar, written to a png
-gp.plot3d( (x_3d * np.array([[1,2]]).T,
-            y_3d * np.array([[1,2]]).T,
+gp.plot3d( (x_3d * nps.transpose(np.array([[1,2]])),
+            y_3d * nps.transpose(np.array([[1,2]])),
             z_3d,
             { 'legend': np.array(('sphere', 'ellipse'))}),
 
@@ -199,8 +199,8 @@ zz    = np.linspace(0, 5,       200)
 size  = 0.5 + np.abs(np.cos(th2))
 color = np.sin(2*th2)
 
-gp.plot3d( ( np.cos(th2) * np.array([[1,-1]]).T,
-             np.sin(th2) * np.array([[1,-1]]).T,
+gp.plot3d( ( np.cos(th2) * nps.transpose(np.array([[1,-1]])),
+             np.sin(th2) * nps.transpose(np.array([[1,-1]])),
              zz, size, color, { 'legend': np.array(('spiral 1', 'spiral 2'))}),
 
            title     = 'double helix',
@@ -266,7 +266,7 @@ gp.plot(zz, xx,
         wait      = 1)
 
 # Using broadcasting to plot each slice with a different style
-gp.plot((np.rollaxis( np.dstack((xx,zz)), 2,0),
+gp.plot((np.rollaxis( nps.cat(xx,zz), 2,0),
          dict(tuplesize = 3,
               _with     = np.array(('points palette pt 7','points ps variable pt 6')))),
 
@@ -285,7 +285,7 @@ gp.plot((np.rollaxis( np.dstack((xx,zz)), 2,0),
 #         wait      = 1)
 #
 # 2 3d matrix curves
-gp.plot((np.rollaxis( np.dstack((xx,zz)), 2,0),
+gp.plot((np.rollaxis( nps.cat(xx,zz), 2,0),
          dict(tuplesize = 3,
               _with     = np.array(('points palette pt 7','points ps variable pt 6')))),
 
