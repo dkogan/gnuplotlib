@@ -72,19 +72,19 @@ gp.plot((-x, x**3, dict(_with = 'lines')), (x**2,))
 [[file:demo-4.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
-gp.plot( x, np.vstack((x**3, x**2)) )
+gp.plot( x, nps.cat(x**3, x**2) )
 #+END_SRC
 
 [[file:demo-5.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
-gp.plot( np.vstack((-x**3, x**2)), _with='lines' )
+gp.plot( nps.cat(-x**3, x**2), _with='lines' )
 #+END_SRC
 
 [[file:demo-6.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
-gp.plot( (np.vstack((x**3, -x**2)), dict(_with = 'points') ))
+gp.plot( (nps.cat(x**3, -x**2), dict(_with = 'points') ))
 #+END_SRC
 
 [[file:demo-7.svg]]
@@ -113,7 +113,7 @@ plot1 = gp.gnuplotlib(_with = 'linespoints',
                       xmin  = -10,
                       title = 'Error bars and other things',)
 
-plot1.plot( ( np.vstack((x, x*2, x*3)), x**2 - 300,
+plot1.plot( ( nps.cat(x, x*2, x*3), x**2 - 300,
               dict(_with  = 'lines lw 4',
                    y2     = True,
                    legend = 'parabolas')),
@@ -122,7 +122,7 @@ plot1.plot( ( np.vstack((x, x*2, x*3)), x**2 - 300,
              dict(_with      =      'xyerrorbars',
                   tuplesize = 4)),
 
-            (x, np.vstack((x**3, x**3 - 100)),
+            (x, nps.cat(x**3, x**3 - 100),
              dict(_with     = 'lines',
                   legend    = 'shifted cubics',
                   tuplesize = 2)))
@@ -184,8 +184,8 @@ gp.plot3d( x_3d, y_3d, z_3d,
 sphere, ellipse together
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
-gp.plot3d( (x_3d * np.array([[1,2]]).T,
-            y_3d * np.array([[1,2]]).T,
+gp.plot3d( (x_3d * nps.transpose(np.array([[1,2]])),
+            y_3d * nps.transpose(np.array([[1,2]])),
             z_3d,
             dict( legend = np.array(('sphere', 'ellipse')))),
 
@@ -199,8 +199,8 @@ gp.plot3d( (x_3d * np.array([[1,2]]).T,
 similar, written to a png
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
-gp.plot3d( (x_3d * np.array([[1,2]]).T,
-            y_3d * np.array([[1,2]]).T,
+gp.plot3d( (x_3d * nps.transpose(np.array([[1,2]])),
+            y_3d * nps.transpose(np.array([[1,2]])),
             z_3d,
             dict( legend = np.array(('sphere', 'ellipse')))),
 
@@ -226,8 +226,8 @@ gp.plot3d( ( zz,  dict(legend = 'zplus')),
 3d, variable color, variable pointsize
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
-gp.plot3d( ( np.cos(th2) * np.array([[1,-1]]).T,
-             np.sin(th2) * np.array([[1,-1]]).T,
+gp.plot3d( ( np.cos(th2) * nps.transpose(np.array([[1,-1]])),
+             np.sin(th2) * nps.transpose(np.array([[1,-1]])),
              z, size, color, dict( legend = np.array(('spiral 1', 'spiral 2')))),
 
            title     = 'double helix',
@@ -298,7 +298,7 @@ gp.plot(zz_cut, xx_cut,
 Using broadcasting to plot each slice with a different style
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
-gp.plot((np.rollaxis( np.dstack((xx_cut,zz_cut)), 2,0),
+gp.plot((np.rollaxis( nps.cat(xx_cut,zz_cut), 2,0),
          dict(tuplesize = 3,
               _with     = np.array(('points palette pt 7','points ps variable pt 6')))),
 
@@ -311,7 +311,7 @@ gp.plot((np.rollaxis( np.dstack((xx_cut,zz_cut)), 2,0),
 
 2 3d matrix curves
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos
-gp.plot((np.rollaxis( np.dstack((xx_cut,zz_cut)), 2,0),
+gp.plot((np.rollaxis( nps.cat(xx_cut,zz_cut), 2,0),
          dict(tuplesize = 3,
               _with     = np.array(('points palette pt 7','points ps variable pt 6')))),
 
