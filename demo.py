@@ -160,7 +160,7 @@ gp.plot3d( x_3d, y_3d, z_3d,
 gp.plot3d( (x_3d * nps.transpose(np.array([[1,2]])),
             y_3d * nps.transpose(np.array([[1,2]])),
             z_3d,
-            { 'legend': np.array(('sphere', 'ellipse'))}),
+            dict( legend = np.array(('sphere', 'ellipse')))),
 
            title  = 'sphere, ellipse',
            square = True,
@@ -172,7 +172,7 @@ gp.plot3d( (x_3d * nps.transpose(np.array([[1,2]])),
 gp.plot3d( (x_3d * nps.transpose(np.array([[1,2]])),
             y_3d * nps.transpose(np.array([[1,2]])),
             z_3d,
-            { 'legend': np.array(('sphere', 'ellipse'))}),
+            dict( legend = np.array(('sphere', 'ellipse')))),
 
            title    = 'sphere, ellipse',
            square   = True,
@@ -201,7 +201,7 @@ color = np.sin(2*th2)
 
 gp.plot3d( ( np.cos(th2) * nps.transpose(np.array([[1,-1]])),
              np.sin(th2) * nps.transpose(np.array([[1,-1]])),
-             zz, size, color, { 'legend': np.array(('spiral 1', 'spiral 2'))}),
+             zz, size, color, dict( legend = np.array(('spiral 1', 'spiral 2')))),
 
            title     = 'double helix',
            tuplesize = 5,
