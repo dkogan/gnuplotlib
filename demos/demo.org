@@ -179,11 +179,11 @@ gp.plot a sphere
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 th = np.linspace(0,        np.pi*2, 30)
 ph = np.linspace(-np.pi/2, np.pi*2, 30)[:,np.newaxis]
-x_3d = (np.cos(ph) * np.cos(th))          .ravel()
-y_3d = (np.cos(ph) * np.sin(th))          .ravel()
-z_3d = (np.sin(ph) * np.ones( th.shape )) .ravel()
+x  = (np.cos(ph) * np.cos(th))          .ravel()
+y  = (np.cos(ph) * np.sin(th))          .ravel()
+z  = (np.sin(ph) * np.ones( th.shape )) .ravel()
 
-gp.plot3d( x_3d, y_3d, z_3d,
+gp.plot3d( x, y, z,
            _with = 'points',
            title  = 'sphere',
            square = True,
@@ -198,13 +198,13 @@ sphere, ellipse together
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 th = np.linspace(0,        np.pi*2, 30)
 ph = np.linspace(-np.pi/2, np.pi*2, 30)[:,np.newaxis]
-x_3d = (np.cos(ph) * np.cos(th))          .ravel()
-y_3d = (np.cos(ph) * np.sin(th))          .ravel()
-z_3d = (np.sin(ph) * np.ones( th.shape )) .ravel()
+x  = (np.cos(ph) * np.cos(th))          .ravel()
+y  = (np.cos(ph) * np.sin(th))          .ravel()
+z  = (np.sin(ph) * np.ones( th.shape )) .ravel()
 
-gp.plot3d( (x_3d * nps.transpose(np.array([[1,2]])),
-            y_3d * nps.transpose(np.array([[1,2]])),
-            z_3d,
+gp.plot3d( (x * nps.transpose(np.array([[1,2]])),
+            y * nps.transpose(np.array([[1,2]])),
+            z,
             dict( legend = np.array(('sphere', 'ellipse')))),
 
            title  = 'sphere, ellipse',
@@ -220,13 +220,13 @@ similar, written to a png
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 th = np.linspace(0,        np.pi*2, 30)
 ph = np.linspace(-np.pi/2, np.pi*2, 30)[:,np.newaxis]
-x_3d = (np.cos(ph) * np.cos(th))          .ravel()
-y_3d = (np.cos(ph) * np.sin(th))          .ravel()
-z_3d = (np.sin(ph) * np.ones( th.shape )) .ravel()
+x  = (np.cos(ph) * np.cos(th))          .ravel()
+y  = (np.cos(ph) * np.sin(th))          .ravel()
+z  = (np.sin(ph) * np.ones( th.shape )) .ravel()
 
-gp.plot3d( (x_3d * nps.transpose(np.array([[1,2]])),
-            y_3d * nps.transpose(np.array([[1,2]])),
-            z_3d,
+gp.plot3d( (x * nps.transpose(np.array([[1,2]])),
+            y * nps.transpose(np.array([[1,2]])),
+            z,
             dict( legend = np.array(('sphere', 'ellipse')))),
 
            title    = 'sphere, ellipse',
@@ -256,13 +256,13 @@ gp.plot3d( ( zz,  dict(legend = 'zplus')),
 3d, variable color, variable pointsize
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-th2   = np.linspace(0, 6*np.pi, 200)
+th    = np.linspace(0, 6*np.pi, 200)
 z     = np.linspace(0, 5,       200)
-size  = 0.5 + np.abs(np.cos(th2))
-color = np.sin(2*th2)
+size  = 0.5 + np.abs(np.cos(th))
+color = np.sin(2*th)
 
-gp.plot3d( ( np.cos(th2) * nps.transpose(np.array([[1,-1]])),
-             np.sin(th2) * nps.transpose(np.array([[1,-1]])),
+gp.plot3d( ( np.cos(th) * nps.transpose(np.array([[1,-1]])),
+             np.sin(th) * nps.transpose(np.array([[1,-1]])),
              z, size, color, dict( legend = np.array(('spiral 1', 'spiral 2')))),
 
            title     = 'double helix',
@@ -450,10 +450,10 @@ gp.plot( (th, np.cos(th), dict(title="cos",
 [[file:demo-189.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-rho = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
-a   = np.arange(-4,3)[:, np.newaxis] # dim=(7,1)
-th  = np.linspace(0,        np.pi*2, 30)
-ph  = np.linspace(-np.pi/2, np.pi*2, 30)[:,np.newaxis]
+rho  = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
+a    = np.arange(-4,3)[:, np.newaxis] # dim=(7,1)
+th   = np.linspace(0,        np.pi*2, 30)
+ph   = np.linspace(-np.pi/2, np.pi*2, 30)[:,np.newaxis]
 x_3d = (np.cos(ph) * np.cos(th))          .ravel()
 y_3d = (np.cos(ph) * np.sin(th))          .ravel()
 z_3d = (np.sin(ph) * np.ones( th.shape )) .ravel()
