@@ -7,7 +7,7 @@
 >
 
 <title>Gnuplot</title>
-<desc>Produced by GNUPLOT 5.2 patchlevel 5 </desc>
+<desc>Produced by GNUPLOT 5.2 patchlevel 6 </desc>
 
 <g id="gnuplot_canvas">
 
@@ -203,7 +203,7 @@
 	<path stroke='black'  d='M53.9,54.1 L53.9,444.0 L575.0,444.0 L575.0,54.1 L53.9,54.1 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g transform="translate(314.4,31.0)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
-		<text>separate plots for sin, cos</text>
+		<text>broadcasting sin, cos</text>
 	</g>
 </g>
 	<g id="gnuplot_plot_1" ><title>gnuplot_plot_1</title>

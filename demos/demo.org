@@ -15,7 +15,7 @@ gp.plot(x**2)
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-162.svg]]
+[[file:demo-1.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 x = np.arange(21) - 10
@@ -33,7 +33,7 @@ gp.plot(( np.transpose(nps.cat(x,x**2)),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-163.svg]]
+[[file:demo-2.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 x = np.arange(21) - 10
@@ -41,7 +41,7 @@ gp.plot(-x, x**3)
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-164.svg]]
+[[file:demo-3.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 x = np.arange(21) - 10
@@ -49,7 +49,7 @@ gp.plot((x**2))
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-165.svg]]
+[[file:demo-4.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 x = np.arange(21) - 10
@@ -57,7 +57,7 @@ gp.plot((-x, x**3, dict(_with = 'lines')), (x**2,))
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-166.svg]]
+[[file:demo-5.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 x = np.arange(21) - 10
@@ -65,7 +65,7 @@ gp.plot( x, nps.cat(x**3, x**2) )
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-167.svg]]
+[[file:demo-6.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 x = np.arange(21) - 10
@@ -73,7 +73,7 @@ gp.plot( nps.cat(-x**3, x**2), _with='lines' )
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-168.svg]]
+[[file:demo-7.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 x = np.arange(21) - 10
@@ -81,7 +81,7 @@ gp.plot( (nps.cat(x**3, -x**2), dict(_with = 'points') ))
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-169.svg]]
+[[file:demo-8.svg]]
 
 Make sure xrange settings don't get overridden. The label below should be out of
 bounds, and not visible
@@ -99,7 +99,7 @@ gp.plot( ( np.arange(10), ),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-170.svg]]
+[[file:demo-9.svg]]
 
 some more varied plotting, using the object-oriented interface
 
@@ -125,7 +125,7 @@ plot1.plot( ( nps.cat(x, x*2, x*3), x**2 - 300,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-171.svg]]
+[[file:demo-10.svg]]
 
 a way to control the point size
 
@@ -138,7 +138,7 @@ gp.plot( x**2, np.abs(x)/2, x*50,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-172.svg]]
+[[file:demo-11.svg]]
 
 labels
 
@@ -150,7 +150,7 @@ gp.plot(np.arange(5),np.arange(5)+1,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-173.svg]]
+[[file:demo-12.svg]]
 
 Conchoids of de Sluze. Broadcasting example
 
@@ -169,7 +169,7 @@ gp.plot( rho,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-174.svg]]
+[[file:demo-13.svg]]
 
 
 some 3d stuff
@@ -191,7 +191,7 @@ gp.plot3d( x, y, z,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-175.svg]]
+[[file:demo-14.svg]]
 
 sphere, ellipse together
 
@@ -213,7 +213,7 @@ gp.plot3d( (x * nps.transpose(np.array([[1,2]])),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-176.svg]]
+[[file:demo-15.svg]]
 
 similar, written to a png
 
@@ -235,7 +235,7 @@ gp.plot3d( (x * nps.transpose(np.array([[1,2]])),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-177.svg]]
+[[file:demo-16.svg]]
 
 some paraboloids plotted on an implicit 2D domain
 
@@ -251,7 +251,7 @@ gp.plot3d( ( zz,  dict(legend = 'zplus')),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-178.svg]]
+[[file:demo-17.svg]]
 
 3d, variable color, variable pointsize
 
@@ -272,7 +272,7 @@ gp.plot3d( ( np.cos(th) * nps.transpose(np.array([[1,-1]])),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-179.svg]]
+[[file:demo-18.svg]]
 
 implicit domain heat map
 
@@ -287,7 +287,7 @@ gp.plot3d(zz,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-288.svg]]
+[[file:demo-19.svg]]
 
 same, but as a 2d gp.plot, _with a curve drawn on top for good measure
 
@@ -312,7 +312,7 @@ gp.plot( ( zz, dict(tuplesize = 3,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-181.svg]]
+[[file:demo-20.svg]]
 
 2D implicit domain demos
 
@@ -328,7 +328,7 @@ gp.plot(zz,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-182.svg]]
+[[file:demo-21.svg]]
 
 4d matrix curve
 
@@ -345,7 +345,7 @@ gp.plot(zz / 5., xx,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-183.svg]]
+[[file:demo-22.svg]]
 
 Using broadcasting to plot each slice with a different style
 
@@ -363,7 +363,7 @@ gp.plot((nps.cat(xx,zz / 5.),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-184.svg]]
+[[file:demo-23.svg]]
 
 2 3d matrix curves
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
@@ -380,7 +380,7 @@ gp.plot(( nps.cat(xx,zz / 5.),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-185.svg]]
+[[file:demo-24.svg]]
 
 fancy contours just because I can
 
@@ -407,7 +407,7 @@ gp.plot3d( (zz_big, dict(tuplesize = 3,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-186.svg]]
+[[file:demo-25.svg]]
 
 multiplot
 
@@ -422,7 +422,7 @@ gp.plot( th, nps.cat( np.cos(th), np.sin(th)),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-187.svg]]
+[[file:demo-26.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 th = np.linspace(0, np.pi*2, 30)
@@ -434,7 +434,7 @@ gp.plot( (th, np.cos(th)),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-188.svg]]
+[[file:demo-27.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 th = np.linspace(0, np.pi*2, 30)
@@ -448,7 +448,7 @@ gp.plot( (th, np.cos(th), dict(title="cos",
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-189.svg]]
+[[file:demo-28.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 rho  = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
@@ -479,7 +479,7 @@ gp.plot( (x**2,),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-190.svg]]
+[[file:demo-29.svg]]
 
 fancy contours stacked on top of one another. Using multiplot to render
 several plots directly onto one another
@@ -510,7 +510,7 @@ gp.plot3d( (zz0, dict(_set = commonset + ('xyplane at 10',))),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-191.svg]]
+[[file:demo-30.svg]]
 
 * init                                                             :noexport:
 Local Variables:
