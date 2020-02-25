@@ -240,7 +240,7 @@ gp.plot3d( (x_3d * nps.transpose(np.array([[1,2]])),
 some paraboloids plotted on an implicit 2D domain
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-xx,yy = np.ogrid[-10:11, -10:11]
+xx,yy = np.mgrid[-10:11, -10:11]
 zz    = xx*xx + yy*yy
 
 gp.plot3d( ( zz,  dict(legend = 'zplus')),
@@ -277,7 +277,7 @@ gp.plot3d( ( np.cos(th2) * nps.transpose(np.array([[1,-1]])),
 implicit domain heat map
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-xx,yy = np.ogrid[-10:11, -10:11]
+xx,yy = np.mgrid[-10:11, -10:11]
 zz    = xx*xx + yy*yy
 
 gp.plot3d(zz,
@@ -293,7 +293,7 @@ same, but as a 2d gp.plot, _with a curve drawn on top for good measure
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 x2 = np.linspace(0,20,100)
-xx,yy = np.ogrid[-10:11, -10:11]
+xx,yy = np.mgrid[-10:11, -10:11]
 zz    = xx*xx + yy*yy
 
 gp.plot( ( zz, dict(tuplesize = 3,
@@ -318,7 +318,7 @@ gp.plot( ( zz, dict(tuplesize = 3,
 single 3d matrix curve
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-gp.plot(zz_cut,
+gp.plot(zz,
         title     = 'Single 3D matrix plot. Binary.',
         square    = 1,
         tuplesize = 3,
@@ -332,10 +332,10 @@ gp.plot(zz_cut,
 4d matrix curve
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-xx_cut,yy_cut = np.mgrid[-10:11, -8:2]
-zz_cut = xx_cut*xx_cut + yy_cut*yy_cut
+xx,yy = np.mgrid[-10:11, -8:2]
+zz = xx*xx + yy*yy
 
-gp.plot(zz_cut, xx_cut,
+gp.plot(zz, xx,
         title     = '4D matrix plot. Binary.',
         square    = 1,
         tuplesize = 4,
@@ -349,10 +349,10 @@ gp.plot(zz_cut, xx_cut,
 Using broadcasting to plot each slice with a different style
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-xx_cut,yy_cut = np.mgrid[-10:11, -8:2]
-zz_cut = xx_cut*xx_cut + yy_cut*yy_cut
+xx,yy = np.mgrid[-10:11, -8:2]
+zz = xx*xx + yy*yy
 
-gp.plot((np.rollaxis( nps.cat(xx_cut,zz_cut), 2,0),
+gp.plot((np.rollaxis( nps.cat(xx,zz), 2,0),
          dict(tuplesize = 3,
               _with     = np.array(('points palette pt 7','points ps variable pt 6')))),
 
@@ -366,10 +366,10 @@ gp.plot((np.rollaxis( nps.cat(xx_cut,zz_cut), 2,0),
 
 2 3d matrix curves
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-xx_cut,yy_cut = np.mgrid[-10:11, -8:2]
-zz_cut = xx_cut*xx_cut + yy_cut*yy_cut
+xx,yy = np.mgrid[-10:11, -8:2]
+zz = xx*xx + yy*yy
 
-gp.plot((np.rollaxis( nps.cat(xx_cut,zz_cut), 2,0),
+gp.plot((np.rollaxis( nps.cat(xx,zz), 2,0),
          dict(tuplesize = 3,
               _with     = np.array(('points palette pt 7','points ps variable pt 6')))),
 
