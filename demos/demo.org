@@ -282,13 +282,12 @@ zz    = xx*xx + yy*yy
 
 gp.plot3d(zz,
           title = 'Paraboloid heat map',
-          set   = 'view map',
-          _with = 'image',
-          squarexy = True)
+          set   = ('view equal xy', 'view 0,0'),
+          _with = 'image')
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-180.svg]]
+[[file:demo-288.svg]]
 
 same, but as a 2d gp.plot, _with a curve drawn on top for good measure
 
