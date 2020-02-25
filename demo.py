@@ -266,7 +266,7 @@ gp.plot(zz, xx,
         wait      = 1)
 
 # Using broadcasting to plot each slice with a different style
-gp.plot((np.rollaxis( nps.cat(xx,zz), 2,0),
+gp.plot((nps.cat(xx,zz),
          dict(tuplesize = 3,
               _with     = np.array(('points palette pt 7','points ps variable pt 6')))),
 
@@ -285,7 +285,7 @@ gp.plot((np.rollaxis( nps.cat(xx,zz), 2,0),
 #         wait      = 1)
 #
 # 2 3d matrix curves
-gp.plot((np.rollaxis( nps.cat(xx,zz), 2,0),
+gp.plot((nps.cat(xx,zz),
          dict(tuplesize = 3,
               _with     = np.array(('points palette pt 7','points ps variable pt 6')))),
 

@@ -304,10 +304,11 @@ gp.plot( ( zz, dict(tuplesize = 3,
                _with     = 'lines')),
 
          title  = 'Paraboloid heat map, 2D',
-         xmin = 0,
-         xmax = 20,
-         ymin = 0,
-         ymax = 20,)
+         square = True,
+         xmin   = 0,
+         xmax   = 20,
+         ymin   = 0,
+         ymax   = 20,)
 #+END_SRC
 
 #+RESULTS:
@@ -333,9 +334,9 @@ gp.plot(zz,
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 xx,yy = np.mgrid[-10:11, -8:2]
-zz = xx*xx + yy*yy
+zz = np.sqrt(xx*xx + yy*yy)
 
-gp.plot(zz, xx,
+gp.plot(zz / 5., xx,
         title     = '4D matrix plot. Binary.',
         square    = 1,
         tuplesize = 4,
@@ -350,9 +351,9 @@ Using broadcasting to plot each slice with a different style
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 xx,yy = np.mgrid[-10:11, -8:2]
-zz = xx*xx + yy*yy
+zz = np.sqrt(xx*xx + yy*yy)
 
-gp.plot((np.rollaxis( nps.cat(xx,zz), 2,0),
+gp.plot((nps.cat(xx,zz / 5.),
          dict(tuplesize = 3,
               _with     = np.array(('points palette pt 7','points ps variable pt 6')))),
 
@@ -367,9 +368,9 @@ gp.plot((np.rollaxis( nps.cat(xx,zz), 2,0),
 2 3d matrix curves
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 xx,yy = np.mgrid[-10:11, -8:2]
-zz = xx*xx + yy*yy
+zz = np.sqrt(xx*xx + yy*yy)
 
-gp.plot((np.rollaxis( nps.cat(xx,zz), 2,0),
+gp.plot(( nps.cat(xx,zz / 5.),
          dict(tuplesize = 3,
               _with     = np.array(('points palette pt 7','points ps variable pt 6')))),
 
@@ -473,7 +474,7 @@ gp.plot( (x**2,),
                 title  = 'sphere',
                 square = True,
                 legend = 'sphere',
-                _3d    = True)),,
+                _3d    = True)),
          multiplot='title "basic multiplot" layout 2,2', )
 #+END_SRC
 
@@ -504,7 +505,7 @@ gp.plot3d( (zz0, dict(_set = commonset + ('xyplane at 10',))),
            tuplesize=3,
            _with = np.array(('lines nosurface',
                              'labels boxed nosurface')),
-           square=1,,
+           square=1,
            multiplot=True)
 #+END_SRC
 
