@@ -681,6 +681,17 @@ eval: (progn
   (advice-add
    #'org-babel-execute-src-block
    :around #'dima-org-babel-python-unique-plot-filename))
+;; If I'm regenerating ALL the plots, I start counting the plots from 0
+(defun dima-reset-unique-plot-number
+    (&rest args)
+    (setq dima-unique-plot-number 0))
+(unless
+    (advice-member-p
+     #'dima-reset-unique-plot-number
+     #'org-babel-execute-buffer)
+  (advice-add
+   #'org-babel-execute-buffer
+   :after #'dima-reset-unique-plot-number))
 ;; I'm using github to display demo.org, so I'm not using the "normal" org
 ;; exporter. I want the demo text to not contain the hardcopy= tags, but clearly
 ;; I need the hardcopy tag when generating the plots. I add some python to
