@@ -710,7 +710,7 @@ eval: (progn
        "\n"
        "if not hasattr(gp.gnuplotlib, 'orig_init'):\n"
        "    gp.gnuplotlib.orig_init = gp.gnuplotlib.__init__\n"
-       "    gp.gnuplotlib.__init__ = lambda self, *args, **kwargs: gp.gnuplotlib.orig_init(self, *args, hardcopy=_org_babel_params['_file'], **kwargs)\n"))
+       "gp.gnuplotlib.__init__ = lambda self, *args, **kwargs: gp.gnuplotlib.orig_init(self, *args, hardcopy=_org_babel_params['_file'] if 'file' in _org_babel_params['_result_params'] else None, **kwargs)\n"))
     (setq body (buffer-substring-no-properties (point-min) (point-max))))
   (funcall f body params))
 
