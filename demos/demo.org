@@ -1,18 +1,269 @@
-* Demos
+* Tutorial
+** Specifying the data
 
-First, some very basic stuff. Testing implicit domains, multiple curves in
-arguments, packed broadcastable data, etc
+First, a trivial plot: let's plot a sinusoid
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
 import gnuplotlib as gp
 
-x = np.arange(21) - 10
-gp.plot(x**2)
+th = np.linspace(-2.*np.pi, 2.*np.pi, 100)
+gp.plot(np.sin(th))
 #+END_SRC
 
 #+RESULTS:
 [[file:demo-1.svg]]
+
+This was a trivial plot, and was trivially-easy to make: we called =plot()= with
+one argument, and we got a plot.
+
+Here each point we plotted was 2-dimensional (has an x value an a y value), but
+we passed in only one number for each point. =gnuplotlib= saw the missing value
+and filled in sequential integers (0, 1, 2, ...) for the x coordinate.
+
+If we pass in two arrays, =gnuplotlib= will use one for the x, and the other for
+the y. Let's plot =sin(theta)= vs. =cos(theta)=, i.e. a circle:
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import gnuplotlib as gp
+
+th = np.linspace(-np.pi, np.pi, 100)
+gp.plot(np.cos(th), np.sin(th))
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-2.svg]]
+
+Hmmm. We asked for a circle, but this looks more like an ellipse. Why? Because
+gnuplot is autoscaling the x and y axes independently to fill the plot window.
+If we ask for the autoscaling to scale the axes /together/, we get a circle:
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import gnuplotlib as gp
+
+th = np.linspace(-np.pi, np.pi, 100)
+gp.plot(np.cos(th), np.sin(th),
+        square = True)
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-3.svg]]
+
+Here we used the =square= /plot option/. More on those later. We just plotted
+something where each point is represented by 2 values: x and y. When making 2D
+plots, this is the most common situation, but others are possible. What if we
+want to color-code our points using another array to specify the colors? You
+pass in the new array, you tell =gnuplotlib= that you now have /3/ values per
+point (the =tuplesize=), and you tell =gnuplot= how you want this plot to be
+made:
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import gnuplotlib as gp
+
+th = np.linspace(-np.pi, np.pi, 100)
+gp.plot(np.cos(th), np.sin(th),
+        # The angle (in degrees) is shown as the color
+        th * 180./np.pi,
+        tuplesize = 3,
+        _with     = 'linespoints palette',
+        square    = True)
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-4.svg]]
+
+=_with= is a /curve option/ that indicates how this dataset should be plotted.
+These are strings that are passed on to =gnuplot= verbatim. So the full power of
+=gnuplot= is available, and there's nothing =gnuplotlib=-specific to learn.
+
+Earlier we saw that a missing x array can be automatically filled-in with
+integers 0, 1, 2, ... This is available with fancier plots also. The rule is:
+
+- If we are given exactly =tuplesize-1= arrays, use 0, 1, 2, ... for the x
+
+When plotting in 2D, this is the only allowed mismatch between =tuplesize= and
+how much data is received. Example. Let's color-code the sinusoid.
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import gnuplotlib as gp
+
+th = np.linspace(-2.*np.pi, 2.*np.pi, 100)
+gp.plot(np.sin(th),
+        # use the cosine as the color
+        np.cos(th),
+        tuplesize = 3,
+        _with     = 'linespoints palette')
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-5.svg]]
+
+Finally, so far we have been passing in each dimension in a separate array. But
+it is often far more convenient to pass in a single array where each point is
+represented in a row corresponding to the last dimension in that array. This is
+specifiable by passing in a negative =tuplesize=. The circle plot from earlier
+can be made in this way:
+
+#+BEGIN_SRC python :python python3 :results output :session gnuplotlib-demos :exports both
+import numpy      as np
+import numpysane  as nps
+
+th     = np.linspace(-np.pi, np.pi, 100)
+points = nps.transpose(nps.cat(np.cos(th), np.sin(th)))
+
+print(points.shape)
+#+END_SRC
+
+#+RESULTS:
+: (100, 2)
+
+I.e. we have 100 rows, each one of length 2.
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import numpysane  as nps
+import gnuplotlib as gp
+
+th     = np.linspace(-np.pi, np.pi, 100)
+points = nps.transpose(nps.cat(np.cos(th), np.sin(th)))
+gp.plot(points,
+        tuplesize = -2,
+        square    = True)
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-7.svg]]
+
+** Specifying multiple datasets together
+Usually we want to plot multiple datasets in the same plot. Note that the code
+and documentation uses the terms "dataset" and "curve" interchangeably.
+
+As before, the whole plot is made with a single call to =plot()=. In its most
+basic form, each dataset is specified as a /tuple/. /plot options/ apply to the
+whole plot, and are given as kwargs to the =plot()= call. /curve options/ apply
+to each dataset, and are passed as a =dict= in the last element of each dataset
+tuple. So each =plot= command looks like
+
+#+BEGIN_SRC python :exports code
+plot( curve, curve, ..., plot_options )
+#+END_SRC
+
+#+RESULTS:
+
+where each =curve= is a =tuple=:
+
+#+BEGIN_SRC python :exports code
+curve = (array, array, ..., curve_options)
+#+END_SRC
+
+#+RESULTS:
+
+Let's plot a sine and a cosine together, using the default styling for one
+(including no legend), and a specific styling for another. And let's set some
+common options.
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import gnuplotlib as gp
+
+th = np.linspace(-2.*np.pi, 2.*np.pi, 100)
+gp.plot( (
+           th, np.sin(th),
+         ),
+         (
+           th, np.cos(th),
+           dict(_with  = "points pt 7",
+                legend = "cosine")
+         ),
+
+         xlabel = "Angle (rad)",
+         title  = "Sine and cosine",
+         unset  = 'grid')
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-10.svg]]
+
+The =plot()= kwargs are the plot options, but curve options are allowed there as
+well. These will be used as the default curve options for all curves that omit
+those specific options. For instance, if I want to plot logs of things with
+lines, except /one/, I can do this:
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import gnuplotlib as gp
+
+th = np.linspace(-2.*np.pi, 2.*np.pi, 100)
+gp.plot( ( np.sin(th), ),
+         ( np.cos(th), ),
+         ( th,         ),
+         ( -th, dict(_with = 'points ps 0.5') ),
+         _with = 'lines')
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-11.svg]]
+
+If we have just one dataset, each tuple can be inlined, which is why something
+like =gp.plot(x, y)= works.
+
+Unlike =matplotlib=, here we make a single =plot()= call instead of making a
+separate call for each dataset and for each format setting. You can still
+construct the plot piecemeal, however, but you'd use normal Python directives to
+do that. The exact previous plot command can be generated like this:
+
+#+BEGIN_SRC python :exports code
+datasets = []
+
+th = np.linspace(-2.*np.pi, 2.*np.pi, 100)
+datasets.append(( np.sin(th), ),)
+datasets.append(( np.cos(th), ),)
+datasets.append(( th,         ),)
+datasets.append(( -th, dict(_with = 'points ps 0.5') ),)
+
+plot_options = dict( _with = 'lines' )
+
+gp.plot(*datasets, **plot_options)
+#+END_SRC
+
+#+RESULTS:
+
+Finally, [[https://docs.scipy.org/doc/numpy/user/basics.broadcasting.html][broadcasting]] is fully supported here, and can be used to simplify the
+=plot()= call. It's supported across the data arguments /and/ the curve options.
+Often this lets you simplify the =plot()= command significantly. Previously we
+plotted two sinusoids together using a tuple for each dataset. With
+broadcasting, we can avoid that:
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import gnuplotlib as gp
+
+th = np.linspace(-2.*np.pi, 2.*np.pi, 100)
+gp.plot( th,
+         nps.cat(np.sin(th),
+                 np.cos(th)),
+
+         legend = np.array( ("sin", "cos"), ) )
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-13.svg]]
+
+I passed in an aray of shape =(100,)= for the x, and an array of shape
+=(2,100,)= for the y. The broadcasting logic kicks in, and we plot two separate
+datasets, one for each row of y. The curve options broadcast as well. The
+=legend= is expecting a scalar, but I gave it an array of shape =(2,)=, so it
+uses a different legend for each of the two plotted datasets.
+
+** Recipes
+
+
+
+
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -34,7 +285,7 @@ gp.plot(( np.transpose(nps.cat(x,x**2)),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-2.svg]]
+[[file:demo-14.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -45,7 +296,7 @@ gp.plot(-x, x**3)
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-3.svg]]
+[[file:demo-15.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -56,7 +307,7 @@ gp.plot((x**2))
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-4.svg]]
+[[file:demo-16.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -67,7 +318,7 @@ gp.plot((-x, x**3, dict(_with = 'lines')), (x**2,))
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-5.svg]]
+[[file:demo-17.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -79,7 +330,7 @@ gp.plot( x, nps.cat(x**3, x**2) )
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-6.svg]]
+[[file:demo-18.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -91,7 +342,7 @@ gp.plot( nps.cat(-x**3, x**2), _with='lines' )
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-7.svg]]
+[[file:demo-19.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -103,7 +354,7 @@ gp.plot( (nps.cat(x**3, -x**2), dict(_with = 'points') ))
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-8.svg]]
+[[file:demo-20.svg]]
 
 Make sure xrange settings don't get overridden. The label below should be out of
 bounds, and not visible
@@ -124,7 +375,7 @@ gp.plot( ( np.arange(10), ),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-9.svg]]
+[[file:demo-21.svg]]
 
 some more varied plotting, using the object-oriented interface
 
@@ -154,7 +405,7 @@ plot1.plot( ( nps.cat(x, x*2, x*3), x**2 - 300,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-10.svg]]
+[[file:demo-22.svg]]
 
 a way to control the point size
 
@@ -170,7 +421,7 @@ gp.plot( x**2, np.abs(x)/2, x*50,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-11.svg]]
+[[file:demo-23.svg]]
 
 labels
 
@@ -185,7 +436,7 @@ gp.plot(np.arange(5),np.arange(5)+1,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-12.svg]]
+[[file:demo-24.svg]]
 
 Conchoids of de Sluze. Broadcasting example
 
@@ -207,7 +458,7 @@ gp.plot( rho,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-13.svg]]
+[[file:demo-25.svg]]
 
 
 some 3d stuff
@@ -232,7 +483,7 @@ gp.plot3d( x, y, z,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-14.svg]]
+[[file:demo-26.svg]]
 
 sphere, ellipse together
 
@@ -258,7 +509,7 @@ gp.plot3d( (x * nps.transpose(np.array([[1,2]])),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-15.svg]]
+[[file:demo-27.svg]]
 
 similar, written to a png
 
@@ -284,7 +535,7 @@ gp.plot3d( (x * nps.transpose(np.array([[1,2]])),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-16.svg]]
+[[file:demo-28.svg]]
 
 some paraboloids plotted on an implicit 2D domain
 
@@ -303,7 +554,7 @@ gp.plot3d( ( zz,  dict(legend = 'zplus')),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-17.svg]]
+[[file:demo-29.svg]]
 
 3d, variable color, variable pointsize
 
@@ -328,7 +579,7 @@ gp.plot3d( ( np.cos(th) * nps.transpose(np.array([[1,-1]])),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-18.svg]]
+[[file:demo-30.svg]]
 
 implicit domain heat map
 
@@ -346,7 +597,7 @@ gp.plot3d(zz,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-19.svg]]
+[[file:demo-31.svg]]
 
 same, but as a 2d gp.plot, _with a curve drawn on top for good measure
 
@@ -374,7 +625,7 @@ gp.plot( ( zz, dict(tuplesize = 3,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-20.svg]]
+[[file:demo-32.svg]]
 
 2D implicit domain demos
 
@@ -393,7 +644,7 @@ gp.plot(zz,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-21.svg]]
+[[file:demo-33.svg]]
 
 4d matrix curve
 
@@ -413,7 +664,7 @@ gp.plot(zz / 5., xx,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-22.svg]]
+[[file:demo-34.svg]]
 
 Using broadcasting to plot each slice with a different style
 
@@ -435,7 +686,7 @@ gp.plot((nps.cat(xx,zz / 5.),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-23.svg]]
+[[file:demo-35.svg]]
 
 2 3d matrix curves
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
@@ -446,17 +697,15 @@ import gnuplotlib as gp
 xx,yy = np.mgrid[-10:11, -8:2]
 zz = np.sqrt(xx*xx + yy*yy)
 
-gp.plot(( nps.cat(xx,zz / 5.),
-         dict(tuplesize = 3,
-              _with     = np.array(('points palette pt 7','points ps variable pt 6')))),
-
+gp.plot( nps.cat(xx,zz / 5.),
+        tuplesize = 3,
+        _with     = np.array(('points palette pt 7','points ps variable pt 6')),
         title  = 'Two 3D matrix plots. Binary.',
-        square = 1,
-        ascii  = True,)
+        square = 1)
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-24.svg]]
+[[file:demo-36.svg]]
 
 fancy contours just because I can
 
@@ -486,7 +735,7 @@ gp.plot3d( (zz_big, dict(tuplesize = 3,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-25.svg]]
+[[file:demo-37.svg]]
 
 multiplot
 
@@ -505,7 +754,7 @@ gp.plot( th, nps.cat( np.cos(th), np.sin(th)),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-26.svg]]
+[[file:demo-38.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -520,7 +769,7 @@ gp.plot( (th, np.cos(th)),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-27.svg]]
+[[file:demo-39.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -537,7 +786,7 @@ gp.plot( (th, np.cos(th), dict(title="cos",
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-28.svg]]
+[[file:demo-40.svg]]
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -571,7 +820,7 @@ gp.plot( (x**2,),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-29.svg]]
+[[file:demo-41.svg]]
 
 fancy contours stacked on top of one another. Using multiplot to render
 several plots directly onto one another
@@ -605,7 +854,7 @@ gp.plot3d( (zz0, dict(_set = commonset + ('xyplane at 10',))),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-30.svg]]
+[[file:demo-42.svg]]
 
 * init                                                             :noexport:
 Local Variables:
@@ -723,3 +972,20 @@ eval: (progn
    :around #'dima-org-babel-python-set-demo-output))
 )
 End:
+
+
+* tocover
+
+** styling
+** recipes
+3d
+histograms
+contours
+polar
+
+3d. missing 2. image
+
+title
+xlabels
+autolegend
+xrange
