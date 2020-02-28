@@ -1,3 +1,6 @@
+This is an overview of the capabilities of =gnuplotlib=. The [[https://github.com/dkogan/gnuplotlib/][documentation]]
+provides a complete API reference.
+
 * Tutorial
 ** Specifying the data in one dataset
 
@@ -76,17 +79,26 @@ gp.plot(np.cos(th), np.sin(th),
 [[file:demo-4.svg]]
 
 =_with= is a /curve option/ that indicates how this dataset should be plotted.
-These are strings that are passed on to =gnuplot= verbatim. So the full power of
-=gnuplot= is available, and there's nothing =gnuplotlib=-specific to learn.
+It's =_with= and not =with= because the latter is a built-in keyword in Python.
+Thus, =gnuplotlib= treats all =_xxx= options identically to =xxx=, so =plot(...,
+_with = 'xxx')= and =plot(..., **{'_with' = 'xxx'})= and =plot(..., **{'with' =
+'xxx'})= are identical.
+
+Styles in =_with= are strings that are passed on to =gnuplot= verbatim. So the
+full power of =gnuplot= is available, and there's nothing =gnuplotlib=-specific
+to learn. =gnuplot= has plenty of documentation about styling details.
 
 Earlier we saw that a missing x array can be automatically filled-in with
 integers 0, 1, 2, ... This is available with fancier plots also. The rule is:
 
+- Normally we should be given exactly =tuplesize= arrays
 - If we are given exactly =tuplesize-1= arrays, use 0, 1, 2, ... for the x
+- If we are given exactly =tuplesize-2= arrays, use a regularly spaced xy grid
+  with 0, 1, 2, ... in x and in y
 
-When plotting in 2D, this is the only allowed mismatch between =tuplesize= and
-how much data is received. Example. Let's color-code the sinusoid by passing in
-/two/ arrays. The =tuplesize= is still 3, but we have an implicit x.
+These are the only allowed mismatches between =tuplesize= and how much data is
+received. Example. Let's color-code the sinusoid by passing in /two/ arrays. The
+=tuplesize= is still 3, but we have an implicit x.
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -241,6 +253,7 @@ each dataset. With broadcasting, we can avoid that:
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
+import numpysane  as nps
 import gnuplotlib as gp
 
 th = np.linspace(-2.*np.pi, 2.*np.pi, 100)
@@ -260,517 +273,60 @@ separate datasets, one for each row of y. The curve options broadcast as well:
 the =legend= is expecting a scalar, but I gave it an array of shape =(2,)=, so
 it uses a different legend for each of the two plotted datasets.
 
-** Recipes
+** Specifying multiple plots
+If we want multiple plot windows, the object-oriented =gnuplotlib= interface
+provides this. Each =gnuplotlib= object represents a separate =gnuplot= process
+and a separate plot window. All the one-call =plot()= commands shown so far
+reuse a single global =gnuplotlib= object for convenience. So if we want
+multiple simultaneous plot windows, we explicitly create and use separate
+=gnuplotlib= objects. The general sequence is:
 
+#+BEGIN_SRC python :exports code
+plot1 = gp.gnuplotlib(plot_options_and_default_curve_options)
+plot1.plot(curves)
 
+plot2 = gp.gnuplotlib(plot_options_and_default_curve_options)
+plot2.plot(curves)
 
-
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import numpysane  as nps
-import gnuplotlib as gp
-
-x = np.arange(21) - 10
-gp.plot(( np.transpose(nps.cat(x,x**2)),
-          dict(_with='linespoints pt 4 ps 2'),
-         ),
-        ( 5,60,
-          dict(tuplesize=2,
-               _with='linespoints pt 5 ps 2'),
-        ),
-        ( np.array((3,40)),
-          dict(_with='linespoints pt 6 ps 2'),
-        ),
-        tuplesize = -2)
+...
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-14.svg]]
+
+A trivial example:
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
 import gnuplotlib as gp
 
-x = np.arange(21) - 10
-gp.plot(-x, x**3)
+th = np.linspace(-2.*np.pi, 2.*np.pi, 100)
+plot1 = gp.gnuplotlib( title  = 'sinusoid',
+                       xlabel = 'Angle (rad)')
+plot1.plot(th, np.sin(th),
+           _with  = 'lines',
+           legend = 'sine')
 #+END_SRC
 
 #+RESULTS:
 [[file:demo-15.svg]]
 
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import gnuplotlib as gp
-
-x = np.arange(21) - 10
-gp.plot((x**2))
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-16.svg]]
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import gnuplotlib as gp
-
-x = np.arange(21) - 10
-gp.plot((-x, x**3, dict(_with = 'lines')), (x**2,))
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-17.svg]]
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import numpysane  as nps
-import gnuplotlib as gp
-
-x = np.arange(21) - 10
-gp.plot( x, nps.cat(x**3, x**2) )
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-18.svg]]
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import numpysane  as nps
-import gnuplotlib as gp
-
-x = np.arange(21) - 10
-gp.plot( nps.cat(-x**3, x**2), _with='lines' )
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-19.svg]]
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import numpysane  as nps
-import gnuplotlib as gp
-
-x = np.arange(21) - 10
-gp.plot( (nps.cat(x**3, -x**2), dict(_with = 'points') ))
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-20.svg]]
-
-Make sure xrange settings don't get overridden. The label below should be out of
-bounds, and not visible
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import gnuplotlib as gp
-
-gp.plot( ( np.arange(10), ),
-         ( np.array((5,),), np.array((2,),), np.array(("Seeing this is a bug!",),),
-           dict(_with = 'labels',
-                tuplesize = 3)),
-         ( np.array((5,),), np.array((7,),), np.array(("This SHOULD be visible. Another label should be out-of-view, below the x-axis",),),
-           dict(_with = 'labels',
-                tuplesize = 3)),
-         _set  = 'yrange [5:10]',
-         unset = 'grid')
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-21.svg]]
-
-some more varied plotting, using the object-oriented interface
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import numpysane  as nps
-import gnuplotlib as gp
-
-x = np.arange(21) - 10
-plot1 = gp.gnuplotlib(_with = 'linespoints',
-                      xmin  = -10,
-                      title = 'Error bars and other things',)
-
-plot1.plot( ( nps.cat(x, x*2, x*3), x**2 - 300,
-              dict(_with  = 'lines lw 4',
-                   y2     = True,
-                   legend = 'parabolas')),
-
-            (x**2 * 10, x**2/40, x**2/2, # implicit domain
-             dict(_with      =      'xyerrorbars',
-                  tuplesize = 4)),
-
-            (x, nps.cat(x**3, x**3 - 100),
-             dict(_with     = 'lines',
-                  legend    = 'shifted cubics',
-                  tuplesize = 2)))
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-22.svg]]
-
-a way to control the point size
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import gnuplotlib as gp
-
-x = np.arange(21) - 10
-gp.plot( x**2, np.abs(x)/2, x*50,
-         cbrange = '-600:600',
-         _with   = 'points pointtype 7 pointsize variable palette',
-         tuplesize = 4,)
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-23.svg]]
-
-labels
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import gnuplotlib as gp
-
-x = np.arange(21) - 10
-gp.plot(np.arange(5),np.arange(5)+1,
-        np.array( ['{} {}'.format(x,x+1) for x in range(5)], dtype=str),
-        _with='labels', tuplesize=3, ascii=1,)
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-24.svg]]
-
-Conchoids of de Sluze. Broadcasting example
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import gnuplotlib as gp
-
-rho = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
-a   = np.arange(-4,3)[:, np.newaxis] # dim=(7,1)
-
-gp.plot( rho,
-         1./np.cos(rho) + a*np.cos(rho), # broadcasted. dim=(7,1000)
-
-         _with  = 'lines',
-         set    = 'polar',
-         square = True,
-         yrange = [-5,5],
-         legend = a.ravel(),)
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-25.svg]]
-
-
-some 3d stuff
-
-gp.plot a sphere
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import gnuplotlib as gp
-
-th = np.linspace(0,        np.pi*2, 30)
-ph = np.linspace(-np.pi/2, np.pi*2, 30)[:,np.newaxis]
-x  = (np.cos(ph) * np.cos(th))          .ravel()
-y  = (np.cos(ph) * np.sin(th))          .ravel()
-z  = (np.sin(ph) * np.ones( th.shape )) .ravel()
-
-gp.plot3d( x, y, z,
-           _with = 'points',
-           title  = 'sphere',
-           square = True,
-           legend = 'sphere',)
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-26.svg]]
-
-sphere, ellipse together
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import numpysane  as nps
-import gnuplotlib as gp
-
-th = np.linspace(0,        np.pi*2, 30)
-ph = np.linspace(-np.pi/2, np.pi*2, 30)[:,np.newaxis]
-x  = (np.cos(ph) * np.cos(th))          .ravel()
-y  = (np.cos(ph) * np.sin(th))          .ravel()
-z  = (np.sin(ph) * np.ones( th.shape )) .ravel()
-
-gp.plot3d( (x * nps.transpose(np.array([[1,2]])),
-            y * nps.transpose(np.array([[1,2]])),
-            z,
-            dict( legend = np.array(('sphere', 'ellipse')))),
-
-           title  = 'sphere, ellipse',
-           square = True,
-           _with  = 'points',)
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-27.svg]]
-
-similar, written to a png
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import numpysane  as nps
-import gnuplotlib as gp
-
-th = np.linspace(0,        np.pi*2, 30)
-ph = np.linspace(-np.pi/2, np.pi*2, 30)[:,np.newaxis]
-x  = (np.cos(ph) * np.cos(th))          .ravel()
-y  = (np.cos(ph) * np.sin(th))          .ravel()
-z  = (np.sin(ph) * np.ones( th.shape )) .ravel()
-
-gp.plot3d( (x * nps.transpose(np.array([[1,2]])),
-            y * nps.transpose(np.array([[1,2]])),
-            z,
-            dict( legend = np.array(('sphere', 'ellipse')))),
-
-           title    = 'sphere, ellipse',
-           square   = True,
-           _with    = 'points',)
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-28.svg]]
-
-some paraboloids plotted on an implicit 2D domain
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import gnuplotlib as gp
-
-xx,yy = np.mgrid[-10:11, -10:11]
-zz    = xx*xx + yy*yy
-
-gp.plot3d( ( zz,  dict(legend = 'zplus')),
-           (-zz,  dict(legend = 'zminus')),
-           (zz*2, dict(legend = 'zplus2')),
-
-           _with = 'points', title  = 'gridded paraboloids', ascii=True,)
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-29.svg]]
-
-3d, variable color, variable pointsize
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import numpysane  as nps
-import gnuplotlib as gp
-
-th    = np.linspace(0, 6*np.pi, 200)
-z     = np.linspace(0, 5,       200)
-size  = 0.5 + np.abs(np.cos(th))
-color = np.sin(2*th)
-
-gp.plot3d( ( np.cos(th) * nps.transpose(np.array([[1,-1]])),
-             np.sin(th) * nps.transpose(np.array([[1,-1]])),
-             z, size, color, dict( legend = np.array(('spiral 1', 'spiral 2')))),
-
-           title     = 'double helix',
-           tuplesize = 5,
-           _with = 'points pointsize variable pointtype 7 palette',
-           squarexy = True)
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-30.svg]]
-
-implicit domain heat map
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import gnuplotlib as gp
-
-xx,yy = np.mgrid[-10:11, -10:11]
-zz    = xx*xx + yy*yy
-
-gp.plot3d(zz,
-          title = 'Paraboloid heat map',
-          set   = ('view equal xy', 'view 0,0'),
-          _with = 'image')
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-31.svg]]
-
-same, but as a 2d gp.plot, _with a curve drawn on top for good measure
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import gnuplotlib as gp
-
-x2 = np.linspace(0,20,100)
-xx,yy = np.mgrid[-10:11, -10:11]
-zz    = xx*xx + yy*yy
-
-gp.plot( ( zz, dict(tuplesize = 3,
-                    _with     = 'image')),
-         (x2, 20*np.cos(x2/20 * np.pi/2),
-
-          dict(tuplesize = 2,
-               _with     = 'lines')),
-
-         title  = 'Paraboloid heat map, 2D',
-         square = True,
-         xmin   = 0,
-         xmax   = 20,
-         ymin   = 0,
-         ymax   = 20,)
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-32.svg]]
-
-2D implicit domain demos
-
-single 3d matrix curve
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import gnuplotlib as gp
-
-gp.plot(zz,
-        title     = 'Single 3D matrix plot. Binary.',
-        square    = 1,
-        tuplesize = 3,
-        _with     = 'points palette pt 7',
-        ascii     = False,)
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-33.svg]]
-
-4d matrix curve
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import gnuplotlib as gp
-
-xx,yy = np.mgrid[-10:11, -8:2]
-zz = np.sqrt(xx*xx + yy*yy)
-
-gp.plot(zz / 5., xx,
-        title     = '4D matrix plot. Binary.',
-        square    = 1,
-        tuplesize = 4,
-        _with     = 'points palette ps variable pt 7',
-        ascii     = False,)
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-34.svg]]
-
-Using broadcasting to plot each slice with a different style
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import numpysane  as nps
-import gnuplotlib as gp
-
-xx,yy = np.mgrid[-10:11, -8:2]
-zz = np.sqrt(xx*xx + yy*yy)
-
-gp.plot((nps.cat(xx,zz / 5.),
-         dict(tuplesize = 3,
-              _with     = np.array(('points palette pt 7','points ps variable pt 6')))),
-
-        title  = 'Two 3D matrix plots. Binary.',
-        square = 1,
-        ascii  = False,)
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-35.svg]]
-
-2 3d matrix curves
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import numpysane  as nps
-import gnuplotlib as gp
-
-xx,yy = np.mgrid[-10:11, -8:2]
-zz = np.sqrt(xx*xx + yy*yy)
-
-gp.plot( nps.cat(xx,zz / 5.),
-        tuplesize = 3,
-        _with     = np.array(('points palette pt 7','points ps variable pt 6')),
-        title  = 'Two 3D matrix plots. Binary.',
-        square = 1)
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-36.svg]]
-
-fancy contours just because I can
-
-single 3d matrix curve. Two plots: the image and the contours together.
-Broadcasting the styles
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import gnuplotlib as gp
-
-yy_big,xx_big = np.mgrid[0:61,0:61]
-xx_big -= 30
-yy_big -= 30
-zz_big = np.sin(xx_big / 4.0) * yy_big
-
-gp.plot3d( (zz_big, dict(tuplesize = 3,
-                     _with     = np.array(('image','lines')))),
-
-           title = 'matrix plot with contours',
-           cmds  = [ 'set contours base',
-                     'set cntrparam bspline',
-                     'set cntrparam levels 15',
-                     'unset grid',
-                     'unset surface',
-                     'set view 0,0'],
-           square = 1,)
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-37.svg]]
-
-multiplot
-
-basics
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import numpysane  as nps
-import gnuplotlib as gp
-
-th = np.linspace(0, np.pi*2, 30)
-gp.plot( th, nps.cat( np.cos(th), np.sin(th)),
-         title = 'broadcasting sin, cos',
-         _xrange = [0,2.*np.pi],
-         _yrange = [-1,1],)
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-38.svg]]
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import gnuplotlib as gp
-
-th = np.linspace(0, np.pi*2, 30)
-gp.plot( (th, np.cos(th)),
-         (th, np.sin(th)),
-         title = 'separate plots for sin, cos',
-         _xrange = [0,2.*np.pi],
-         _yrange = [-1,1],)
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-39.svg]]
+Or if we want /one plot window/ containing /multiple/ plots, we can use the
+/multiplot/ interface. This extends the previous structure where
+
+- a plot (configured with plot options) contains datasets (configure with curve
+  options)
+
+so that we instead have
+
+- a process (configured with process options) contains plots (configured with
+  plot options) contains datasets (configure with curve options)
+
+In the usual non-multiplot case, process options are lumped into the larger set
+of plot options. We still have a single =plot()= command, but now each /plot/
+lives in a separate tuple. We have similar semantics as before: default plot
+options can be given together with the process options. Plot options can be
+given as a =dict= in the last element of that plot's tuple. Example. Two
+sinusoids together, in a multiplot:
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -787,75 +343,675 @@ gp.plot( (th, np.cos(th), dict(title="cos",
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-40.svg]]
+[[file:demo-16.svg]]
+
+We get a multiplot if we pass in a =multiplot= process option. The value of this
+option is given directly to =gnuplot=; as before, see that documentation for all
+the details: run =gnuplot -e 'help multiplot'=
+
+* Recipes
+This is a good overview of the syntax. Now let's demo some fancy plots to
+serve as a cookbook.
+
+Since the actual plotting is handled by =gnuplot=, its documentation and [[http://gnuplot.sourceforge.net/demo_5.2/][demos]]
+are the primary reference on how to do stuff.
+
+** Line, point sizes, thicknesses, styles
+Most often, we're plotting lines or points. The most common styling keywords
+are:
+
+- =pt= (or equivalently =pointtype=)
+- =ps= (or equivalently =pointsize=)
+- =lt= (or equivalently =linetype=)
+- =lw= (or equivalently =linewidth=)
+- =lc= (or equivalently =linecolor=)
+- =dt= (or equivalently =dashtype=)
+
+For details about these and all other styles, see the =gnuplot= documentation.
+For instance:
+
+#+BEGIN_SRC shell :results output verbatim :exports both
+gnuplot -e 'help linewidth'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+ Each terminal has a default set of line and point types, which can be seen
+ by using the command `test`.  `set style line` defines a set of line types
+ and widths and point types and sizes so that you can refer to them later by
+ an index instead of repeating all the information at each invocation.
+
+ Syntax:
+       set style line <index> default
+       set style line <index> {{linetype  | lt} <line_type> | <colorspec>}
+                              {{linecolor | lc} <colorspec>}
+                              {{linewidth | lw} <line_width>}
+                              {{pointtype | pt} <point_type>}
+                              {{pointsize | ps} <point_size>}
+                              {{pointinterval | pi} <interval>}
+                              {{pointnumber | pn} <max_symbols>}
+                              {{dashtype | dt} <dashtype>}
+                              {palette}
+       unset style line
+       show style line
+
+ `default` sets all line style parameters to those of the linetype with
+ that same index.
+
+ If the linestyle <index> already exists, only the given parameters are
+ changed while all others are preserved.  If not, all undefined values are
+ set to the default values.
+
+ Line styles created by this mechanism do not replace the default linetype
+ styles; both may be used.  Line styles are temporary. They are lost whenever
+ you execute a `reset` command.  To redefine the linetype itself,
+ please see `set linetype`.
+
+ The line and point types default to the index value. The exact symbol that is
+ drawn for that index value may vary from one terminal type to another.
+
+ The line width and point size are multipliers for the current terminal's
+ default width and size (but note that <point_size> here is unaffected by
+ the multiplier given by the command`set pointsize`).
+
+ The `pointinterval` controls the spacing between points in a plot drawn with
+ style `linespoints`.  The default is 0 (every point is drawn). For example,
+ `set style line N pi 3` defines a linestyle that uses pointtype N, pointsize
+ and linewidth equal to the current defaults for the terminal, and will draw
+ every 3rd point in plots using `with linespoints`.  A negative value for the
+ interval is treated the same as a positive value, except that some terminals
+ will try to interrupt the line where it passes through the point symbol.
+
+ The `pointnumber` property is similar to `pointinterval` except that rather
+ than plotting every Nth point it limits the total number of points to N.
+
+ Not all terminals support the `linewidth` and `pointsize` features; if
+ not supported, the option will be ignored.
+
+ Terminal-independent colors may be assigned using either
+ `linecolor <colorspec>` or `linetype <colorspec>`, abbreviated `lc` or `lt`.
+ This requires giving a RGB color triple, a known palette color name,
+ a fractional index into the current palette, or a constant value from the
+ current mapping of the palette onto cbrange.
+ See `colors`, `colorspec`, `set palette`, `colornames`, `cbrange`.
+
+ `set style line <n> linetype <lt>` will set both a terminal-dependent dot/dash
+ pattern and color. The commands`set style line <n> linecolor <colorspec>` or
+ `set style line <n> linetype <colorspec>` will set a new line color while
+ leaving the existing dot-dash pattern unchanged.
+
+ In 3d mode (`splot` command), the special keyword `palette` is allowed as a
+ shorthand for "linetype palette z".  The color value corresponds to the
+ z-value (elevation) of the splot, and varies smoothly along a line or surface.
+
+ Examples:
+ Suppose that the default lines for indices 1, 2, and 3 are red, green, and
+ blue, respectively, and the default point shapes for the same indices are a
+ square, a cross, and a triangle, respectively.  Then
+
+       set style line 1 lt 2 lw 2 pt 3 ps 0.5
+
+ defines a new linestyle that is green and twice the default width and a new
+ pointstyle that is a half-sized triangle.  The commands
+
+       set style function lines
+       plot f(x) lt 3, g(x) ls 1
+
+ will create a plot of f(x) using the default blue line and a plot of g(x)
+ using the user-defined wide green line.  Similarly the commands
+
+       set style function linespoints
+       plot p(x) lt 1 pt 3, q(x) ls 1
+
+ will create a plot of p(x) using the default triangles connected by a red
+ line and q(x) using small triangles connected by a green line.
+
+       splot sin(sqrt(x*x+y*y))/sqrt(x*x+y*y) w l pal
+
+ creates a surface plot using smooth colors according to `palette`. Note,
+ that this works only on some terminals. See also `set palette`, `set pm3d`.
+
+       set style line 10 linetype 1 linecolor rgb "cyan"
+
+ will assign linestyle 10 to be a solid cyan line on any terminal that
+ supports rgb colors.
+
+#+end_example
+
+Let's make a plot with some variable colors and point sizes:
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
 import gnuplotlib as gp
 
-rho  = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
-a    = np.arange(-4,3)[:, np.newaxis] # dim=(7,1)
-th   = np.linspace(0,        np.pi*2, 30)
-ph   = np.linspace(-np.pi/2, np.pi*2, 30)[:,np.newaxis]
-x_3d = (np.cos(ph) * np.cos(th))          .ravel()
-y_3d = (np.cos(ph) * np.sin(th))          .ravel()
-z_3d = (np.sin(ph) * np.ones( th.shape )) .ravel()
-
-gp.plot( (x**2,),
-         (-x, x**3),
-         ( rho,
-           1./np.cos(rho) + a*np.cos(rho), # broadcasted. dim=(7,1000)
-
-           dict( _with  = 'lines',
-                 set    = 'polar',
-                 square = True,
-                 yrange = [-5,5],
-                 legend = a.ravel())),
-         (x_3d, y_3d, z_3d,
-          dict( _with = 'points',
-                title  = 'sphere',
-                square = True,
-                legend = 'sphere',
-                _3d    = True)),
-         multiplot='title "basic multiplot" layout 2,2', )
+x = np.arange(21) - 10
+gp.plot( ( x**2, np.abs(x)/2, x*50,
+           dict(_with     = 'points pointtype 7 pointsize variable palette',
+                tuplesize = 4) ),
+         ( 3*x + 30,
+           dict(_with = 'lines lw 3 lc "red" dashtype 2')),
+         cbrange = '-600:600',)
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-41.svg]]
+[[file:demo-18.svg]]
 
-fancy contours stacked on top of one another. Using multiplot to render
-several plots directly onto one another
+Two datasets, one with variable color, the other with variable size. For both
+=tuplesize=3=, but I'm passing in /one/ array. So the xy domain is a regular
+grid of the appropriate size.
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import numpysane  as nps
+import gnuplotlib as gp
+
+x,y = np.mgrid[-10:11, -8:2]
+z    = np.sqrt(x*x + y*y)
+
+gp.plot( nps.cat(x,z / 5.),
+         tuplesize = 3,
+         _with     = np.array(('points palette pt 7',
+                               'points ps variable pt 6')),
+         square = True)
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-19.svg]]
+
+To see a sampling of all the availble line and point styles, run the =test=
+command in =gnuplot=.
+
+** Error bars
+As before, the =gnuplot= documentation has the styling details:
+
+#+BEGIN_SRC shell :results output verbatim :exports code
+gnuplot -e 'help xerrorbars'
+gnuplot -e 'help yerrorbars'
+gnuplot -e 'help xyerrorbars'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+ The `xerrorbars` style is only relevant to 2D data plots.  `xerrorbars` is
+ like `points`, except that a horizontal error bar is also drawn.  At each point
+ (x,y), a line is drawn from (xlow,y) to (xhigh,y) or from (x-xdelta,y) to
+ (x+xdelta,y), depending on how many data columns are provided.  The appearance
+ of the tic mark at the ends of the bar is controlled by `set errorbars`.
+ The basic style requires either 3 or 4 columns:
+
+      3 columns:  x  y  xdelta
+      4 columns:  x  y  xlow  xhigh
+
+ An additional input column (4th or 5th) may be used to provide information 
+ such as variable point color.
+
+ The `yerrorbars` (or `errorbars`) style is only relevant to 2D data plots.
+ `yerrorbars` is like `points`, except that a vertical error bar is also drawn.
+ At each point (x,y), a line is drawn from (x,y-ydelta) to (x,y+ydelta) or
+ from (x,ylow) to (x,yhigh), depending on how many data columns are provided.
+ The appearance of the tic mark at the ends of the bar is controlled by
+ `set errorbars`.
+
+      2 columns:  [implicit x] y ydelta
+      3 columns:  x  y  ydelta
+      4 columns:  x  y  ylow  yhigh
+
+ An additional input column (4th or 5th) may be used to provide information 
+ such as variable point color.
+
+ See also
+ errorbar demo.
+ The `xyerrorbars` style is only relevant to 2D data plots.  `xyerrorbars` is
+ like `points`, except that horizontal and vertical error bars are also drawn.
+ At each point (x,y), lines are drawn from (x,y-ydelta) to (x,y+ydelta) and
+ from (x-xdelta,y) to (x+xdelta,y) or from (x,ylow) to (x,yhigh) and from
+ (xlow,y) to (xhigh,y), depending upon the number of data columns provided.
+ The appearance of the tic mark at the ends of the bar is controlled by
+ `set errorbars`.  Either 4 or 6 input columns are required.
+
+      4 columns:  x  y  xdelta  ydelta
+      6 columns:  x  y  xlow  xhigh  ylow  yhigh
+
+ If data are provided in an unsupported mixed form, the `using` filter on the
+ `plot` command should be used to set up the appropriate form.  For example,
+ if the data are of the form (x,y,xdelta,ylow,yhigh), then you can use
+
+       plot 'data' using 1:2:($1-$3):($1+$3):4:5 with xyerrorbars
+
+ An additional input column (5th or 7th) may be used to provide variable 
+ (per-datapoint) color information. 
+
+#+end_example
+
+For brevity, I'm not including the contents of those help pages here. These tell
+us how to specify errorbars: how many columns to pass in, what they mean, etc.
+Example:
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
 import gnuplotlib as gp
 
-xx,yy = np.meshgrid(np.linspace(-5,5,100),
-                    np.linspace(-5,5,100))
-zz0 = np.sin(xx) + yy*yy/8.
-zz1 = np.sin(xx) + yy*yy/10.
-zz2 = np.sin(xx) + yy*yy/12.
+x = np.arange(21) - 10
+y = x**2 * 10 + 20
+gp.plot( ( x + 1,
+           y + 20,
+           dict(_with = 'lines') ),
 
-commonset = ( 'origin 0,0',
-              'size 1,1',
-              'view 60,20,1,1',
-              'xrange [0:100]',
-              'yrange [0:100]',
-              'zrange [0:150]',
-              'contour base' )
-gp.plot3d( (zz0, dict(_set = commonset + ('xyplane at 10',))),
-           (zz1, dict(_set = commonset + ('xyplane at 80',  'border 15'), unset=('ztics',))),
-           (zz2, dict(_set = commonset + ('xyplane at 150', 'border 15'), unset=('ztics',))),
+         ( x + 1,
+           y + 20,
+           x**2/80,
+           x**2/4,
+           dict(legend    = "using the 'x y xdelta ydelta' style",
+                _with     = 'xyerrorbars',
+                tuplesize = 4) ),
+         ( x,
+           y,
+           x - x**2/80,
+           x + x**2/40,
+           y - x**2/4,
+           y + x**2/4 / 2,
+           dict(legend    = "using the 'x y xlow xhigh ylow yhigh' style",
+                _with     = 'xyerrorbars',
+                tuplesize = 6)),
 
-           tuplesize=3,
-           _with = np.array(('lines nosurface',
-                             'labels boxed nosurface')),
-           square=1,
-           multiplot=True)
+         ( x, x*20 + 500., np.ones(x.shape) * 40,
+           dict(legend    = "using the 'x y ydelta' style; constant ydelta",
+                _with     = 'yerrorbars',
+                tuplesize = 3)),
+
+         xmin  = 1 + x[0],
+         xmax  = 1 + x[-1],
+         set = 'key box opaque')
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-42.svg]]
+[[file:demo-21.svg]]
+
+** Polar
+See
+
+#+BEGIN_SRC shell :results output verbatim :exports code
+gnuplot -e 'help polar'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+ The `set polar` command changes the meaning of the plot from rectangular
+ coordinates to polar coordinates.
+
+ Syntax:
+       set polar
+       unset polar
+       show polar
+
+ In polar coordinates, the dummy variable (t) represents an angle theta.
+ The default range of t is [0:2*pi], or [0:360] if degree units have been
+ selected (see `set angles`).
+
+ The command `unset polar` changes the meaning of the plot back to the default
+ rectangular coordinate system.
+
+ The `set polar` command is not supported for `splot`s.  See the `set mapping`
+ command for similar functionality for `splot`s.
+
+ While in polar coordinates the meaning of an expression in t is really
+ r = f(t), where t is an angle of rotation.  The trange controls the domain
+ (the angle) of the function. The r, x and y ranges control the extent of the
+ graph in the x and y directions.  Each of these ranges, as well as the
+ rrange, may be autoscaled or set explicitly.  For details, see `set rrange`
+ and `set xrange`.
+
+ Example:
+       set polar
+       plot t*sin(t)
+       set trange [-2*pi:2*pi]
+       set rrange [0:3]
+       plot t*sin(t)
+
+ The first `plot` uses the default polar angular domain of 0 to 2*pi.  The
+ radius and the size of the graph are scaled automatically.  The second `plot`
+ expands the domain, and restricts the size of the graph to the area within
+ 3 units of the origin.  This has the effect of limiting x and y to [-3:3].
+
+ By default polar plots are oriented such that theta=0 is at the far right,
+ with theta increasing counterclockwise.  You can change both the origin and
+ the sense explicitly.  See `set theta`.
+
+ You may want to `set size square` to have `gnuplot` try to make the aspect
+ ratio equal to unity, so that circles look circular.  Tic marks around the
+ perimeter can be specified using `set ttics`.
+ See also
+ polar demos (polar.dem)
+ and
+ polar data plot (poldat.dem).
+#+end_example
+
+Let's plot the [[https://en.wikipedia.org/wiki/Conchoid_of_de_Sluze][Conchoids of de Sluze]] using broadcasting:
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import gnuplotlib as gp
+
+rho = np.linspace(0, 2*np.pi, 1000)  # dim=(  1000,)
+a   = np.arange(-4,3)[:, np.newaxis] # dim=(7,1)
+
+gp.plot( rho,
+         1./np.cos(rho) + a*np.cos(rho), # broadcasted. dim=(7,1000)
+
+         _with  = 'lines',
+         set    = 'polar',
+         square = True,
+         yrange = [-5,5],
+         legend = np.array(["a = {}".format(_) for _ in a.ravel()]) )
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-23.svg]]
+
+** Labels
+
+Docs:
+
+#+BEGIN_SRC shell :results output verbatim :exports code
+gnuplot -e 'help labels'
+gnuplot -e 'help set label'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+ The `labels` style reads coordinates and text from a data file and places
+ the text string at the corresponding 2D or 3D position.  3 or 4 input columns
+ of basic data are required.  Additional input columns may be used to provide
+ properties that vary point by point such as text rotation angle (keywords
+ `rotate variable`) or color (see `textcolor variable`).
+
+      3 columns:  x  y  string    # 2D version
+      4 columns:  x  y  z  string # 3D version
+
+ The font, color, rotation angle and other properties of the printed text
+ may be specified as additional command options (see `set label`). The example
+ below generates a 2D plot with text labels constructed from the city whose
+ name is taken from column 1 of the input file, and whose geographic coordinates
+ are in columns 4 and 5. The font size is calculated from the value in column 3,
+ in this case the population.
+
+   CityName(String,Size) = sprintf("{/=%d %s}", Scale(Size), String)
+   plot 'cities.dat' using 5:4:(CityName(stringcolumn(1),$3)) with labels
+
+ If we did not want to adjust the font size to a different size for each city
+ name, the command would be much simpler:
+
+   plot 'cities.dat' using 5:4:1 with labels font "Times,8"
+
+ If the labels are marked as `hypertext` then the text only appears if the
+ mouse is hovering over the corresponding anchor point.  See `hypertext`.
+ In this case you must enable the label's `point` attribute so that there is
+ a point to act as the hypertext anchor:
+
+   plot 'cities.dat' using 5:4:1 with labels hypertext point pt 7
+
+ The `labels` style can also be used in place of the `points` style when the
+ set of predefined point symbols is not suitable or not sufficiently flexible.
+ For example, here we define a set of chosen single-character symbols and assign
+ one of them to each point in a plot based on the value in data column 3:
+
+   set encoding utf8
+   symbol(z) = "∙□+⊙♠♣♡♢"[int(z):int(z)]
+   splot 'file' using 1:2:(symbol($3)) with labels
+
+ This example shows use of labels with variable rotation angle in column 4 and
+ textcolor ("tc") in column 5.  Note that variable color is always taken from
+ the last column in the `using` specifier.
+
+   plot $Data using 1:2:3:4:5 with labels tc variable rotate variable
+ Arbitrary labels can be placed on the plot using the `set label` command.
+
+ Syntax:
+       set label {<tag>} {"<label text>"} {at <position>}
+                 {left | center | right}
+                 {norotate | rotate {by <degrees>}}
+                 {font "<name>{,<size>}"}
+                 {noenhanced}
+                 {front | back}
+                 {textcolor <colorspec>}
+                 {point <pointstyle> | nopoint}
+                 {offset <offset>}
+                 {boxed}
+                 {hypertext}
+       unset label {<tag>}
+       show label
+
+ The <position> is specified by either x,y or x,y,z, and may be preceded by
+ `first`, `second`, `polar`, `graph`, `screen`, or `character` to indicate the
+ coordinate system.  See `coordinates` for details.
+
+ The tag is an integer that is used to identify the label. If no <tag>
+ is given, the lowest unused tag value is assigned automatically.  The
+ tag can be used to delete or modify a specific label.  To change any
+ attribute of an existing label, use the `set label` command with the
+ appropriate tag, and specify the parts of the label to be changed.
+
+ The <label text> can be a string constant, a string variable, or a string-
+ valued expression. See `strings`, `sprintf`, and `gprintf`.
+
+ By default, the text is placed flush left against the point x,y,z.  To adjust
+ the way the label is positioned with respect to the point x,y,z, add the
+ justification parameter, which may be `left`, `right` or `center`,
+ indicating that the point is to be at the left, right or center of the text.
+ Labels outside the plotted boundaries are permitted but may interfere with
+ axis labels or other text.
+
+ Some terminals support enclosing the label in a box.  See `set style textbox`.
+ Not all terminals can handle boxes for rotated text.
+
+ If `rotate` is given, the label is written vertically. If `rotate by <degrees>`
+ is given, the baseline of the text will be set to the specified angle.
+ Some terminals do not support text rotation.
+
+ Font and its size can be chosen explicitly by `font "<name>{,<size>}"` if the
+ terminal supports font settings.  Otherwise the default font of the terminal
+ will be used.
+
+ Normally the enhanced text mode string interpretation, if enabled for the
+ current terminal, is applied to all text strings including label text.
+ The `noenhanced` property can be used to exempt a specific label from the
+ enhanced text mode processing.  The can be useful if the label contains
+ underscores, for example. See `enhanced text`.
+
+ If `front` is given, the label is written on top of the graphed data. If
+ `back` is given (the default), the label is written underneath the graphed
+ data.  Using `front` will prevent a label from being obscured by dense data.
+
+ `textcolor <colorspec>` changes the color of the label text. <colorspec> can be
+ a linetype, an rgb color, or a palette mapping. See help for `colorspec` and
+ `palette`.  `textcolor` may be abbreviated `tc`.
+    `tc default` resets the text color to its default state.
+    `tc lt <n>` sets the text color to that of line type <n>.
+    `tc ls <n>` sets the text color to that of line style <n>.
+    `tc palette z` selects a palette color corresponding to the label z position.
+    `tc palette cb <val>` selects a color corresponding to <val> on the colorbar.
+    `tc palette fraction <val>`, with 0<=val<=1, selects a color corresponding to
+        the mapping [0:1] to grays/colors of the `palette`.
+    `tc rgb "#RRGGBB"` or `tc rgb "0xRRGGBB"` sets an arbitrary 24-bit RGB color.
+    `tc rgb 0xRRGGBB`  As above; a hexadecimal constant does not require quotes.
+
+ If a <pointstyle> is given, using keywords `lt`, `pt` and `ps`, see `style`,
+ a point with the given style and color of the given line type is plotted at
+ the label position and the text of the label is displaced slightly.
+ This option is used by default for placing labels in `mouse` enhanced
+ terminals.  Use `nopoint` to turn off the drawing of a point near
+ the label (this is the default).
+
+ The displacement defaults to 1,1 in `pointsize` units if a <pointstyle> is
+ given, 0,0 if no <pointstyle> is given.  The displacement can be controlled
+ by the optional `offset <offset>` where <offset> is specified by either x,y
+ or x,y,z, and may be preceded by `first`, `second`, `graph`, `screen`, or
+ `character` to select the coordinate system.  See `coordinates` for details.
+
+ If one (or more) axis is timeseries, the appropriate coordinate should be
+ given as a quoted time string according to the `timefmt` format string.
+ See `set xdata` and `set timefmt`.
+
+ The options available for `set label` are also available for the `labels` plot
+ style. See `labels`.  In this case the properties `textcolor`, `rotate`, and
+ `pointsize` may be followed by keyword `variable` rather than by a fixed value.
+ In this case the corresponding property of individual labels is determined by
+ additional columns in the `using` specifier. 
+
+#+end_example
+
+Basic example:
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import gnuplotlib as gp
+
+x = np.arange(5)
+y = x+1
+gp.plot(x, y,
+        np.array( ['At x={}'.format(_) for _ in x], dtype=str),
+        _with     = 'labels',
+        tuplesize = 3,
+        unset     = 'grid')
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-25.svg]]
+
+More complex example:
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import gnuplotlib as gp
+
+x = np.arange(5, dtype=float)
+y = x+1
+gp.plot(x, y,
+        np.array( ['At x={}'.format(_) for _ in x], dtype=str),
+        x / 4 * 90, # Angles, in degrees
+        x,          # Mapped to colors
+        _with     = 'labels rotate variable textcolor palette',
+        tuplesize = 5,
+        unset     = 'grid')
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-26.svg]]
+
+** 3D plots
+We can plot in 3D by passing in the plot option =_3d = True= or by calling
+=plot3d()= instead of =plot()=. The latter is simply a convenience function to
+set the =_3d= plot option. When plotting interactively, you can use the mouse to
+rotate the plot, and look at it from different directions. Otherwise, the
+viewing angle can be set with the =view= setting. See
+
+#+BEGIN_SRC shell :results output verbatim :exports code
+gnuplot -e 'help set view'
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+ The `set view` command sets the viewing angle for `splot`s.  It controls how
+ the 3D coordinates of the plot are mapped into the 2D screen space.  It
+ provides controls for both rotation and scaling of the plotted data, but
+ supports orthographic projections only.  It supports both 3D projection or
+ orthogonal 2D projection into a 2D plot-like map.
+
+ Syntax:
+       set view <rot_x>{,{<rot_z>}{,{<scale>}{,<scale_z>}}}
+       set view map {scale <scale>}
+       set view {no}equal {xy|xyz}
+       set view azimuth <angle>
+       show view
+
+ where <rot_x> and <rot_z> control the rotation angles (in degrees) in a
+ virtual 3D coordinate system aligned with the screen such that initially
+ (that is, before the rotations are performed) the screen horizontal axis is
+ x, screen vertical axis is y, and the axis perpendicular to the screen is z.
+ The first rotation applied is <rot_x> around the x axis.  The second rotation
+ applied is <rot_z> around the new z axis.
+
+ Command `set view map` is used to represent the drawing as a map. It is useful
+ for `contour` plots or 2D heatmaps using pm3d mode rather than `with image`.
+ In the latter case, take care that you properly use `zrange` and `cbrange` for
+ input data point filtering and color range scaling, respectively.
+
+ <rot_x> is bounded to the [0:180] range with a default of 60 degrees, while
+ <rot_z> is bounded to the [0:360] range with a default of 30 degrees.
+ <scale> controls the scaling of the entire `splot`, while <scale_z> scales
+ the z axis only.  Both scales default to 1.0.
+
+ Examples:
+       set view 60, 30, 1, 1
+       set view ,,0.5
+
+ The first sets all the four default values.  The second changes only scale,
+ to 0.5.
+#+end_example
+
+Let's plot a sphere:
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import gnuplotlib as gp
+
+th = np.linspace(0,        np.pi*2, 30)
+ph = np.linspace(-np.pi/2, np.pi*2, 30)[:,np.newaxis]
+x  = (np.cos(ph) * np.cos(th))          .ravel()
+y  = (np.cos(ph) * np.sin(th))          .ravel()
+z  = (np.sin(ph) * np.ones( th.shape )) .ravel()
+
+gp.plot3d( x, y, z,
+           _with = 'points',
+           title  = 'sphere',
+           square = True)
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-28.svg]]
+
+Some broadcasted paraboloids plotted on an implicit 2D domain
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import gnuplotlib as gp
+
+x,y = np.mgrid[-10:11, -10:11]
+z    = x*x + y*y
+
+gp.plot3d( nps.cat(z, -z, z*2),
+           _with = 'points' )
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-29.svg]]
+
+A double-helix with variable color and variable pointsize
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import numpysane  as nps
+import gnuplotlib as gp
+
+th    = np.linspace(0, 6*np.pi, 200)
+z     = np.linspace(0, 5,       200)
+size  = 0.5 + np.abs(np.cos(th))
+color = np.sin(2*th)
+
+gp.plot3d( np.cos(th) * nps.transpose(np.array((1,-1))),
+           np.sin(th) * nps.transpose(np.array((1,-1))),
+           z,
+           size,
+           color,
+           legend = np.array(('spiral 1', 'spiral 2')),
+           tuplesize = 5,
+           _with = 'points pointsize variable pointtype 7 palette',
+           title    = 'Double helix',
+           squarexy = True)
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-30.svg]]
 
 * init                                                             :noexport:
 Local Variables:
@@ -863,7 +1019,8 @@ eval: (progn
           (setq org-confirm-babel-evaluate nil)
           (org-babel-do-load-languages
            'org-babel-load-languages
-            '((python  . t)))
+            '((python  . t)
+              (shell   . t)))
 ;; This is all very convoluted. There are 3 different advices, commented in
 ;; place
 ;;
@@ -973,20 +1130,3 @@ eval: (progn
    :around #'dima-org-babel-python-set-demo-output))
 )
 End:
-
-
-* tocover
-
-** styling
-** recipes
-3d
-histograms
-contours
-polar
-
-3d. missing 2. image
-
-title
-xlabels
-autolegend
-xrange
