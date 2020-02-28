@@ -1,5 +1,5 @@
 * Tutorial
-** Specifying the data
+** Specifying the data in one dataset
 
 First, a trivial plot: let's plot a sinusoid
 
@@ -85,7 +85,8 @@ integers 0, 1, 2, ... This is available with fancier plots also. The rule is:
 - If we are given exactly =tuplesize-1= arrays, use 0, 1, 2, ... for the x
 
 When plotting in 2D, this is the only allowed mismatch between =tuplesize= and
-how much data is received. Example. Let's color-code the sinusoid.
+how much data is received. Example. Let's color-code the sinusoid by passing in
+/two/ arrays. The =tuplesize= is still 3, but we have an implicit x.
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -138,9 +139,10 @@ gp.plot(points,
 #+RESULTS:
 [[file:demo-7.svg]]
 
-** Specifying multiple datasets together
-Usually we want to plot multiple datasets in the same plot. Note that the code
-and documentation uses the terms "dataset" and "curve" interchangeably.
+** Specifying multiple datasets
+So far we were plotting a single dataset in a plot. However, often we want to
+plot multiple datasets in the same plot. Note that the code and documentation
+uses the terms "dataset" and "curve" interchangeably.
 
 As before, the whole plot is made with a single call to =plot()=. In its most
 basic form, each dataset is specified as a /tuple/. /plot options/ apply to the
@@ -162,9 +164,10 @@ curve = (array, array, ..., curve_options)
 
 #+RESULTS:
 
-Let's plot a sine and a cosine together, using the default styling for one
-(including no legend), and a specific styling for another. And let's set some
-common options.
+The data in each dataset is interpreted as described in the previous section.
+
+Let's plot a sine and a cosine together, using the default styling for one, and
+a specific styling for another. And let's set some common options.
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -190,7 +193,7 @@ gp.plot( (
 
 The =plot()= kwargs are the plot options, but curve options are allowed there as
 well. These will be used as the default curve options for all curves that omit
-those specific options. For instance, if I want to plot logs of things with
+those specific options. For instance, if I want to plot lots of things with
 lines, except /one/, I can do this:
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
@@ -233,10 +236,8 @@ gp.plot(*datasets, **plot_options)
 #+RESULTS:
 
 Finally, [[https://docs.scipy.org/doc/numpy/user/basics.broadcasting.html][broadcasting]] is fully supported here, and can be used to simplify the
-=plot()= call. It's supported across the data arguments /and/ the curve options.
-Often this lets you simplify the =plot()= command significantly. Previously we
-plotted two sinusoids together using a tuple for each dataset. With
-broadcasting, we can avoid that:
+=plot()= call. Previously we plotted two sinusoids together using a tuple for
+each dataset. With broadcasting, we can avoid that:
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -254,10 +255,10 @@ gp.plot( th,
 [[file:demo-13.svg]]
 
 I passed in an aray of shape =(100,)= for the x, and an array of shape
-=(2,100,)= for the y. The broadcasting logic kicks in, and we plot two separate
-datasets, one for each row of y. The curve options broadcast as well. The
-=legend= is expecting a scalar, but I gave it an array of shape =(2,)=, so it
-uses a different legend for each of the two plotted datasets.
+=(2,100,)= for the y. The broadcasting logic kicks in, and we get a plot of two
+separate datasets, one for each row of y. The curve options broadcast as well:
+the =legend= is expecting a scalar, but I gave it an array of shape =(2,)=, so
+it uses a different legend for each of the two plotted datasets.
 
 ** Recipes
 
