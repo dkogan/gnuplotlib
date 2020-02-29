@@ -347,7 +347,11 @@ gp.plot( (th, np.cos(th), dict(title="cos",
 
 We get a multiplot if we pass in a =multiplot= process option. The value of this
 option is given directly to =gnuplot=; as before, see that documentation for all
-the details: run =gnuplot -e 'help multiplot'=
+the details: run
+
+#+BEGIN_SRC shell :results none :exports code
+=gnuplot -e 'help multiplot'=
+#+END_SRC
 
 * Recipes
 This is a good overview of the syntax. Now let's demo some fancy plots to
@@ -494,11 +498,11 @@ gp.plot( ( x**2, np.abs(x)/2, x*50,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-18.svg]]
+[[file:demo-19.svg]]
 
-Two datasets, one with variable color, the other with variable size. For both
-=tuplesize=3=, but I'm passing in /one/ array. So the xy domain is a regular
-grid of the appropriate size.
+Let's now plot two datasets, one with variable color, the other with variable
+size. We have =tuplesize=3= for both, but I'm passing in /one/ array. So the xy
+domain is a regular grid of the appropriate size.
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -516,7 +520,7 @@ gp.plot( nps.cat(x,z / 5.),
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-19.svg]]
+[[file:demo-20.svg]]
 
 To see a sampling of all the availble line and point styles, run the =test=
 command in =gnuplot=.
@@ -524,7 +528,7 @@ command in =gnuplot=.
 ** Error bars
 As before, the =gnuplot= documentation has the styling details:
 
-#+BEGIN_SRC shell :results output verbatim :exports code
+#+BEGIN_SRC shell :results none :exports code
 gnuplot -e 'help xerrorbars'
 gnuplot -e 'help yerrorbars'
 gnuplot -e 'help xyerrorbars'
@@ -625,12 +629,12 @@ gp.plot( ( x + 1,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-21.svg]]
+[[file:demo-22.svg]]
 
 ** Polar
 See
 
-#+BEGIN_SRC shell :results output verbatim :exports code
+#+BEGIN_SRC shell :results none :exports code
 gnuplot -e 'help polar'
 #+END_SRC
 
@@ -706,13 +710,12 @@ gp.plot( rho,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-23.svg]]
+[[file:demo-24.svg]]
 
 ** Labels
-
 Docs:
 
-#+BEGIN_SRC shell :results output verbatim :exports code
+#+BEGIN_SRC shell :results none :exports code
 gnuplot -e 'help labels'
 gnuplot -e 'help set label'
 #+END_SRC
@@ -876,7 +879,7 @@ gp.plot(x, y,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-25.svg]]
+[[file:demo-26.svg]]
 
 More complex example:
 
@@ -896,7 +899,7 @@ gp.plot(x, y,
 #+END_SRC
 
 #+RESULTS:
-[[file:demo-26.svg]]
+[[file:demo-27.svg]]
 
 ** 3D plots
 We can plot in 3D by passing in the plot option =_3d = True= or by calling
@@ -905,49 +908,12 @@ set the =_3d= plot option. When plotting interactively, you can use the mouse to
 rotate the plot, and look at it from different directions. Otherwise, the
 viewing angle can be set with the =view= setting. See
 
-#+BEGIN_SRC shell :results output verbatim :exports code
+#+BEGIN_SRC shell :results none :exports none
 gnuplot -e 'help set view'
 #+END_SRC
 
-#+RESULTS:
-#+begin_example
- The `set view` command sets the viewing angle for `splot`s.  It controls how
- the 3D coordinates of the plot are mapped into the 2D screen space.  It
- provides controls for both rotation and scaling of the plotted data, but
- supports orthographic projections only.  It supports both 3D projection or
- orthogonal 2D projection into a 2D plot-like map.
-
- Syntax:
-       set view <rot_x>{,{<rot_z>}{,{<scale>}{,<scale_z>}}}
-       set view map {scale <scale>}
-       set view {no}equal {xy|xyz}
-       set view azimuth <angle>
-       show view
-
- where <rot_x> and <rot_z> control the rotation angles (in degrees) in a
- virtual 3D coordinate system aligned with the screen such that initially
- (that is, before the rotations are performed) the screen horizontal axis is
- x, screen vertical axis is y, and the axis perpendicular to the screen is z.
- The first rotation applied is <rot_x> around the x axis.  The second rotation
- applied is <rot_z> around the new z axis.
-
- Command `set view map` is used to represent the drawing as a map. It is useful
- for `contour` plots or 2D heatmaps using pm3d mode rather than `with image`.
- In the latter case, take care that you properly use `zrange` and `cbrange` for
- input data point filtering and color range scaling, respectively.
-
- <rot_x> is bounded to the [0:180] range with a default of 60 degrees, while
- <rot_z> is bounded to the [0:360] range with a default of 30 degrees.
- <scale> controls the scaling of the entire `splot`, while <scale_z> scales
- the z axis only.  Both scales default to 1.0.
-
- Examples:
-       set view 60, 30, 1, 1
-       set view ,,0.5
-
- The first sets all the four default values.  The second changes only scale,
- to 0.5.
-#+end_example
+In general there're lots of ways to plot images, meshes, contours, and so on.
+Please see the =gnuplot= docs.
 
 Let's plot a sphere:
 
@@ -962,25 +928,9 @@ y  = (np.cos(ph) * np.sin(th))          .ravel()
 z  = (np.sin(ph) * np.ones( th.shape )) .ravel()
 
 gp.plot3d( x, y, z,
-           _with = 'points',
+           _with  = 'points',
            title  = 'sphere',
            square = True)
-#+END_SRC
-
-#+RESULTS:
-[[file:demo-28.svg]]
-
-Some broadcasted paraboloids plotted on an implicit 2D domain
-
-#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
-import numpy      as np
-import gnuplotlib as gp
-
-x,y = np.mgrid[-10:11, -10:11]
-z    = x*x + y*y
-
-gp.plot3d( nps.cat(z, -z, z*2),
-           _with = 'points' )
 #+END_SRC
 
 #+RESULTS:
@@ -1012,6 +962,389 @@ gp.plot3d( np.cos(th) * nps.transpose(np.array((1,-1))),
 
 #+RESULTS:
 [[file:demo-30.svg]]
+
+** 3D plots: meshes and contours
+Both of these are plots of discrete 3D points. If we pass in exactly
+=tuplesize-2= arrays, then we will use an implicit grid as our xy domain. Let's
+create a mesh, and plot it:
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import numpysane  as nps
+import gnuplotlib as gp
+
+N = 60
+# shape (N+1,N+1,2). Linear values from -1 to 1
+xy = nps.mv(np.mgrid[0:N+1,0:N+1], 0, -1)/(N/2.) - 1.
+# shape (N+1,N+1)
+r = nps.mag(xy)
+z = np.exp(-r * 2.) * np.sin(xy[...,0]*6) * np.sin(xy[...,1]*6)
+
+gp.plot3d(z,
+          squarexy = True)
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-31.svg]]
+
+By default we plot with lines (meaning "wireframe" here) and points. Probably
+just the wireframe would be nicer. And let's use variable colors to encode z.
+And let's rotate it
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import numpysane  as nps
+import gnuplotlib as gp
+
+N = 60
+# shape (N+1,N+1,2). Linear values from -1 to 1
+xy = nps.mv(np.mgrid[0:N+1,0:N+1], 0, -1)/(N/2.) - 1.
+# shape (N+1,N+1)
+r = nps.mag(xy)
+z = np.exp(-r * 2.) * np.sin(xy[...,0]*6) * np.sin(xy[...,1]*6)
+
+gp.plot3d(z, z,
+          _with = 'lines palette',
+          tuplesize = 4,
+          set = ('view 50,30', 'view equal xy')
+)
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-32.svg]]
+
+Let's add some contours beneath
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import numpysane  as nps
+import gnuplotlib as gp
+
+N = 60
+# shape (N+1,N+1,2). Linear values from -1 to 1
+xy = nps.mv(np.mgrid[0:N+1,0:N+1], 0, -1)/(N/2.) - 1.
+# shape (N+1,N+1)
+r = nps.mag(xy)
+z = np.exp(-r * 2.) * np.sin(xy[...,0]*6) * np.sin(xy[...,1]*6)
+
+gp.plot3d(z,
+          _with = 'lines',
+          set = ('view 60,30', 'view equal xy',
+                 'contour base')
+)
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-33.svg]]
+
+When looking at contour plots I generally find them to be much more legible as a
+top-down view, without the 3D component. So I usually do something like this
+instead:
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import numpysane  as nps
+import gnuplotlib as gp
+
+N = 60
+# shape (N+1,N+1,2). Linear values from -1 to 1
+xy = nps.mv(np.mgrid[0:N+1,0:N+1], 0, -1)/(N/2.) - 1.
+# shape (N+1,N+1)
+r = nps.mag(xy)
+z = np.exp(-r * 2.) * np.sin(xy[...,0]*6) * np.sin(xy[...,1]*6)
+
+gp.plot3d(z,
+          _with = np.array(('image', 'lines lw 2 nosurface')),
+          legend = np.array(('surface', '')),
+          set = ('view 0,0',
+                 'view equal xy',
+                 'contour base',
+                 'cntrparam bspline',
+                 'cntrparam levels 15'),
+          unset=('grid', 'colorbox') )
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-34.svg]]
+
+This is technically a 3D plot, but we're looking at it straight down, from the
+top. The 3D plot processing is required to make contours. If we just want to
+draw a colormapped grid of, we can do this as a 2D plot. Let's do that, and also
+use a grayscale colormap
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import numpysane  as nps
+import gnuplotlib as gp
+
+N = 60
+# shape (N+1,N+1,2). Linear values from -1 to 1
+xy = nps.mv(np.mgrid[0:N+1,0:N+1], 0, -1)/(N/2.) - 1.
+# shape (N+1,N+1)
+r = nps.mag(xy)
+z = np.exp(-r * 2.) * np.sin(xy[...,0]*6) * np.sin(xy[...,1]*6)
+
+gp.plot(z,
+        _with     = 'image',
+        tuplesize = 3,
+        set       = 'palette grey',
+        unset     = 'grid',
+        square    = True)
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-35.svg]]
+
+This is very useful for annotating images.
+
+Finally, in these few examples we used an implicit 2D grid as our domain. This
+implicit grid is regular, and uses integers 0, 1, 2, ... in each dimension. What
+if this grid isn't exactly what we want?
+
+One method is to set up a transformation in the =using= directive. Here the
+=image= style works properly only when a linear transformation is involved. With
+a nonlinear transformation, the =pm3d= style is needed. It resamples the input
+in a grid, so it's able to handle this.
+
+Linear transformation:
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import numpysane  as nps
+import gnuplotlib as gp
+
+N = 60
+# shape (N+1,N+1,2). Linear values from -1 to 1
+xy = nps.mv(np.mgrid[0:N+1,0:N+1], 0, -1)/(N/2.) - 1.
+# shape (N+1,N+1)
+r = nps.mag(xy)
+z = np.exp(-r * 2.) * np.sin(xy[...,0]*6) * np.sin(xy[...,1]*6)
+
+gp.plot3d(z,
+          _with = np.array(('image', 'lines nosurface')),
+          set = ('view 0,0',
+                 'view equal xy',
+                 'contour base',
+                 'cntrparam bspline',
+                 'cntrparam levels 15'),
+          using = '(100+$1+$2):($1-$2):3',
+          ascii = True,
+          unset = 'grid' )
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-36.svg]]
+
+Nonlinear transformation:
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import numpysane  as nps
+import gnuplotlib as gp
+
+N = 60
+# shape (N+1,N+1,2). Linear values from -1 to 1
+xy = nps.mv(np.mgrid[0:N+1,0:N+1], 0, -1)/(N/2.) - 1.
+# shape (N+1,N+1)
+r = nps.mag(xy)
+z = np.exp(-r * 2.) * np.sin(xy[...,0]*6) * np.sin(xy[...,1]*6)
+
+gp.plot3d(z,
+          _with = 'pm3d',
+          set = ('view 0,0',
+                 'contour base',
+                 'cntrparam bspline',
+                 'cntrparam levels 15'),
+          using = '($1*$1):2:3',
+          ascii = True,
+          unset = 'grid' )
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-37.svg]]
+
+Some other techniques are possible using linked axes or passing in discrete
+points, but I'm not going into those here.
+
+What if we want multiple sets of contours in one plot? =gnuplot= doesn't
+directly allow that. But you can use =multiplot= to draw the multiple contours
+on top of one another, resulting in the plot we want:
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import gnuplotlib as gp
+
+x,y = np.meshgrid(np.linspace(-5,5,100),
+                  np.linspace(-5,5,100))
+z0 = np.sin(x) + y*y/8.
+z1 = np.sin(x) + y*y/10.
+z2 = np.sin(x) + y*y/12.
+
+commonset = ( 'origin 0,0',
+              'size 1,1',
+              'view 60,20,1,1',
+              'xrange [0:100]',
+              'yrange [0:100]',
+              'zrange [0:150]',
+              'contour base' )
+gp.plot3d( (z0, dict(_set = commonset + ('xyplane at 10',))),
+           (z1, dict(_set = commonset + ('xyplane at 80',  'border 15'), unset=('ztics',))),
+           (z2, dict(_set = commonset + ('xyplane at 150', 'border 15'), unset=('ztics',))),
+
+           tuplesize=3,
+           _with = np.array(('lines nosurface',
+                             'labels boxed nosurface')),
+           square=1,
+           multiplot=True)
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-38.svg]]
+
+** Histograms
+=gnuplot= (and =gnuplotlib=) has support for histograms. So we can give it data,
+and have it bin it for us, or we can do it with =numpy=. Let's sample a normal
+distribution, and plot the histogram. With =gnuplotlib=:
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import numpysane  as nps
+import gnuplotlib as gp
+ 
+from scipy.special import erf
+
+N = 500
+x = np.random.randn(N)
+binwidth = 0.5
+
+def equation_gaussian(N     = 0,
+                      mean  = 0,
+                      sigma = 0,
+                      title = ''):
+    k = N * np.sqrt(2.*np.pi) * sigma * erf(binwidth/(2.*np.sqrt(2)*sigma))
+    return '{k}*exp(-(x-{mean})*(x-{mean})/(2.*{sigma}*{sigma})) / sqrt(2.*pi*{sigma}*{sigma}) title "{title}" with lines lw 2'. \
+        format(k     = k,
+               mean  = mean,
+               sigma = sigma,
+               title = title)
+
+gp.plot(x,
+        histogram       = True,
+        binwidth        = binwidth,
+        equation_above  = \
+          ( equation_gaussian( mean  = 0,
+                               sigma = 1.0,
+                               N     = N,
+                               title = 'Expected PDF',),
+            equation_gaussian( mean  = np.mean(x),
+                               sigma = np.std(x),
+                               N     = N,
+                               title = 'Observed PDF',)))
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-39.svg]]
+
+With =numpy=:
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import numpysane  as nps
+import gnuplotlib as gp
+ 
+from scipy.special import erf
+
+N = 500
+x = np.random.randn(N)
+
+hist, bin_edges = np.histogram(x, bins = 10)
+binwidth = bin_edges[1] - bin_edges[0]
+
+bin_centers = bin_edges[1:] - binwidth/2.
+
+def equation_gaussian(N     = 0,
+                      mean  = 0,
+                      sigma = 0,
+                      title = ''):
+    k = N * np.sqrt(2.*np.pi) * sigma * erf(binwidth/(2.*np.sqrt(2)*sigma))
+    return '{k}*exp(-(x-{mean})*(x-{mean})/(2.*{sigma}*{sigma})) / sqrt(2.*pi*{sigma}*{sigma}) title "{title}" with lines lw 2'. \
+        format(k     = k,
+               mean  = mean,
+               sigma = sigma,
+               title = title)
+
+gp.plot(bin_centers, hist,
+        _with = 'boxes fill solid 1 border lt -1',
+        _set  = 'boxwidth {}'.format(binwidth),
+        equation_above  = \
+          ( equation_gaussian( mean  = 0,
+                               sigma = 1.0,
+                               N     = N,
+                               title = 'Expected PDF',),
+            equation_gaussian( mean  = np.mean(x),
+                               sigma = np.std(x),
+                               N     = N,
+                               title = 'Observed PDF',)))
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-40.svg]]
+
+If we want multiple histograms drawn on top of one another, the styling should
+be adjusted so that they both remain visible. For instance:
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import numpysane  as nps
+import gnuplotlib as gp
+ 
+from scipy.special import erf
+
+x1 = np.random.randn(1000)
+x2 = np.random.randn(1000) / 2.0
+binwidth = 0.2
+
+gp.plot( nps.cat(x1,x2),
+         histogram = True,
+         binwidth  = binwidth,
+         _with     = \
+           np.array(('boxes fill transparent solid 0.3 border lt -1',
+                     'boxes fill transparent pattern 1 border lt -1')))
+#+END_SRC
+#+RESULTS:
+[[file:demo-41.svg]]
+
+** Vector fields
+Documentation in gnuplot available like this:
+
+#+BEGIN_SRC shell :results none :exports none
+gnuplot -e 'help vectors'
+#+END_SRC
+
+The docs say that in 2D we want 4 columns: =x, y, xdelta, ydelta= and in 3D we
+want 6 columns: =x, y, z, xdelta, ydelta, zdelta=. And we can have a variable
+arrowstyle. A vectorfield in 2D:
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import gnuplotlib as gp
+
+xy = nps.clump( nps.cat( *np.meshgrid(np.linspace(-5,5,10),
+                          np.linspace(-5,5,10)) ),
+                n = -2 )
+x,y = xy
+r = nps.mag( nps.transpose(xy) )
+
+
+gp.plot( x, y, y/np.sqrt(r+0.1)*0.5, -x/np.sqrt(r+0.1)*0.5,
+         tuplesize = 4,
+         _with = 'vectors filled head',
+         square=1)
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-43.svg]]
+
 
 * init                                                             :noexport:
 Local Variables:
