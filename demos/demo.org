@@ -1096,8 +1096,10 @@ gp.plot(z,
 #+RESULTS:
 [[file:demo-35.svg]]
 
-DID NOT WORK IN GITHUB
-This is very useful for annotating images.
+This is very useful for annotating images. Note that above I used the =image
+pixels= instead of =image=. This is a compabilitity mode that is required to
+work around a bug in github's .svg display. Usually you'd use the normal =image=
+style.
 
 Finally, in these few examples we used an implicit 2D grid as our domain. This
 implicit grid is regular, and uses integers 0, 1, 2, ... in each dimension. What
