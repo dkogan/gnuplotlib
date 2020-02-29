@@ -1559,7 +1559,7 @@ eval: (progn
     (f &optional arg info params)
   (funcall f arg info
            (cons (cons ':file
-                       (format "demo-%d.svg"
+                       (format "guide-%d.svg"
                                (condition-case nil
                                    (setq dima-unique-plot-number (1+ dima-unique-plot-number))
                                  (error (setq dima-unique-plot-number 0)))))
@@ -1582,7 +1582,7 @@ eval: (progn
   (advice-add
    #'org-babel-execute-buffer
    :after #'dima-reset-unique-plot-number))
-;; I'm using github to display demo.org, so I'm not using the "normal" org
+;; I'm using github to display guide.org, so I'm not using the "normal" org
 ;; exporter. I want the demo text to not contain the hardcopy= tags, but clearly
 ;; I need the hardcopy tag when generating the plots. I add some python to
 ;; override gnuplotlib.plot() to add the hardcopy tag somewhere where the reader
