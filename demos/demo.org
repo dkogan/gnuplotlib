@@ -21,8 +21,8 @@ This was a trivial plot, and was trivially-easy to make: we called =plot()= with
 one argument, and we got a plot.
 
 Here each point we plotted was 2-dimensional (has an x value an a y value), but
-we passed in only one number for each point. =gnuplotlib= saw the missing value
-and filled in sequential integers (0, 1, 2, ...) for the x coordinate.
+we passed in only one number for each point. =gnuplotlib= noted the missing
+value and filled in sequential integers (0, 1, 2, ...) for the x coordinate.
 
 If we pass in two arrays, =gnuplotlib= will use one for the x, and the other for
 the y. Let's plot =sin(theta)= vs. =cos(theta)=, i.e. a circle:
@@ -80,9 +80,9 @@ gp.plot(np.cos(th), np.sin(th),
 
 =_with= is a /curve option/ that indicates how this dataset should be plotted.
 It's =_with= and not =with= because the latter is a built-in keyword in Python.
-Thus, =gnuplotlib= treats all =_xxx= options identically to =xxx=, so =plot(...,
-_with = 'xxx')= and =plot(..., **{'_with' = 'xxx'})= and =plot(..., **{'with' =
-'xxx'})= are identical.
+=gnuplotlib= treats all =_xxx= options identically to =xxx=, so =plot(..., _with
+= 'xxx')= and =plot(..., **{'_with': 'xxx'})= and =plot(..., **{'with': 'xxx'})=
+are identical.
 
 Styles in =_with= are strings that are passed on to =gnuplot= verbatim. So the
 full power of =gnuplot= is available, and there's nothing =gnuplotlib=-specific
@@ -97,8 +97,9 @@ integers 0, 1, 2, ... This is available with fancier plots also. The rule is:
   with 0, 1, 2, ... in x and in y
 
 These are the only allowed mismatches between =tuplesize= and how much data is
-received. Example. Let's color-code the sinusoid by passing in /two/ arrays. The
-=tuplesize= is still 3, but we have an implicit x.
+received. This allows flexibility in the passing of data, and some level of
+validation of input. Example. Let's color-code the sinusoid by passing in /two/
+arrays. The =tuplesize= is still 3, but we have an implicit x.
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -118,8 +119,8 @@ gp.plot(np.sin(th),
 Finally, so far we have been passing in each dimension in a separate array. But
 it is often far more convenient to pass in a single array where each point is
 represented in a row corresponding to the last dimension in that array. This is
-specifiable by passing in a negative =tuplesize=. The circle plot from earlier
-can be made in this way:
+specifiable by passing in a negative =tuplesize=, and most easily explained with
+an example. The circle plot from earlier can be made in this way:
 
 #+BEGIN_SRC python :python python3 :results output :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -141,26 +142,32 @@ import numpy      as np
 import numpysane  as nps
 import gnuplotlib as gp
 
+# shape (100,)
 th     = np.linspace(-np.pi, np.pi, 100)
+# shape (100, 2)
 points = nps.transpose(nps.cat(np.cos(th), np.sin(th)))
 gp.plot(points,
         tuplesize = -2,
         square    = True)
+# instead of
+# gp.plot(points[:,0], points[:,1],
+#         tuplesize = 2,
+#         square    = True)
 #+END_SRC
 
 #+RESULTS:
 [[file:demo-7.svg]]
 
 ** Specifying multiple datasets
-So far we were plotting a single dataset in a plot. However, often we want to
-plot multiple datasets in the same plot. Note that the code and documentation
-uses the terms "dataset" and "curve" interchangeably.
+So far we were plotting a single dataset at a time. However, often we want to
+plot multiple datasets in the same plot, together. Note that the code and
+documentation uses the terms "dataset" and "curve" interchangeably.
 
 As before, the whole plot is made with a single call to =plot()=. In its most
-basic form, each dataset is specified as a /tuple/. /plot options/ apply to the
-whole plot, and are given as kwargs to the =plot()= call. /curve options/ apply
-to each dataset, and are passed as a =dict= in the last element of each dataset
-tuple. So each =plot= command looks like
+explicit form, each dataset is specified as a /tuple/. /plot options/ apply to
+the whole plot, and are given as kwargs to the =plot()= call. /curve options/
+apply to each dataset, and are passed as a =dict= in the last element of each
+dataset tuple. So each =plot= command looks like
 
 #+BEGIN_SRC python :exports code
 plot( curve, curve, ..., plot_options )
@@ -228,7 +235,7 @@ like =gp.plot(x, y)= works.
 
 Unlike =matplotlib=, here we make a single =plot()= call instead of making a
 separate call for each dataset and for each format setting. You can still
-construct the plot piecemeal, however, but you'd use normal Python directives to
+construct the plot piecemeal, however, but you use normal Python directives to
 do that. The exact previous plot command can be generated like this:
 
 #+BEGIN_SRC python :exports code
@@ -240,7 +247,8 @@ datasets.append(( np.cos(th), ),)
 datasets.append(( th,         ),)
 datasets.append(( -th, dict(_with = 'points ps 0.5') ),)
 
-plot_options = dict( _with = 'lines' )
+plot_options = dict()
+plot_options['with'] = 'lines'
 
 gp.plot(*datasets, **plot_options)
 #+END_SRC
@@ -313,20 +321,20 @@ plot1.plot(th, np.sin(th),
 Or if we want /one plot window/ containing /multiple/ plots, we can use the
 /multiplot/ interface. This extends the previous structure where
 
-- a plot (configured with plot options) contains datasets (configure with curve
+- a plot (configured with plot options) contains datasets (configured with curve
   options)
 
 so that we instead have
 
 - a process (configured with process options) contains plots (configured with
-  plot options) contains datasets (configure with curve options)
+  plot options) contains datasets (configured with curve options)
 
 In the usual non-multiplot case, process options are lumped into the larger set
-of plot options. We still have a single =plot()= command, but now each /plot/
-lives in a separate tuple. We have similar semantics as before: default plot
-options can be given together with the process options. Plot options can be
-given as a =dict= in the last element of that plot's tuple. Example. Two
-sinusoids together, in a multiplot:
+of plot options. When making a multiplot, we still have a single =plot()=
+command, but now each /plot/ lives in a separate tuple. We have similar
+semantics as before: default plot options can be given together with the process
+options. Plot options can be given as a =dict= in the last element of that
+plot's tuple. Example. Two sinusoids together, in a multiplot:
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -346,8 +354,8 @@ gp.plot( (th, np.cos(th), dict(title="cos",
 [[file:demo-16.svg]]
 
 We get a multiplot if we pass in a =multiplot= process option. The value of this
-option is given directly to =gnuplot=; as before, see that documentation for all
-the details: run
+option is given directly to =gnuplot= in a =set multiplot= command. As before,
+see the =gnuplot= documentation for all the details: run
 
 #+BEGIN_SRC shell :results none :exports code
 gnuplot -e 'help multiplot'
@@ -1432,8 +1440,8 @@ gp.plot( ( x, y, major_diam, minor_diam, angle,
 [[file:demo-45.svg]]
 
 And again, by sampling the angles, and plotting points. This is more work, but
-can work in 3D too (we can remap an ellipse). I'm using the same data here, so
-the points should trace the same shape as the ellipses I just computed
+can work in 3D too (we can remap a sphere). I'm using the same data here, so the
+points should trace the same shape as the ellipses I just computed
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
