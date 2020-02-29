@@ -1334,12 +1334,17 @@ arrowstyle. A vectorfield in 2D:
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
+import numpysane  as nps
 import gnuplotlib as gp
 
+# shape (2, 100)
 xy = nps.clump( nps.cat( *np.meshgrid(np.linspace(-5,5,10),
                           np.linspace(-5,5,10)) ),
                 n = -2 )
+# each one has shape (100,)
 x,y = xy
+
+# shape (100,)
 r = nps.mag( nps.transpose(xy) )
 
 
@@ -1352,114 +1357,192 @@ gp.plot( x, y, y/np.sqrt(r+0.1)*0.5, -x/np.sqrt(r+0.1)*0.5,
 #+RESULTS:
 [[file:demo-43.svg]]
 
+** Ellipses
+Let's say we have a bunch of points with covariance matrices associated with
+each one. We can plot each point and its 1-sigma ellipses. Let's do it two ways:
+
+- with ellipses (possible only in 2D)
+- with points sampled around the edge of the ellips (possible in 2D and 3D)
+
+The documentation for ellipses is available with
+
+#+BEGIN_SRC shell :results none :exports code
+gnuplot -e 'help ellipses'
+#+END_SRC
+
+The docs say that our options are
+
+#+begin_example
+      2 columns: x y
+      3 columns: x y major_diam
+      4 columns: x y major_diam minor_diam
+      5 columns: x y major_diam minor_diam angle
+#+end_example
+
+Let's do it by plotting ellipses
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import numpysane  as nps
+import gnuplotlib as gp
+
+N = 6
+
+# The center of my ellipses
+# shape (2, N*N)
+xy = nps.clump( nps.cat( *np.meshgrid(np.linspace(-5,5,N),
+                                      np.linspace(-5,5,N)) ),
+                n = -2 )
+# each one has shape (N*N,)
+x,y = xy
+
+# I want repeatable random numbers
+np.random.seed(0)
+
+# Let's make up some covariances
+
+th = np.random.random((N*N,))
+v0 = nps.transpose(nps.cat(np.sin(th),  np.cos(th)))
+v1 = nps.transpose(nps.cat(np.cos(th), -np.sin(th)))
+l  = (np.random.random((N*N,2)) + 1.0) / 2
+# shape (N*N, 2,2)
+C = \
+  nps.outer(v0*l[:,(0,)], v0*l[:,(0,)]) + \
+  nps.outer(v1*l[:,(1,)], v1*l[:,(1,)])
+
+# Got covariances C (let's pretend I didn't make them up). For gnuplot I need to
+# compute the major and minor axis lengths, and the angle off horizontal.
+# np.linalg.eig and np.arctan2 support broadcasting, so I can use them directly
+l,v = np.linalg.eig(C)
+major_diam = l[:,0] * 2.0
+minor_diam = l[:,1] * 2.0
+v_major = v[:,:,0]
+angle = np.arctan2(v_major[:,1], v_major[:,0]) * 180./np.pi
+
+gp.plot( ( x, y, major_diam, minor_diam, angle,
+          dict(tuplesize = 5,
+               _with = 'ellipses')),
+         ( x, y,
+          dict(_with = 'points ps 0.5')),
+          _set = ('xrange [-6:6]', 'yrange [-6:6]'),
+         square = True)
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-45.svg]]
+
+And again, by sampling the angles, and plotting points. This is more work, but
+can work in 3D too (we can remap an ellipse). I'm using the same data here, so
+the points should trace the same shape as the ellipses I just computed
+
+#+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
+import numpy      as np
+import numpysane  as nps
+import gnuplotlib as gp
+
+N = 6
+
+# The center of my ellipses
+# shape (2, N*N)
+xy = nps.clump( nps.cat( *np.meshgrid(np.linspace(-5,5,N),
+                                      np.linspace(-5,5,N)) ),
+                n = -2 )
+# each one has shape (N*N,)
+x,y = xy
+
+# I want repeatable random numbers
+np.random.seed(0)
+
+# Let's make up some covariances
+
+th = np.random.random((N*N,))
+v0 = nps.transpose(nps.cat(np.sin(th),  np.cos(th)))
+v1 = nps.transpose(nps.cat(np.cos(th), -np.sin(th)))
+l  = (np.random.random((N*N,2)) + 1.0) / 2
+# shape (N*N, 2,2)
+C = \
+  nps.outer(v0*l[:,(0,)], v0*l[:,(0,)]) + \
+  nps.outer(v1*l[:,(1,)], v1*l[:,(1,)])
+
+# Got covariances C (let's pretend I didn't make them up). I use this matrix to
+# remap a circle, and plot the resulting points
+th = np.linspace(0, 2.*np.pi, 40)
+# shape (Nangles, 2)
+v = nps.transpose(nps.cat(np.cos(th), np.sin(th)))
+# shape (Nangles, N*N, 1, 2)
+v = nps.matmult(nps.mv(v, -2, -4), C)
+# shape (Nangles, N*N, 2)
+xy_1sigma = nps.transpose(xy) + v[..., 0, :]
+# shape (Nangles*N*N, 2)
+xy_1sigma = nps.clump(xy_1sigma, n=2)
+
+gp.plot( ( xy_1sigma,
+          dict(tuplesize = -2,
+               _with = 'dots')),
+         ( x, y,
+          dict(_with = 'points ps 0.5')),
+          _set = ('xrange [-6:6]', 'yrange [-6:6]'),
+         square = True)
+#+END_SRC
+
+#+RESULTS:
+[[file:demo-46.svg]]
 
 * init                                                             :noexport:
-Local Variables:
-eval: (progn
-          (setq org-confirm-babel-evaluate nil)
-          (org-babel-do-load-languages
-           'org-babel-load-languages
-            '((python  . t)
-              (shell   . t)))
-;; This is all very convoluted. There are 3 different advices, commented in
-;; place
-;;
-;; THIS advice makes all the org-babel parameters available to python in the
-;; _org_babel_params dict. I care about _org_babel_params['_file'] specifically,
-;; but everything is available
-(defun dima-org-babel-python-var-to-python (var)
-  "Convert an elisp value to a python variable.
-  Like the original, but supports (a . b) cells and symbols
-"
-  (if (listp var)
-      (if (listp (cdr var))
-          (concat "[" (mapconcat #'org-babel-python-var-to-python var ", ") "]")
-        (format "\"\"\"%s\"\"\"" var))
-    (if (symbolp var)
-        (format "\"\"\"%s\"\"\"" var)
-      (if (eq var 'hline)
-          org-babel-python-hline-to
-        (format
-         (if (and (stringp var) (string-match "[\n\r]" var)) "\"\"%S\"\"" "%S")
-         (if (stringp var) (substring-no-properties var) var))))))
-(defun dima-alist-to-python-dict (alist)
-  "Generates a string defining a python dict from the given alist"
-  (let ((keyvalue-list
-         (mapcar (lambda (x)
-                   (format "%s = %s, "
-                           (replace-regexp-in-string
-                            "[^a-zA-Z0-9_]" "_"
-                            (symbol-name (car x)))
-                           (dima-org-babel-python-var-to-python (cdr x))))
-                 alist)))
-    (concat
-     "dict( "
-     (apply 'concat keyvalue-list)
-     ")")))
-(defun dima-org-babel-python-pass-all-params (f params)
-  (cons
-   (concat
-    "_org_babel_params = "
-    (dima-alist-to-python-dict params))
-   (funcall f params)))
-(unless
-    (advice-member-p
-     #'dima-org-babel-python-pass-all-params
-     #'org-babel-variable-assignments:python)
-  (advice-add
-   #'org-babel-variable-assignments:python
-   :around #'dima-org-babel-python-pass-all-params))
-;; This sets a default :file tag, set to a unique filename. I want each demo to
-;; produce an image, but I don't care what it is called. I omit the :file tag
-;; completely, and this advice takes care of it
-(defun dima-org-babel-python-unique-plot-filename
-    (f &optional arg info params)
-  (funcall f arg info
-           (cons (cons ':file
-                       (format "demo-%d.svg"
-                               (condition-case nil
-                                   (setq dima-unique-plot-number (1+ dima-unique-plot-number))
-                                 (error (setq dima-unique-plot-number 0)))))
-                 params)))
-(unless
-    (advice-member-p
-     #'dima-org-babel-python-unique-plot-filename
-     #'org-babel-execute-src-block)
-  (advice-add
-   #'org-babel-execute-src-block
-   :around #'dima-org-babel-python-unique-plot-filename))
-;; If I'm regenerating ALL the plots, I start counting the plots from 0
-(defun dima-reset-unique-plot-number
-    (&rest args)
-    (setq dima-unique-plot-number 0))
-(unless
-    (advice-member-p
-     #'dima-reset-unique-plot-number
-     #'org-babel-execute-buffer)
-  (advice-add
-   #'org-babel-execute-buffer
-   :after #'dima-reset-unique-plot-number))
-;; I'm using github to display demo.org, so I'm not using the "normal" org
-;; exporter. I want the demo text to not contain the hardcopy= tags, but clearly
-;; I need the hardcopy tag when generating the plots. I add some python to
-;; override gnuplotlib.plot() to add the hardcopy tag somewhere where the reader
-;; won't see it. But where to put this python override code? If I put it into an
-;; org-babel block, it will be rendered, and the :export tags will be ignored,
-;; since github doesn't respect those (probably). So I put the extra stuff into
-;; an advice. Whew.
-(defun dima-org-babel-python-set-demo-output (f body params)
-  (with-temp-buffer
-    (insert body)
-    (beginning-of-buffer)
-    (when (search-forward "import gnuplotlib as gp" nil t)
-      (end-of-line)
-      (insert
-       "\n"
-       "if not hasattr(gp.gnuplotlib, 'orig_init'):\n"
-       "    gp.gnuplotlib.orig_init = gp.gnuplotlib.__init__\n"
-       "gp.gnuplotlib.__init__ = lambda self, *args, **kwargs: gp.gnuplotlib.orig_init(self, *args, hardcopy=_org_babel_params['_file'] if 'file' in _org_babel_params['_result_params'] else None, **kwargs)\n"))
-    (setq body (buffer-substring-no-properties (point-min) (point-max))))
-  (funcall f body params))
+Local Variables: eval: (progn (setq org-confirm-babel-evaluate nil)
+(org-babel-do-load-languages 'org-babel-load-languages '((python . t) (shell .
+t))) ;; This is all very convoluted. There are 3 different advices, commented in
+;; place ;; ;; THIS advice makes all the org-babel parameters available to
+python in the ;; _org_babel_params dict. I care about _org_babel_params['_file']
+specifically, ;; but everything is available (defun
+dima-org-babel-python-var-to-python (var) "Convert an elisp value to a python
+variable. Like the original, but supports (a . b) cells and symbols " (if (listp
+var) (if (listp (cdr var)) (concat "[" (mapconcat
+#'org-babel-python-var-to-python var ", ") "]") (format "\"\"\"%s\"\"\"" var))
+(if (symbolp var) (format "\"\"\"%s\"\"\"" var) (if (eq var 'hline)
+org-babel-python-hline-to (format (if (and (stringp var) (string-match "[\n\r]"
+var)) "\"\"%S\"\"" "%S") (if (stringp var) (substring-no-properties var)
+var)))))) (defun dima-alist-to-python-dict (alist) "Generates a string defining
+a python dict from the given alist" (let ((keyvalue-list (mapcar (lambda (x)
+(format "%s = %s, " (replace-regexp-in-string "[^a-zA-Z0-9_]" "_" (symbol-name
+(car x))) (dima-org-babel-python-var-to-python (cdr x)))) alist))) (concat
+"dict( " (apply 'concat keyvalue-list) ")"))) (defun
+dima-org-babel-python-pass-all-params (f params) (cons (concat
+"_org_babel_params = " (dima-alist-to-python-dict params)) (funcall f params)))
+(unless (advice-member-p #'dima-org-babel-python-pass-all-params
+#'org-babel-variable-assignments:python) (advice-add
+#'org-babel-variable-assignments:python :around
+#'dima-org-babel-python-pass-all-params)) ;; This sets a default :file tag, set
+to a unique filename. I want each demo to ;; produce an image, but I don't care
+what it is called. I omit the :file tag ;; completely, and this advice takes
+care of it (defun dima-org-babel-python-unique-plot-filename (f &optional arg
+info params) (funcall f arg info (cons (cons ':file (format "demo-%d.svg"
+(condition-case nil (setq dima-unique-plot-number (1+ dima-unique-plot-number))
+(error (setq dima-unique-plot-number 0))))) params))) (unless (advice-member-p
+#'dima-org-babel-python-unique-plot-filename #'org-babel-execute-src-block)
+(advice-add #'org-babel-execute-src-block :around
+#'dima-org-babel-python-unique-plot-filename)) ;; If I'm regenerating ALL the
+plots, I start counting the plots from 0 (defun dima-reset-unique-plot-number
+(&rest args) (setq dima-unique-plot-number 0)) (unless (advice-member-p
+#'dima-reset-unique-plot-number #'org-babel-execute-buffer) (advice-add
+#'org-babel-execute-buffer :after #'dima-reset-unique-plot-number)) ;; I'm using
+github to display demo.org, so I'm not using the "normal" org ;; exporter. I
+want the demo text to not contain the hardcopy= tags, but clearly ;; I need the
+hardcopy tag when generating the plots. I add some python to ;; override
+gnuplotlib.plot() to add the hardcopy tag somewhere where the reader ;; won't
+see it. But where to put this python override code? If I put it into an ;;
+org-babel block, it will be rendered, and the :export tags will be ignored, ;;
+since github doesn't respect those (probably). So I put the extra stuff into ;;
+an advice. Whew. (defun dima-org-babel-python-set-demo-output (f body params)
+(with-temp-buffer (insert body) (beginning-of-buffer) (when (search-forward
+"import gnuplotlib as gp" nil t) (end-of-line) (insert "\n" "if not
+hasattr(gp.gnuplotlib, 'orig_init'):\n" " gp.gnuplotlib.orig_init =
+gp.gnuplotlib.__init__\n" "gp.gnuplotlib.__init__ = lambda self, *args,
+**kwargs: gp.gnuplotlib.orig_init(self, *args,
+hardcopy=_org_babel_params['_file'] if 'file' in
+_org_babel_params['_result_params'] else None, **kwargs)\n")) (setq body
+(buffer-substring-no-properties (point-min) (point-max)))) (funcall f body
+params))
 
 (unless
     (advice-member-p
