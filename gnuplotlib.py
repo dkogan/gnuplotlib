@@ -53,7 +53,6 @@ r'''a gnuplot-based plotting backend for numpy
              _set='lmargin at screen 0.05')
     [ Same histograms, but plotted on two separate plots ]
 
-
 * DESCRIPTION
 
 This module allows numpy data to be plotted using Gnuplot as a backend. As much
@@ -907,8 +906,10 @@ calling the wait() gnuplotlib method or by adding wait=1 to the process options
 dict
 
 * RECIPES
+Some very brief usage notes appear here. For a tutorial and more in-depth
+recipes, please see the guide:
 
-Some different plots appear here. A longer set of demos is given in demo.py.
+https://github.com/dkogan/gnuplotlib/blob/master/guide/guide.org
 
 ** 2D plotting
 
@@ -978,7 +979,6 @@ necessary to specify the color range here
     plot(x, y, radii, colors,
          cbmin = mincolor, cbmax = maxcolor,
          _with = 'circles palette', tuplesize = 4 )
-
 
 *** Broadcasting example
 

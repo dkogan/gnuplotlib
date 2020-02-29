@@ -54,7 +54,6 @@ gp.plot( (x*x, dict(histogram=1,
 [ Same histograms, but plotted on two separate plots ]
 #+END_SRC
 
-
 * DESCRIPTION
 
 This module allows numpy data to be plotted using Gnuplot as a backend. As much
@@ -972,8 +971,10 @@ calling the wait() gnuplotlib method or by adding wait=1 to the process options
 dict
 
 * RECIPES
+Some very brief usage notes appear here. For a tutorial and more in-depth
+recipes, please see the guide:
 
-Some different plots appear here. A longer set of demos is given in demo.py.
+https://github.com/dkogan/gnuplotlib/blob/master/guide/guide.org
 
 ** 2D plotting
 
@@ -1067,7 +1068,6 @@ plot(x, y, radii, colors,
      cbmin = mincolor, cbmax = maxcolor,
      _with = 'circles palette', tuplesize = 4 )
 #+END_SRC
-
 
 *** Broadcasting example
 
