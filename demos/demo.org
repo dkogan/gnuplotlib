@@ -350,7 +350,7 @@ option is given directly to =gnuplot=; as before, see that documentation for all
 the details: run
 
 #+BEGIN_SRC shell :results none :exports code
-=gnuplot -e 'help multiplot'=
+gnuplot -e 'help multiplot'
 #+END_SRC
 
 * Recipes
@@ -631,7 +631,7 @@ gp.plot( ( x + 1,
 #+RESULTS:
 [[file:demo-22.svg]]
 
-** Polar
+** Polar coordinates
 See
 
 #+BEGIN_SRC shell :results none :exports code
@@ -908,7 +908,7 @@ set the =_3d= plot option. When plotting interactively, you can use the mouse to
 rotate the plot, and look at it from different directions. Otherwise, the
 viewing angle can be set with the =view= setting. See
 
-#+BEGIN_SRC shell :results none :exports none
+#+BEGIN_SRC shell :results none :exports code
 gnuplot -e 'help set view'
 #+END_SRC
 
@@ -1056,7 +1056,8 @@ z = np.exp(-r * 2.) * np.sin(xy[...,0]*6) * np.sin(xy[...,1]*6)
 gp.plot3d(z,
           _with = np.array(('image', 'lines lw 2 nosurface')),
           legend = np.array(('surface', '')),
-          set = ('view 0,0',
+          set = ('key outside',
+                 'view 0,0',
                  'view equal xy',
                  'contour base',
                  'cntrparam bspline',
@@ -1069,7 +1070,7 @@ gp.plot3d(z,
 
 This is technically a 3D plot, but we're looking at it straight down, from the
 top. The 3D plot processing is required to make contours. If we just want to
-draw a colormapped grid of, we can do this as a 2D plot. Let's do that, and also
+draw a colormapped grid, we can do this as a 2D plot. Let's do that, and also
 use a grayscale colormap
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
@@ -1085,7 +1086,7 @@ r = nps.mag(xy)
 z = np.exp(-r * 2.) * np.sin(xy[...,0]*6) * np.sin(xy[...,1]*6)
 
 gp.plot(z,
-        _with     = 'image',
+        _with     = 'image pixels',
         tuplesize = 3,
         set       = 'palette grey',
         unset     = 'grid',
@@ -1095,6 +1096,7 @@ gp.plot(z,
 #+RESULTS:
 [[file:demo-35.svg]]
 
+DID NOT WORK IN GITHUB
 This is very useful for annotating images.
 
 Finally, in these few examples we used an implicit 2D grid as our domain. This
@@ -1203,8 +1205,11 @@ gp.plot3d( (z0, dict(_set = commonset + ('xyplane at 10',))),
 
 ** Histograms
 =gnuplot= (and =gnuplotlib=) has support for histograms. So we can give it data,
-and have it bin it for us, or we can do it with =numpy=. Let's sample a normal
-distribution, and plot the histogram. With =gnuplotlib=:
+and have it bin it for us. Or we can compute the histogram with =numpy=, and
+just use =gnuplotlib= to plot the resulting bars. Let's sample a normal
+distribution, and do it both ways. And let's compute the expected and observed
+probability-density-functions, and plot those on top (as equations, evaluated by
+=gnuplot=). With =gnuplotlib=:
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-demos :exports both
 import numpy      as np
@@ -1317,7 +1322,7 @@ gp.plot( nps.cat(x1,x2),
 ** Vector fields
 Documentation in gnuplot available like this:
 
-#+BEGIN_SRC shell :results none :exports none
+#+BEGIN_SRC shell :results none :exports code
 gnuplot -e 'help vectors'
 #+END_SRC
 

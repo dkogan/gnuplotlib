@@ -59,11 +59,11 @@
 <g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M53.9,383.2 L575.0,383.2  '/></g>
+	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M53.9,390.8 L575.0,390.8  '/></g>
 <g fill="none" color="gray" stroke="gray" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M53.9,383.2 L62.9,383.2 M575.0,383.2 L566.0,383.2  '/>	<g transform="translate(45.6,387.1)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+	<path stroke='black'  d='M53.9,390.8 L62.9,390.8 M575.0,390.8 L566.0,390.8  '/>	<g transform="translate(45.6,394.7)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
 		<text> 20</text>
 	</g>
 </g>
@@ -72,11 +72,11 @@
 <g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M53.9,322.3 L575.0,322.3  '/></g>
+	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M53.9,337.5 L575.0,337.5  '/></g>
 <g fill="none" color="gray" stroke="gray" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M53.9,322.3 L62.9,322.3 M575.0,322.3 L566.0,322.3  '/>	<g transform="translate(45.6,326.2)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+	<path stroke='black'  d='M53.9,337.5 L62.9,337.5 M575.0,337.5 L566.0,337.5  '/>	<g transform="translate(45.6,341.4)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
 		<text> 40</text>
 	</g>
 </g>
@@ -85,11 +85,11 @@
 <g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M53.9,261.5 L575.0,261.5  '/></g>
+	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M53.9,284.3 L575.0,284.3  '/></g>
 <g fill="none" color="gray" stroke="gray" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M53.9,261.5 L62.9,261.5 M575.0,261.5 L566.0,261.5  '/>	<g transform="translate(45.6,265.4)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+	<path stroke='black'  d='M53.9,284.3 L62.9,284.3 M575.0,284.3 L566.0,284.3  '/>	<g transform="translate(45.6,288.2)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
 		<text> 60</text>
 	</g>
 </g>
@@ -98,11 +98,11 @@
 <g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M53.9,200.6 L575.0,200.6  '/></g>
+	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M53.9,231.0 L575.0,231.0  '/></g>
 <g fill="none" color="gray" stroke="gray" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M53.9,200.6 L62.9,200.6 M575.0,200.6 L566.0,200.6  '/>	<g transform="translate(45.6,204.5)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+	<path stroke='black'  d='M53.9,231.0 L62.9,231.0 M575.0,231.0 L566.0,231.0  '/>	<g transform="translate(45.6,234.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
 		<text> 80</text>
 	</g>
 </g>
@@ -111,11 +111,11 @@
 <g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M53.9,139.8 L575.0,139.8  '/></g>
+	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M53.9,177.8 L575.0,177.8  '/></g>
 <g fill="none" color="gray" stroke="gray" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M53.9,139.8 L62.9,139.8 M575.0,139.8 L566.0,139.8  '/>	<g transform="translate(45.6,143.7)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+	<path stroke='black'  d='M53.9,177.8 L62.9,177.8 M575.0,177.8 L566.0,177.8  '/>	<g transform="translate(45.6,181.7)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
 		<text> 100</text>
 	</g>
 </g>
@@ -124,12 +124,25 @@
 <g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M53.9,78.9 L575.0,78.9  '/></g>
+	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M53.9,124.6 L575.0,124.6  '/></g>
 <g fill="none" color="gray" stroke="gray" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M53.9,78.9 L62.9,78.9 M575.0,78.9 L566.0,78.9  '/>	<g transform="translate(45.6,82.8)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+	<path stroke='black'  d='M53.9,124.6 L62.9,124.6 M575.0,124.6 L566.0,124.6  '/>	<g transform="translate(45.6,128.5)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
 		<text> 120</text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M53.9,71.3 L575.0,71.3  '/></g>
+<g fill="none" color="gray" stroke="gray" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='black'  d='M53.9,71.3 L62.9,71.3 M575.0,71.3 L566.0,71.3  '/>	<g transform="translate(45.6,75.2)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+		<text> 140</text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
@@ -142,7 +155,7 @@
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<path stroke='black'  d='M53.9,18.1 L62.9,18.1 M575.0,18.1 L566.0,18.1  '/>	<g transform="translate(45.6,22.0)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
-		<text> 140</text>
+		<text> 160</text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
@@ -163,11 +176,11 @@
 <g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M119.0,444.0 L119.0,18.1  '/></g>
+	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M111.8,444.0 L111.8,18.1  '/></g>
 <g fill="none" color="gray" stroke="gray" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M119.0,444.0 L119.0,435.0 M119.0,18.1 L119.0,27.1  '/>	<g transform="translate(119.0,465.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+	<path stroke='black'  d='M111.8,444.0 L111.8,435.0 M111.8,18.1 L111.8,27.1  '/>	<g transform="translate(111.8,465.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
 		<text>-3</text>
 	</g>
 </g>
@@ -176,11 +189,11 @@
 <g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M184.2,444.0 L184.2,18.1  '/></g>
+	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M169.7,444.0 L169.7,18.1  '/></g>
 <g fill="none" color="gray" stroke="gray" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M184.2,444.0 L184.2,435.0 M184.2,18.1 L184.2,27.1  '/>	<g transform="translate(184.2,465.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+	<path stroke='black'  d='M169.7,444.0 L169.7,435.0 M169.7,18.1 L169.7,27.1  '/>	<g transform="translate(169.7,465.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
 		<text>-2</text>
 	</g>
 </g>
@@ -189,11 +202,11 @@
 <g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M249.3,444.0 L249.3,18.1  '/></g>
+	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M227.6,444.0 L227.6,18.1  '/></g>
 <g fill="none" color="gray" stroke="gray" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M249.3,444.0 L249.3,435.0 M249.3,18.1 L249.3,27.1  '/>	<g transform="translate(249.3,465.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+	<path stroke='black'  d='M227.6,444.0 L227.6,435.0 M227.6,18.1 L227.6,27.1  '/>	<g transform="translate(227.6,465.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
 		<text>-1</text>
 	</g>
 </g>
@@ -202,11 +215,11 @@
 <g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M314.5,444.0 L314.5,18.1  '/></g>
+	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M285.5,444.0 L285.5,18.1  '/></g>
 <g fill="none" color="gray" stroke="gray" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M314.5,444.0 L314.5,435.0 M314.5,18.1 L314.5,27.1  '/>	<g transform="translate(314.5,465.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+	<path stroke='black'  d='M285.5,444.0 L285.5,435.0 M285.5,18.1 L285.5,27.1  '/>	<g transform="translate(285.5,465.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
 		<text> 0</text>
 	</g>
 </g>
@@ -215,11 +228,11 @@
 <g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M379.6,444.0 L379.6,18.1  '/></g>
+	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M343.4,444.0 L343.4,18.1  '/></g>
 <g fill="none" color="gray" stroke="gray" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M379.6,444.0 L379.6,435.0 M379.6,18.1 L379.6,27.1  '/>	<g transform="translate(379.6,465.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+	<path stroke='black'  d='M343.4,444.0 L343.4,435.0 M343.4,18.1 L343.4,27.1  '/>	<g transform="translate(343.4,465.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
 		<text> 1</text>
 	</g>
 </g>
@@ -228,11 +241,11 @@
 <g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M444.7,444.0 L444.7,63.1 M444.7,27.1 L444.7,18.1  '/></g>
+	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M401.3,444.0 L401.3,18.1  '/></g>
 <g fill="none" color="gray" stroke="gray" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M444.7,444.0 L444.7,435.0 M444.7,18.1 L444.7,27.1  '/>	<g transform="translate(444.7,465.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+	<path stroke='black'  d='M401.3,444.0 L401.3,435.0 M401.3,18.1 L401.3,27.1  '/>	<g transform="translate(401.3,465.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
 		<text> 2</text>
 	</g>
 </g>
@@ -241,12 +254,25 @@
 <g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M509.9,444.0 L509.9,63.1 M509.9,27.1 L509.9,18.1  '/></g>
+	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M459.2,444.0 L459.2,63.1 M459.2,27.1 L459.2,18.1  '/></g>
 <g fill="none" color="gray" stroke="gray" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M509.9,444.0 L509.9,435.0 M509.9,18.1 L509.9,27.1  '/>	<g transform="translate(509.9,465.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+	<path stroke='black'  d='M459.2,444.0 L459.2,435.0 M459.2,18.1 L459.2,27.1  '/>	<g transform="translate(459.2,465.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
 		<text> 3</text>
+	</g>
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='gray' stroke-dasharray='2,4' class="gridline"  d='M517.1,444.0 L517.1,63.1 M517.1,27.1 L517.1,18.1  '/></g>
+<g fill="none" color="gray" stroke="gray" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='black'  d='M517.1,444.0 L517.1,435.0 M517.1,18.1 L517.1,27.1  '/>	<g transform="translate(517.1,465.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+		<text> 4</text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
@@ -259,7 +285,7 @@
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<path stroke='black'  d='M575.0,444.0 L575.0,435.0 M575.0,18.1 L575.0,27.1  '/>	<g transform="translate(575.0,465.9)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
-		<text> 4</text>
+		<text> 5</text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
@@ -271,54 +297,54 @@
 	<g id="gnuplot_plot_1" ><title>gnuplot_plot_1</title>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(148,   0, 211)' points = '95.6,444.0 139.2,444.0 139.2,434.8 95.6,434.8 '/>
+		<polygon fill = 'rgb(148,   0, 211)' points = '78.2,444.0 123.3,444.0 123.3,438.6 78.2,438.6 '/>
 	</g>
-	<path stroke='black'  d='M95.6,444.0 L95.6,434.9 L139.1,434.9 L139.1,444.0 L95.6,444.0 Z  '/></g>
+	<path stroke='black'  d='M78.2,444.0 L78.2,438.7 L123.2,438.7 L123.2,444.0 L78.2,444.0 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(148,   0, 211)' points = '139.1,444.0 182.7,444.0 182.7,422.6 139.1,422.6 '/>
+		<polygon fill = 'rgb(148,   0, 211)' points = '123.2,444.0 168.2,444.0 168.2,414.6 123.2,414.6 '/>
 	</g>
-	<path stroke='black'  d='M139.1,444.0 L139.1,422.7 L182.6,422.7 L182.6,444.0 L139.1,444.0 Z  '/></g>
+	<path stroke='black'  d='M123.2,444.0 L123.2,414.7 L168.1,414.7 L168.1,444.0 L123.2,444.0 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(148,   0, 211)' points = '182.6,444.0 226.2,444.0 226.2,337.4 182.6,337.4 '/>
+		<polygon fill = 'rgb(148,   0, 211)' points = '168.1,444.0 213.2,444.0 213.2,318.8 168.1,318.8 '/>
 	</g>
-	<path stroke='black'  d='M182.6,444.0 L182.6,337.5 L226.1,337.5 L226.1,444.0 L182.6,444.0 Z  '/></g>
+	<path stroke='black'  d='M168.1,444.0 L168.1,318.9 L213.1,318.9 L213.1,444.0 L168.1,444.0 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(148,   0, 211)' points = '226.1,444.0 269.7,444.0 269.7,170.1 226.1,170.1 '/>
+		<polygon fill = 'rgb(148,   0, 211)' points = '213.1,444.0 258.2,444.0 258.2,135.1 213.1,135.1 '/>
 	</g>
-	<path stroke='black'  d='M226.1,444.0 L226.1,170.2 L269.6,170.2 L269.6,444.0 L226.1,444.0 Z  '/></g>
+	<path stroke='black'  d='M213.1,444.0 L213.1,135.2 L258.1,135.2 L258.1,444.0 L213.1,444.0 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(148,   0, 211)' points = '269.6,444.0 313.2,444.0 313.2,30.2 269.6,30.2 '/>
+		<polygon fill = 'rgb(148,   0, 211)' points = '258.1,444.0 303.1,444.0 303.1,39.3 258.1,39.3 '/>
 	</g>
-	<path stroke='black'  d='M269.6,444.0 L269.6,30.3 L313.1,30.3 L313.1,444.0 L269.6,444.0 Z  '/></g>
+	<path stroke='black'  d='M258.1,444.0 L258.1,39.4 L303.0,39.4 L303.0,444.0 L258.1,444.0 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(148,   0, 211)' points = '313.1,444.0 356.7,444.0 356.7,100.1 313.1,100.1 '/>
+		<polygon fill = 'rgb(148,   0, 211)' points = '303.0,444.0 348.1,444.0 348.1,143.1 303.0,143.1 '/>
 	</g>
-	<path stroke='black'  d='M313.1,444.0 L313.1,100.2 L356.6,100.2 L356.6,444.0 L313.1,444.0 Z  '/></g>
+	<path stroke='black'  d='M303.0,444.0 L303.0,143.2 L348.0,143.2 L348.0,444.0 L303.0,444.0 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(148,   0, 211)' points = '356.6,444.0 400.2,444.0 400.2,224.9 356.6,224.9 '/>
+		<polygon fill = 'rgb(148,   0, 211)' points = '348.0,444.0 393.0,444.0 393.0,326.8 348.0,326.8 '/>
 	</g>
-	<path stroke='black'  d='M356.6,444.0 L356.6,225.0 L400.1,225.0 L400.1,444.0 L356.6,444.0 Z  '/></g>
+	<path stroke='black'  d='M348.0,444.0 L348.0,326.9 L392.9,326.9 L392.9,444.0 L348.0,444.0 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(148,   0, 211)' points = '400.1,444.0 443.7,444.0 443.7,361.8 400.1,361.8 '/>
+		<polygon fill = 'rgb(148,   0, 211)' points = '392.9,444.0 438.0,444.0 438.0,414.6 392.9,414.6 '/>
 	</g>
-	<path stroke='black'  d='M400.1,444.0 L400.1,361.9 L443.6,361.9 L443.6,444.0 L400.1,444.0 Z  '/></g>
+	<path stroke='black'  d='M392.9,444.0 L392.9,414.7 L437.9,414.7 L437.9,444.0 L392.9,444.0 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(148,   0, 211)' points = '443.6,444.0 487.2,444.0 487.2,407.4 443.6,407.4 '/>
+		<polygon fill = 'rgb(148,   0, 211)' points = '437.9,444.0 483.0,444.0 483.0,435.9 437.9,435.9 '/>
 	</g>
-	<path stroke='black'  d='M443.6,444.0 L443.6,407.5 L487.1,407.5 L487.1,444.0 L443.6,444.0 Z  '/></g>
+	<path stroke='black'  d='M437.9,444.0 L437.9,436.0 L482.9,436.0 L482.9,444.0 L437.9,444.0 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g stroke='none' shape-rendering='crispEdges'>
-		<polygon fill = 'rgb(148,   0, 211)' points = '487.1,444.0 530.7,444.0 530.7,428.7 487.1,428.7 '/>
+		<polygon fill = 'rgb(148,   0, 211)' points = '482.9,444.0 527.9,444.0 527.9,441.2 482.9,441.2 '/>
 	</g>
-	<path stroke='black'  d='M487.1,444.0 L487.1,428.8 L530.6,428.8 L530.6,444.0 L487.1,444.0 Z  '/></g>
+	<path stroke='black'  d='M482.9,444.0 L482.9,441.3 L527.8,441.3 L527.8,444.0 L482.9,444.0 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 	</g>
@@ -331,19 +357,19 @@
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="2.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='rgb(  0, 158, 115)'  d='M516.2,36.1 L558.4,36.1 M73.8,443.6 L78.7,443.4 L83.5,443.3 L88.3,443.0 L93.2,442.8 L98.0,442.4
-		L102.8,442.0 L107.7,441.4 L112.5,440.7 L117.3,439.9 L122.2,438.9 L127.0,437.7 L131.8,436.2 L136.7,434.4
-		L141.5,432.3 L146.3,429.8 L151.2,426.8 L156.0,423.4 L160.8,419.3 L165.7,414.7 L170.5,409.4 L175.3,403.3
-		L180.2,396.5 L185.0,388.8 L189.8,380.2 L194.7,370.6 L199.5,360.2 L204.3,348.7 L209.2,336.2 L214.0,322.8
-		L218.8,308.5 L223.7,293.4 L228.5,277.4 L233.3,260.8 L238.2,243.6 L243.0,226.0 L247.8,208.2 L252.7,190.3
-		L257.5,172.5 L262.3,155.1 L267.2,138.3 L272.0,122.2 L276.8,107.2 L281.7,93.5 L286.5,81.1 L291.3,70.4
-		L296.2,61.5 L301.0,54.5 L305.8,49.6 L310.7,46.8 L315.5,46.2 L320.3,47.8 L325.2,51.5 L330.0,57.3
-		L334.8,65.2 L339.7,74.9 L344.5,86.3 L349.3,99.3 L354.2,113.7 L359.0,129.1 L363.8,145.6 L368.7,162.7
-		L373.5,180.2 L378.3,198.1 L383.2,216.0 L388.0,233.7 L392.8,251.2 L397.7,268.1 L402.5,284.5 L407.3,300.1
-		L412.2,314.9 L417.0,328.8 L421.8,341.8 L426.7,353.8 L431.5,364.9 L436.3,374.9 L441.2,384.1 L446.0,392.3
-		L450.8,399.6 L455.7,406.1 L460.5,411.8 L465.3,416.8 L470.2,421.2 L475.0,424.9 L479.8,428.2 L484.7,430.9
-		L489.5,433.3 L494.4,435.2 L499.2,436.9 L504.0,438.2 L508.9,439.4 L513.7,440.3 L518.5,441.1 L523.4,441.7
-		L528.2,442.2 L533.0,442.6 L537.9,442.9 L542.7,443.1 L547.5,443.3 L552.4,443.5  '/></g>
+	<path stroke='rgb(  0, 158, 115)'  d='M516.2,36.1 L558.4,36.1 M55.7,443.8 L60.7,443.8 L65.7,443.7 L70.7,443.6 L75.7,443.4 L80.7,443.2
+		L85.7,443.0 L90.7,442.6 L95.7,442.1 L100.7,441.5 L105.7,440.8 L110.7,439.8 L115.7,438.6 L120.7,437.0
+		L125.7,435.1 L130.7,432.7 L135.6,429.9 L140.6,426.4 L145.6,422.3 L150.6,417.3 L155.6,411.5 L160.6,404.7
+		L165.6,396.8 L170.6,387.8 L175.6,377.6 L180.6,366.0 L185.6,353.2 L190.6,339.0 L195.6,323.5 L200.6,306.7
+		L205.6,288.8 L210.6,269.8 L215.6,250.0 L220.6,229.5 L225.6,208.6 L230.6,187.5 L235.6,166.7 L240.6,146.4
+		L245.6,126.9 L250.6,108.7 L255.6,92.1 L260.6,77.4 L265.5,65.0 L270.5,55.0 L275.5,47.7 L280.5,43.3
+		L285.5,41.8 L290.5,43.3 L295.5,47.8 L300.5,55.1 L305.5,65.1 L310.5,77.6 L315.5,92.3 L320.5,109.0
+		L325.5,127.2 L330.5,146.6 L335.5,166.9 L340.5,187.8 L345.5,208.8 L350.5,229.7 L355.5,250.2 L360.5,270.1
+		L365.5,289.0 L370.5,307.0 L375.5,323.7 L380.5,339.2 L385.5,353.4 L390.4,366.2 L395.4,377.7 L400.4,387.9
+		L405.4,396.9 L410.4,404.8 L415.4,411.6 L420.4,417.4 L425.4,422.3 L430.4,426.5 L435.4,429.9 L440.4,432.8
+		L445.4,435.1 L450.4,437.0 L455.4,438.6 L460.4,439.8 L465.4,440.8 L470.4,441.5 L475.4,442.1 L480.4,442.6
+		L485.4,443.0 L490.4,443.2 L495.4,443.4 L500.4,443.6 L505.4,443.7 L510.4,443.8 L515.4,443.8 L520.3,443.9
+		L525.3,443.9 L530.3,443.9 L535.3,444.0 L540.3,444.0 L545.3,444.0 L550.3,444.0  '/></g>
 	</g>
 	<g id="gnuplot_plot_3" ><title>gnuplot_plot_3</title>
 <g fill="none" color="black" stroke="currentColor" stroke-width="2.00" stroke-linecap="butt" stroke-linejoin="miter">
@@ -352,19 +378,19 @@
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="2.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='rgb( 86, 180, 233)'  d='M516.2,54.1 L558.4,54.1 M73.8,443.2 L78.7,443.0 L83.5,442.7 L88.3,442.3 L93.2,441.9 L98.0,441.4
-		L102.8,440.7 L107.7,439.9 L112.5,438.9 L117.3,437.7 L122.2,436.3 L127.0,434.6 L131.8,432.6 L136.7,430.2
-		L141.5,427.4 L146.3,424.2 L151.2,420.4 L156.0,416.1 L160.8,411.2 L165.7,405.6 L170.5,399.2 L175.3,392.2
-		L180.2,384.3 L185.0,375.5 L189.8,365.9 L194.7,355.4 L199.5,343.9 L204.3,331.6 L209.2,318.5 L214.0,304.5
-		L218.8,289.8 L223.7,274.4 L228.5,258.5 L233.3,242.0 L238.2,225.3 L243.0,208.4 L247.8,191.6 L252.7,174.9
-		L257.5,158.6 L262.3,142.9 L267.2,128.0 L272.0,114.0 L276.8,101.2 L281.7,89.8 L286.5,79.9 L291.3,71.6
-		L296.2,65.1 L301.0,60.5 L305.8,57.9 L310.7,57.2 L315.5,58.6 L320.3,62.0 L325.2,67.2 L330.0,74.4
-		L334.8,83.3 L339.7,93.7 L344.5,105.7 L349.3,118.9 L354.2,133.2 L359.0,148.5 L363.8,164.4 L368.7,180.9
-		L373.5,197.7 L378.3,214.5 L383.2,231.4 L388.0,248.0 L392.8,264.3 L397.7,280.1 L402.5,295.2 L407.3,309.7
-		L412.2,323.3 L417.0,336.2 L421.8,348.2 L426.7,359.3 L431.5,369.5 L436.3,378.8 L441.2,387.2 L446.0,394.8
-		L450.8,401.6 L455.7,407.7 L460.5,413.0 L465.3,417.7 L470.2,421.8 L475.0,425.4 L479.8,428.5 L484.7,431.1
-		L489.5,433.3 L494.4,435.2 L499.2,436.8 L504.0,438.2 L508.9,439.3 L513.7,440.2 L518.5,440.9 L523.4,441.6
-		L528.2,442.1 L533.0,442.5 L537.9,442.8 L542.7,443.1 L547.5,443.3 L552.4,443.4  '/></g>
+	<path stroke='rgb( 86, 180, 233)'  d='M516.2,54.1 L558.4,54.1 M55.7,443.7 L60.7,443.6 L65.7,443.5 L70.7,443.3 L75.7,443.1 L80.7,442.7
+		L85.7,442.3 L90.7,441.8 L95.7,441.1 L100.7,440.3 L105.7,439.2 L110.7,437.8 L115.7,436.1 L120.7,434.1
+		L125.7,431.6 L130.7,428.5 L135.6,424.9 L140.6,420.5 L145.6,415.4 L150.6,409.4 L155.6,402.4 L160.6,394.4
+		L165.6,385.3 L170.6,375.0 L175.6,363.5 L180.6,350.7 L185.6,336.6 L190.6,321.4 L195.6,304.9 L200.6,287.4
+		L205.6,268.9 L210.6,249.6 L215.6,229.8 L220.6,209.6 L225.6,189.3 L230.6,169.3 L235.6,149.8 L240.6,131.2
+		L245.6,113.7 L250.6,97.8 L255.6,83.7 L260.6,71.8 L265.5,62.1 L270.5,55.0 L275.5,50.6 L280.5,49.0
+		L285.5,50.3 L290.5,54.3 L295.5,61.0 L300.5,70.3 L305.5,82.0 L310.5,95.9 L315.5,111.5 L320.5,128.8
+		L325.5,147.3 L330.5,166.7 L335.5,186.7 L340.5,206.9 L345.5,227.1 L350.5,247.0 L355.5,266.4 L360.5,285.0
+		L365.5,302.6 L370.5,319.2 L375.5,334.7 L380.5,348.9 L385.5,361.8 L390.4,373.5 L395.4,384.0 L400.4,393.3
+		L405.4,401.4 L410.4,408.5 L415.4,414.6 L420.4,419.9 L425.4,424.3 L430.4,428.1 L435.4,431.2 L440.4,433.8
+		L445.4,435.9 L450.4,437.6 L455.4,439.0 L460.4,440.1 L465.4,441.0 L470.4,441.7 L475.4,442.3 L480.4,442.7
+		L485.4,443.0 L490.4,443.3 L495.4,443.5 L500.4,443.6 L505.4,443.7 L510.4,443.8 L515.4,443.9 L520.3,443.9
+		L525.3,443.9 L530.3,443.9 L535.3,444.0 L540.3,444.0 L545.3,444.0 L550.3,444.0  '/></g>
 	</g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="2.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
