@@ -1,5 +1,15 @@
 #!/usr/bin/python3
 
+r'''A simple non-automated test script
+
+This script makes some plots, and tests the error detection. One could run this
+script, and make sure all the plots come up. This is NOT an automated test. For
+a demo of the capabilities of gnuplotlib, see the guide at
+
+https://github.com/dkogan/gnuplotlib/blob/master/guide/guide.org
+
+'''
+
 import numpy as np
 import numpysane as nps
 import time
