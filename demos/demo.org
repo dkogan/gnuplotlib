@@ -1362,7 +1362,7 @@ Let's say we have a bunch of points with covariance matrices associated with
 each one. We can plot each point and its 1-sigma ellipses. Let's do it two ways:
 
 - with ellipses (possible only in 2D)
-- with points sampled around the edge of the ellips (possible in 2D and 3D)
+- with points sampled around the edge of the ellipse (possible in 2D and 3D)
 
 The documentation for ellipses is available with
 
