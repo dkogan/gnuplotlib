@@ -55,6 +55,9 @@ gp.plot( (x*x, dict(histogram=1,
 #+END_SRC
 
 * DESCRIPTION
+For an introductor tutorial and some demos, please see the guide:
+
+https://github.com/dkogan/gnuplotlib/blob/master/guide/guide.org
 
 This module allows numpy data to be plotted using Gnuplot as a backend. As much
 as was possible, this module acts as a passive pass-through to Gnuplot, thus
