@@ -169,7 +169,7 @@ the whole plot, and are given as kwargs to the =plot()= call. /curve options/
 apply to each dataset, and are passed as a =dict= in the last element of each
 dataset tuple. So each =plot= command looks like
 
-#+BEGIN_SRC python :exports code
+#+BEGIN_SRC python :results none :exports code
 plot( curve, curve, ..., plot_options )
 #+END_SRC
 
@@ -177,7 +177,7 @@ plot( curve, curve, ..., plot_options )
 
 where each =curve= is a =tuple=:
 
-#+BEGIN_SRC python :exports code
+#+BEGIN_SRC python :results none :exports code
 curve = (array, array, ..., curve_options)
 #+END_SRC
 
@@ -238,7 +238,7 @@ separate call for each dataset and for each format setting. You can still
 construct the plot piecemeal, however, but you use normal Python directives to
 do that. The exact previous plot command can be generated like this:
 
-#+BEGIN_SRC python :exports code
+#+BEGIN_SRC python :results none :exports code
 datasets = []
 
 th = np.linspace(-2.*np.pi, 2.*np.pi, 100)
@@ -289,7 +289,7 @@ reuse a single global =gnuplotlib= object for convenience. So if we want
 multiple simultaneous plot windows, we explicitly create and use separate
 =gnuplotlib= objects. The general sequence is:
 
-#+BEGIN_SRC python :exports code
+#+BEGIN_SRC python :results none :exports code
 plot1 = gp.gnuplotlib(plot_options_and_default_curve_options)
 plot1.plot(curves)
 
