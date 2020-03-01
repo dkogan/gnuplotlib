@@ -54,7 +54,7 @@ r'''a gnuplot-based plotting backend for numpy
     [ Same histograms, but plotted on two separate plots ]
 
 * DESCRIPTION
-For an introductor tutorial and some demos, please see the guide:
+For an introductory tutorial and some demos, please see the guide:
 
 https://github.com/dkogan/gnuplotlib/blob/master/guide/guide.org
 

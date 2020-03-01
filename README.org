@@ -55,7 +55,7 @@ gp.plot( (x*x, dict(histogram=1,
 #+END_SRC
 
 * DESCRIPTION
-For an introductor tutorial and some demos, please see the guide:
+For an introductory tutorial and some demos, please see the guide:
 
 https://github.com/dkogan/gnuplotlib/blob/master/guide/guide.org
 
