@@ -236,7 +236,7 @@ like =gp.plot(x, y)= works.
 Unlike =matplotlib=, here we make a single =plot()= call instead of making a
 separate call for each dataset and for each format setting. You can still
 construct the plot piecemeal, however, but you use normal Python directives to
-do that. The exact previous plot command can be generated like this:
+do that. For instance, the previous plot can be created instead like this:
 
 #+BEGIN_SRC python :results none :exports code
 datasets = []
