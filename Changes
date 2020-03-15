@@ -1,3 +1,11 @@
+gnuplotlib (0.33)
+
+  * BIG documentation update. Added the "guide": a tutorial and set of
+    demos.
+  * License change: any version of the LGPL instead of LGPL-3+
+
+ -- Dima Kogan <dkogan@debian.org>  Sat, 14 Mar 2020 23:22:27 -0700
+
 gnuplotlib (0.32)
 
   * Major rework: support for multiplots. No breaking changes
