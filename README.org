@@ -1,3 +1,6 @@
+* TALK
+I just gave a talk about this at [[https://www.socallinuxexpo.org/scale/18x][SCaLE 18x]]. Presentation lives [[https://github.com/dkogan/talk-numpysane-gnuplotlib/raw/master/numpysane-gnuplotlib.pdf][here]].
+
 * NAME
 gnuplotlib: a gnuplot-based plotting backend for numpy
 
