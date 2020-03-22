@@ -1503,9 +1503,36 @@ gp.plot( ( xy_1sigma,
 [[file:guide-46.svg]]
 
 * init                                                             :noexport:
-Local Variables:
-eval: (progn
-          (setq org-confirm-babel-evaluate nil)
+
+I need some advices to be able to generate all the images. I'm not using the org
+exporter to produce the html, but relying on github's limited org parser to
+display everything. github's parser doesn't do the org export, so I must
+pre-generate all the figures with (org-babel-execute-buffer) (C-c C-v C-b).
+
+This requires advices to:
+
+- Generate unique image filenames
+- Communicate those filenames to Python
+- Display code that produces an interactive plot (so that the readers can
+  cut/paste the snippets), but run code that writes to the image that ends up in
+  the documentation
+
+There're some comments below, and a mailing list post:
+
+https://lists.gnu.org/archive/html/emacs-orgmode/2020-03/msg00086.html
+
+This triggered a bug/feature in emacs where the file-local eval was too big, and
+wasn't happening automatically. Problem description:
+
+https://lists.gnu.org/archive/html/emacs-devel/2020-03/msg00314.html
+
+I'm using Stefan Monnier's suggested workaround from here:
+
+https://lists.gnu.org/archive/html/emacs-devel/2020-03/msg00320.html
+
+(progn ;;local-config
+          (message "eval")
+	  (setq org-confirm-babel-evaluate nil)
           (org-babel-do-load-languages
            'org-babel-load-languages
             '((python  . t)
@@ -1618,4 +1645,7 @@ eval: (progn
    #'org-babel-execute:python
    :around #'dima-org-babel-python-set-demo-output))
 )
+
+Local Variables:
+eval: (progn (re-search-backward "^(progn ;;local-config") (eval (read (current-buffer))))
 End:
