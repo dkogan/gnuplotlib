@@ -1531,7 +1531,6 @@ I'm using Stefan Monnier's suggested workaround from here:
 https://lists.gnu.org/archive/html/emacs-devel/2020-03/msg00320.html
 
 (progn ;;local-config
-          (message "eval")
 	  (setq org-confirm-babel-evaluate nil)
           (org-babel-do-load-languages
            'org-babel-load-languages
