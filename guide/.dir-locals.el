@@ -79,13 +79,22 @@
   ;; completely, and this advice takes care of it
   (defun dima-org-babel-python-unique-plot-filename
       (f &optional arg info params)
-    (funcall f arg info
-             (cons (cons ':file
-                         (format "guide-%d.svg"
-                                 (condition-case nil
-                                     (setq dima-unique-plot-number (1+ dima-unique-plot-number))
-                                   (error (setq dima-unique-plot-number 0)))))
-                   params)))
+
+    (let ((info-local (or info (org-babel-get-src-block-info t))))
+      (if (and info-local
+               (string= (car info-local) "python")
+               (not (assq :file (caddr info-local))))
+          ;; We're looking at a python block with no :file. Add a default :file
+          (funcall f arg info
+                   (cons (cons ':file
+                               (format "guide-%d.svg"
+                                       (condition-case nil
+                                           (setq dima-unique-plot-number (1+ dima-unique-plot-number))
+                                         (error (setq dima-unique-plot-number 0)))))
+                         params))
+        ;; already have a :file or not python. Just do the normal thing
+        (funcall f arg info params))))
+
   (unless
       (advice-member-p
        #'dima-org-babel-python-unique-plot-filename
