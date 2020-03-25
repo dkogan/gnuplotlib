@@ -412,7 +412,7 @@ gnuplot -e 'help linewidth' | head -n 20
 
 gnuplot has a =test= command, which produces a demo of the various available
 styles. This documentation uses the =svg= terminal (what gnuplot calls a
-backend). So for the =svg= terminal, the various styles look like this:
+"backend"). So for the =svg= terminal, the various styles look like this:
 
 #+begin_src gnuplot :results file link :session gnuplotlib-guide-gnuplot :exports both :file gnuplot-terminal-test.svg
 test
