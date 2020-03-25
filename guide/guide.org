@@ -380,10 +380,10 @@ are:
 - =dt= (or equivalently =dashtype=)
 
 For details about these and all other styles, see the =gnuplot= documentation.
-For instance:
+For instance, the first little bit of the docs about the different line widths:
 
 #+BEGIN_SRC shell :results output verbatim :exports both
-gnuplot -e 'help linewidth'
+gnuplot -e 'help linewidth' | head -n 20
 #+END_SRC
 
 #+RESULTS:
@@ -408,86 +408,6 @@ gnuplot -e 'help linewidth'
        show style line
 
  `default` sets all line style parameters to those of the linetype with
- that same index.
-
- If the linestyle <index> already exists, only the given parameters are
- changed while all others are preserved.  If not, all undefined values are
- set to the default values.
-
- Line styles created by this mechanism do not replace the default linetype
- styles; both may be used.  Line styles are temporary. They are lost whenever
- you execute a `reset` command.  To redefine the linetype itself,
- please see `set linetype`.
-
- The line and point types default to the index value. The exact symbol that is
- drawn for that index value may vary from one terminal type to another.
-
- The line width and point size are multipliers for the current terminal's
- default width and size (but note that <point_size> here is unaffected by
- the multiplier given by the command`set pointsize`).
-
- The `pointinterval` controls the spacing between points in a plot drawn with
- style `linespoints`.  The default is 0 (every point is drawn). For example,
- `set style line N pi 3` defines a linestyle that uses pointtype N, pointsize
- and linewidth equal to the current defaults for the terminal, and will draw
- every 3rd point in plots using `with linespoints`.  A negative value for the
- interval is treated the same as a positive value, except that some terminals
- will try to interrupt the line where it passes through the point symbol.
-
- The `pointnumber` property is similar to `pointinterval` except that rather
- than plotting every Nth point it limits the total number of points to N.
-
- Not all terminals support the `linewidth` and `pointsize` features; if
- not supported, the option will be ignored.
-
- Terminal-independent colors may be assigned using either
- `linecolor <colorspec>` or `linetype <colorspec>`, abbreviated `lc` or `lt`.
- This requires giving a RGB color triple, a known palette color name,
- a fractional index into the current palette, or a constant value from the
- current mapping of the palette onto cbrange.
- See `colors`, `colorspec`, `set palette`, `colornames`, `cbrange`.
-
- `set style line <n> linetype <lt>` will set both a terminal-dependent dot/dash
- pattern and color. The commands`set style line <n> linecolor <colorspec>` or
- `set style line <n> linetype <colorspec>` will set a new line color while
- leaving the existing dot-dash pattern unchanged.
-
- In 3d mode (`splot` command), the special keyword `palette` is allowed as a
- shorthand for "linetype palette z".  The color value corresponds to the
- z-value (elevation) of the splot, and varies smoothly along a line or surface.
-
- Examples:
- Suppose that the default lines for indices 1, 2, and 3 are red, green, and
- blue, respectively, and the default point shapes for the same indices are a
- square, a cross, and a triangle, respectively.  Then
-
-       set style line 1 lt 2 lw 2 pt 3 ps 0.5
-
- defines a new linestyle that is green and twice the default width and a new
- pointstyle that is a half-sized triangle.  The commands
-
-       set style function lines
-       plot f(x) lt 3, g(x) ls 1
-
- will create a plot of f(x) using the default blue line and a plot of g(x)
- using the user-defined wide green line.  Similarly the commands
-
-       set style function linespoints
-       plot p(x) lt 1 pt 3, q(x) ls 1
-
- will create a plot of p(x) using the default triangles connected by a red
- line and q(x) using small triangles connected by a green line.
-
-       splot sin(sqrt(x*x+y*y))/sqrt(x*x+y*y) w l pal
-
- creates a surface plot using smooth colors according to `palette`. Note,
- that this works only on some terminals. See also `set palette`, `set pm3d`.
-
-       set style line 10 linetype 1 linecolor rgb "cyan"
-
- will assign linestyle 10 to be a solid cyan line on any terminal that
- supports rgb colors.
-
 #+end_example
 
 Let's make a plot with some variable colors and point sizes:
@@ -542,59 +462,6 @@ gnuplot -e 'help yerrorbars'
 gnuplot -e 'help xyerrorbars'
 #+END_SRC
 
-#+RESULTS:
-#+begin_example
- The `xerrorbars` style is only relevant to 2D data plots.  `xerrorbars` is
- like `points`, except that a horizontal error bar is also drawn.  At each point
- (x,y), a line is drawn from (xlow,y) to (xhigh,y) or from (x-xdelta,y) to
- (x+xdelta,y), depending on how many data columns are provided.  The appearance
- of the tic mark at the ends of the bar is controlled by `set errorbars`.
- The basic style requires either 3 or 4 columns:
-
-      3 columns:  x  y  xdelta
-      4 columns:  x  y  xlow  xhigh
-
- An additional input column (4th or 5th) may be used to provide information 
- such as variable point color.
-
- The `yerrorbars` (or `errorbars`) style is only relevant to 2D data plots.
- `yerrorbars` is like `points`, except that a vertical error bar is also drawn.
- At each point (x,y), a line is drawn from (x,y-ydelta) to (x,y+ydelta) or
- from (x,ylow) to (x,yhigh), depending on how many data columns are provided.
- The appearance of the tic mark at the ends of the bar is controlled by
- `set errorbars`.
-
-      2 columns:  [implicit x] y ydelta
-      3 columns:  x  y  ydelta
-      4 columns:  x  y  ylow  yhigh
-
- An additional input column (4th or 5th) may be used to provide information 
- such as variable point color.
-
- See also
- errorbar demo.
- The `xyerrorbars` style is only relevant to 2D data plots.  `xyerrorbars` is
- like `points`, except that horizontal and vertical error bars are also drawn.
- At each point (x,y), lines are drawn from (x,y-ydelta) to (x,y+ydelta) and
- from (x-xdelta,y) to (x+xdelta,y) or from (x,ylow) to (x,yhigh) and from
- (xlow,y) to (xhigh,y), depending upon the number of data columns provided.
- The appearance of the tic mark at the ends of the bar is controlled by
- `set errorbars`.  Either 4 or 6 input columns are required.
-
-      4 columns:  x  y  xdelta  ydelta
-      6 columns:  x  y  xlow  xhigh  ylow  yhigh
-
- If data are provided in an unsupported mixed form, the `using` filter on the
- `plot` command should be used to set up the appropriate form.  For example,
- if the data are of the form (x,y,xdelta,ylow,yhigh), then you can use
-
-       plot 'data' using 1:2:($1-$3):($1+$3):4:5 with xyerrorbars
-
- An additional input column (5th or 7th) may be used to provide variable 
- (per-datapoint) color information. 
-
-#+end_example
-
 For brevity, I'm not including the contents of those help pages here. These tell
 us how to specify errorbars: how many columns to pass in, what they mean, etc.
 Example:
@@ -646,58 +513,6 @@ See
 gnuplot -e 'help polar'
 #+END_SRC
 
-#+RESULTS:
-#+begin_example
- The `set polar` command changes the meaning of the plot from rectangular
- coordinates to polar coordinates.
-
- Syntax:
-       set polar
-       unset polar
-       show polar
-
- In polar coordinates, the dummy variable (t) represents an angle theta.
- The default range of t is [0:2*pi], or [0:360] if degree units have been
- selected (see `set angles`).
-
- The command `unset polar` changes the meaning of the plot back to the default
- rectangular coordinate system.
-
- The `set polar` command is not supported for `splot`s.  See the `set mapping`
- command for similar functionality for `splot`s.
-
- While in polar coordinates the meaning of an expression in t is really
- r = f(t), where t is an angle of rotation.  The trange controls the domain
- (the angle) of the function. The r, x and y ranges control the extent of the
- graph in the x and y directions.  Each of these ranges, as well as the
- rrange, may be autoscaled or set explicitly.  For details, see `set rrange`
- and `set xrange`.
-
- Example:
-       set polar
-       plot t*sin(t)
-       set trange [-2*pi:2*pi]
-       set rrange [0:3]
-       plot t*sin(t)
-
- The first `plot` uses the default polar angular domain of 0 to 2*pi.  The
- radius and the size of the graph are scaled automatically.  The second `plot`
- expands the domain, and restricts the size of the graph to the area within
- 3 units of the origin.  This has the effect of limiting x and y to [-3:3].
-
- By default polar plots are oriented such that theta=0 is at the far right,
- with theta increasing counterclockwise.  You can change both the origin and
- the sense explicitly.  See `set theta`.
-
- You may want to `set size square` to have `gnuplot` try to make the aspect
- ratio equal to unity, so that circles look circular.  Tic marks around the
- perimeter can be specified using `set ttics`.
- See also
- polar demos (polar.dem)
- and
- polar data plot (poldat.dem).
-#+end_example
-
 Let's plot the [[https://en.wikipedia.org/wiki/Conchoid_of_de_Sluze][Conchoids of de Sluze]] using broadcasting:
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-guide :exports both
@@ -727,149 +542,6 @@ Docs:
 gnuplot -e 'help labels'
 gnuplot -e 'help set label'
 #+END_SRC
-
-#+RESULTS:
-#+begin_example
- The `labels` style reads coordinates and text from a data file and places
- the text string at the corresponding 2D or 3D position.  3 or 4 input columns
- of basic data are required.  Additional input columns may be used to provide
- properties that vary point by point such as text rotation angle (keywords
- `rotate variable`) or color (see `textcolor variable`).
-
-      3 columns:  x  y  string    # 2D version
-      4 columns:  x  y  z  string # 3D version
-
- The font, color, rotation angle and other properties of the printed text
- may be specified as additional command options (see `set label`). The example
- below generates a 2D plot with text labels constructed from the city whose
- name is taken from column 1 of the input file, and whose geographic coordinates
- are in columns 4 and 5. The font size is calculated from the value in column 3,
- in this case the population.
-
-   CityName(String,Size) = sprintf("{/=%d %s}", Scale(Size), String)
-   plot 'cities.dat' using 5:4:(CityName(stringcolumn(1),$3)) with labels
-
- If we did not want to adjust the font size to a different size for each city
- name, the command would be much simpler:
-
-   plot 'cities.dat' using 5:4:1 with labels font "Times,8"
-
- If the labels are marked as `hypertext` then the text only appears if the
- mouse is hovering over the corresponding anchor point.  See `hypertext`.
- In this case you must enable the label's `point` attribute so that there is
- a point to act as the hypertext anchor:
-
-   plot 'cities.dat' using 5:4:1 with labels hypertext point pt 7
-
- The `labels` style can also be used in place of the `points` style when the
- set of predefined point symbols is not suitable or not sufficiently flexible.
- For example, here we define a set of chosen single-character symbols and assign
- one of them to each point in a plot based on the value in data column 3:
-
-   set encoding utf8
-   symbol(z) = "∙□+⊙♠♣♡♢"[int(z):int(z)]
-   splot 'file' using 1:2:(symbol($3)) with labels
-
- This example shows use of labels with variable rotation angle in column 4 and
- textcolor ("tc") in column 5.  Note that variable color is always taken from
- the last column in the `using` specifier.
-
-   plot $Data using 1:2:3:4:5 with labels tc variable rotate variable
- Arbitrary labels can be placed on the plot using the `set label` command.
-
- Syntax:
-       set label {<tag>} {"<label text>"} {at <position>}
-                 {left | center | right}
-                 {norotate | rotate {by <degrees>}}
-                 {font "<name>{,<size>}"}
-                 {noenhanced}
-                 {front | back}
-                 {textcolor <colorspec>}
-                 {point <pointstyle> | nopoint}
-                 {offset <offset>}
-                 {boxed}
-                 {hypertext}
-       unset label {<tag>}
-       show label
-
- The <position> is specified by either x,y or x,y,z, and may be preceded by
- `first`, `second`, `polar`, `graph`, `screen`, or `character` to indicate the
- coordinate system.  See `coordinates` for details.
-
- The tag is an integer that is used to identify the label. If no <tag>
- is given, the lowest unused tag value is assigned automatically.  The
- tag can be used to delete or modify a specific label.  To change any
- attribute of an existing label, use the `set label` command with the
- appropriate tag, and specify the parts of the label to be changed.
-
- The <label text> can be a string constant, a string variable, or a string-
- valued expression. See `strings`, `sprintf`, and `gprintf`.
-
- By default, the text is placed flush left against the point x,y,z.  To adjust
- the way the label is positioned with respect to the point x,y,z, add the
- justification parameter, which may be `left`, `right` or `center`,
- indicating that the point is to be at the left, right or center of the text.
- Labels outside the plotted boundaries are permitted but may interfere with
- axis labels or other text.
-
- Some terminals support enclosing the label in a box.  See `set style textbox`.
- Not all terminals can handle boxes for rotated text.
-
- If `rotate` is given, the label is written vertically. If `rotate by <degrees>`
- is given, the baseline of the text will be set to the specified angle.
- Some terminals do not support text rotation.
-
- Font and its size can be chosen explicitly by `font "<name>{,<size>}"` if the
- terminal supports font settings.  Otherwise the default font of the terminal
- will be used.
-
- Normally the enhanced text mode string interpretation, if enabled for the
- current terminal, is applied to all text strings including label text.
- The `noenhanced` property can be used to exempt a specific label from the
- enhanced text mode processing.  The can be useful if the label contains
- underscores, for example. See `enhanced text`.
-
- If `front` is given, the label is written on top of the graphed data. If
- `back` is given (the default), the label is written underneath the graphed
- data.  Using `front` will prevent a label from being obscured by dense data.
-
- `textcolor <colorspec>` changes the color of the label text. <colorspec> can be
- a linetype, an rgb color, or a palette mapping. See help for `colorspec` and
- `palette`.  `textcolor` may be abbreviated `tc`.
-    `tc default` resets the text color to its default state.
-    `tc lt <n>` sets the text color to that of line type <n>.
-    `tc ls <n>` sets the text color to that of line style <n>.
-    `tc palette z` selects a palette color corresponding to the label z position.
-    `tc palette cb <val>` selects a color corresponding to <val> on the colorbar.
-    `tc palette fraction <val>`, with 0<=val<=1, selects a color corresponding to
-        the mapping [0:1] to grays/colors of the `palette`.
-    `tc rgb "#RRGGBB"` or `tc rgb "0xRRGGBB"` sets an arbitrary 24-bit RGB color.
-    `tc rgb 0xRRGGBB`  As above; a hexadecimal constant does not require quotes.
-
- If a <pointstyle> is given, using keywords `lt`, `pt` and `ps`, see `style`,
- a point with the given style and color of the given line type is plotted at
- the label position and the text of the label is displaced slightly.
- This option is used by default for placing labels in `mouse` enhanced
- terminals.  Use `nopoint` to turn off the drawing of a point near
- the label (this is the default).
-
- The displacement defaults to 1,1 in `pointsize` units if a <pointstyle> is
- given, 0,0 if no <pointstyle> is given.  The displacement can be controlled
- by the optional `offset <offset>` where <offset> is specified by either x,y
- or x,y,z, and may be preceded by `first`, `second`, `graph`, `screen`, or
- `character` to select the coordinate system.  See `coordinates` for details.
-
- If one (or more) axis is timeseries, the appropriate coordinate should be
- given as a quoted time string according to the `timefmt` format string.
- See `set xdata` and `set timefmt`.
-
- The options available for `set label` are also available for the `labels` plot
- style. See `labels`.  In this case the properties `textcolor`, `rotate`, and
- `pointsize` may be followed by keyword `variable` rather than by a fixed value.
- In this case the corresponding property of individual labels is determined by
- additional columns in the `using` specifier. 
-
-#+end_example
 
 Basic example:
 
@@ -1313,8 +985,6 @@ import numpy      as np
 import numpysane  as nps
 import gnuplotlib as gp
  
-from scipy.special import erf
-
 x1 = np.random.randn(1000)
 x2 = np.random.randn(1000) / 2.0
 binwidth = 0.2
