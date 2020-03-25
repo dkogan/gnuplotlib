@@ -920,10 +920,7 @@ N = 500
 x = np.random.randn(N)
 binwidth = 0.5
 
-def equation_gaussian(N     = 0,
-                      mean  = 0,
-                      sigma = 0,
-                      title = ''):
+def equation_gaussian(N = 0, mean = 0, sigma = 0, title = ''):
     k = N * np.sqrt(2.*np.pi) * sigma * erf(binwidth/(2.*np.sqrt(2)*sigma))
     return '{k}*exp(-(x-{mean})*(x-{mean})/(2.*{sigma}*{sigma})) / sqrt(2.*pi*{sigma}*{sigma}) title "{title}" with lines lw 2'. \
         format(k     = k,
@@ -965,10 +962,7 @@ binwidth = bin_edges[1] - bin_edges[0]
 
 bin_centers = bin_edges[1:] - binwidth/2.
 
-def equation_gaussian(N     = 0,
-                      mean  = 0,
-                      sigma = 0,
-                      title = ''):
+def equation_gaussian(N = 0, mean = 0, sigma = 0, title = ''):
     k = N * np.sqrt(2.*np.pi) * sigma * erf(binwidth/(2.*np.sqrt(2)*sigma))
     return '{k}*exp(-(x-{mean})*(x-{mean})/(2.*{sigma}*{sigma})) / sqrt(2.*pi*{sigma}*{sigma}) title "{title}" with lines lw 2'. \
         format(k     = k,
