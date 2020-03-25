@@ -410,7 +410,20 @@ gnuplot -e 'help linewidth' | head -n 20
  `default` sets all line style parameters to those of the linetype with
 #+end_example
 
-Let's make a plot with some variable colors and point sizes:
+gnuplot has a =test= command, which produces a demo of the various available
+styles. This documentation uses the =svg= terminal (what gnuplot calls a
+backend). So for the =svg= terminal, the various styles look like this:
+
+#+begin_src gnuplot :results file link :session gnuplotlib-guide-gnuplot :exports both :file gnuplot-terminal-test.svg
+test
+#+end_src
+
+#+RESULTS:
+[[file:gnuplot-terminal-test.svg]]
+
+So for instance if you plot something with =linespoints pt 4 dt 2 lc 7= you'll
+get a red dashed line with square points. Let's make a plot with some variable
+colors and point sizes:
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-guide :exports both
 import numpy      as np
@@ -426,7 +439,7 @@ gp.plot( ( x**2, np.abs(x)/2, x*50,
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-19.svg]]
+[[file:guide-17.svg]]
 
 Let's now plot two datasets, one with variable color, the other with variable
 size. We have =tuplesize=3= for both, but I'm passing in /one/ array. So the xy
@@ -448,7 +461,7 @@ gp.plot( nps.cat(x,z / 5.),
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-20.svg]]
+[[file:guide-18.svg]]
 
 To see a sampling of all the availble line and point styles, run the =test=
 command in =gnuplot=.
@@ -504,7 +517,7 @@ gp.plot( ( x + 1,
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-22.svg]]
+[[file:guide-19.svg]]
 
 ** Polar coordinates
 See
@@ -533,7 +546,7 @@ gp.plot( rho,
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-24.svg]]
+[[file:guide-20.svg]]
 
 ** Labels
 Docs:
@@ -559,7 +572,7 @@ gp.plot(x, y,
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-26.svg]]
+[[file:guide-21.svg]]
 
 More complex example:
 
@@ -579,7 +592,7 @@ gp.plot(x, y,
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-27.svg]]
+[[file:guide-22.svg]]
 
 ** 3D plots
 We can plot in 3D by passing in the plot option =_3d = True= or by calling
@@ -614,7 +627,7 @@ gp.plot3d( x, y, z,
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-29.svg]]
+[[file:guide-23.svg]]
 
 A double-helix with variable color and variable pointsize
 
@@ -641,7 +654,7 @@ gp.plot3d( np.cos(th) * nps.transpose(np.array((1,-1))),
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-30.svg]]
+[[file:guide-24.svg]]
 
 ** 3D plots: meshes and contours
 Both of these are plots of discrete 3D points. If we pass in exactly
@@ -665,7 +678,7 @@ gp.plot3d(z,
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-31.svg]]
+[[file:guide-25.svg]]
 
 By default we plot with lines (meaning "wireframe" here) and points. Probably
 just the wireframe would be nicer. And let's use variable colors to encode z.
@@ -691,7 +704,7 @@ gp.plot3d(z, z,
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-32.svg]]
+[[file:guide-26.svg]]
 
 Let's add some contours beneath
 
@@ -715,7 +728,7 @@ gp.plot3d(z,
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-33.svg]]
+[[file:guide-27.svg]]
 
 When looking at contour plots I generally find them to be much more legible as a
 top-down view, without the 3D component. So I usually do something like this
@@ -746,7 +759,7 @@ gp.plot3d(z,
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-34.svg]]
+[[file:guide-28.svg]]
 
 This is technically a 3D plot, but we're looking at it straight down, from the
 top. The 3D plot processing is required to make contours. If we just want to
@@ -774,7 +787,7 @@ gp.plot(z,
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-35.svg]]
+[[file:guide-29.svg]]
 
 This is very useful for annotating images. Note that above I used the =image
 pixels= instead of =image=. This is a compabilitity mode that is required to
@@ -817,7 +830,7 @@ gp.plot3d(z,
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-36.svg]]
+[[file:guide-30.svg]]
 
 Nonlinear transformation:
 
@@ -845,7 +858,7 @@ gp.plot3d(z,
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-37.svg]]
+[[file:guide-31.svg]]
 
 Some other techniques are possible using linked axes or passing in discrete
 points, but I'm not going into those here.
@@ -883,7 +896,7 @@ gp.plot3d( (z0, dict(_set = commonset + ('xyplane at 10',))),
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-38.svg]]
+[[file:guide-32.svg]]
 
 ** Histograms
 =gnuplot= (and =gnuplotlib=) has support for histograms. So we can give it data,
@@ -930,7 +943,7 @@ gp.plot(x,
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-39.svg]]
+[[file:guide-33.svg]]
 
 With =numpy=:
 
@@ -975,7 +988,7 @@ gp.plot(bin_centers, hist,
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-40.svg]]
+[[file:guide-34.svg]]
 
 If we want multiple histograms drawn on top of one another, the styling should
 be adjusted so that they both remain visible. For instance:
@@ -997,7 +1010,7 @@ gp.plot( nps.cat(x1,x2),
                      'boxes fill transparent pattern 1 border lt -1')))
 #+END_SRC
 #+RESULTS:
-[[file:guide-41.svg]]
+[[file:guide-35.svg]]
 
 ** Vector fields
 Documentation in gnuplot available like this:
@@ -1033,7 +1046,7 @@ gp.plot( x, y, y/np.sqrt(r+0.1)*0.5, -x/np.sqrt(r+0.1)*0.5,
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-43.svg]]
+[[file:guide-36.svg]]
 
 ** Ellipses
 Let's say we have a bunch of points with covariance matrices associated with
@@ -1107,7 +1120,7 @@ gp.plot( ( x, y, major_diam, minor_diam, angle,
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-45.svg]]
+[[file:guide-37.svg]]
 
 And again, by sampling the angles, and plotting points. This is more work, but
 can work in 3D too (we can remap a sphere). I'm using the same data here, so the
@@ -1170,5 +1183,5 @@ gp.plot( ( xy_1sigma,
 #+END_SRC
 
 #+RESULTS:
-[[file:guide-46.svg]]
+[[file:guide-38.svg]]
 
