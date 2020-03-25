@@ -422,8 +422,11 @@ test
 [[file:gnuplot-terminal-test.svg]]
 
 So for instance if you plot something with =linespoints pt 4 dt 2 lc 7= you'll
-get a red dashed line with square points. Let's make a plot with some variable
-colors and point sizes:
+get a red dashed line with square points. By default you'd be using one of the
+interactive graphical terminals (=x11= or =qt=), which would have largely
+similar styling.
+
+Let's make a plot with some variable colors and point sizes:
 
 #+BEGIN_SRC python :python python3 :results file link :session gnuplotlib-guide :exports both
 import numpy      as np
