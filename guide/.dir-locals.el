@@ -103,7 +103,7 @@
        #'org-babel-execute-buffer)
     (advice-add
      #'org-babel-execute-buffer
-     :after #'dima-reset-unique-plot-number))
+     :before #'dima-reset-unique-plot-number))
   ;; I'm using github to display guide.org, so I'm not using the "normal" org
   ;; exporter. I want the demo text to not contain the hardcopy= tags, but clearly
   ;; I need the hardcopy tag when generating the plots. I add some python to
