@@ -453,10 +453,10 @@ import numpy      as np
 import numpysane  as nps
 import gnuplotlib as gp
 
-x,y = np.mgrid[-10:11, -8:2]
-z    = np.sqrt(x*x + y*y)
+y,x = np.mgrid[-10:11, -8:2]
+r   = np.sqrt(x*x + y*y)
 
-gp.plot( nps.cat(x,z / 5.),
+gp.plot( nps.cat(x,r / 5.),
          tuplesize = 3,
          _with     = np.array(('points palette pt 7',
                                'points ps variable pt 6')),
