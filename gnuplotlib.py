@@ -634,7 +634,7 @@ process calling gnuplotlib.
 
 - set/unset
 
-These take either a string of a list. If given a string, a set or unset gnuplot
+These take either a string or a list. If given a string, a set or unset gnuplot
 command is executed with that argument. If given a list, elements of that list
 are set/unset separately. Example:
 
@@ -648,7 +648,7 @@ instead of the normal behavior of a subplot option overriding the process option
 
 Arbitrary extra commands to pass to gnuplot before the plots are created. These
 are passed directly to gnuplot, without any validation. The value is either a
-string of a list of strings, one per command
+string or a list of strings, one per command
 
 This is both a process and a subplot option. If both are given, BOTH are used,
 instead of the normal behavior of a subplot option overriding the process option
@@ -717,7 +717,7 @@ so '_3d' is accepted for that purpose. Same issue exists with with/_with
 
 - set/unset
 
-These take either a string of a list. If given a string, a set or unset gnuplot
+These take either a string or a list. If given a string, a set or unset gnuplot
 command is executed with that argument. If given a list, elements of that list
 are set/unset separately. Example:
 
@@ -731,7 +731,7 @@ instead of the normal behavior of a subplot option overriding the process option
 
 Arbitrary extra commands to pass to gnuplot before the plots are created. These
 are passed directly to gnuplot, without any validation. The value is either a
-string of a list of strings, one per command
+string or a list of strings, one per command
 
 This is both a process and a subplot option. If both are given, BOTH are used,
 instead of the normal behavior of a subplot option overriding the process option
