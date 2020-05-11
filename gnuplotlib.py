@@ -1191,6 +1191,9 @@ def _dictDeUnderscore(d):
     d2 = {}
     for key in d:
         if isinstance(key, (str, bytes)) and key[0] == '_':
+            keynew = key[1:]
+            if keynew in d:
+                raise GnuplotlibError("Both '{}' and '{}' were given in the same set of options. Please use one or the other".format(key, keynew))
             d2[key[1:]] = d[key]
         else:
             d2[key] = d[key]
