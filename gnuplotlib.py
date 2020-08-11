@@ -1563,7 +1563,12 @@ class gnuplotlib:
             self.gnuplotProcess = None
 
             if self.fdDupSTDOUT is not None:
-                os.close(self.fdDupSTDOUT)
+                # When running inside IPython I sometimes see "os" set to None
+                # at exit for some reason, so I let that fail silently
+                try:
+                    os.close(self.fdDupSTDOUT)
+                except:
+                    pass
                 self.fdDupSTDOUT = None
 
 
