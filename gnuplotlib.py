@@ -2094,6 +2094,8 @@ labels with spaces in them
         # the programmer (me!) to deal with.
         #
         # Also handle tuplesize<0 by splitting the innermost dimension
+        #
+        # Any curves that have no data in any of their arrays are reported as None
         def reformat(curve):
 
             if type(curve[-1]) is dict:
@@ -2105,9 +2107,14 @@ labels with spaces in them
                 if k not in d:
                     d[k] = curveOptions_base[k]
 
+            if all( x.size <= 0 for x in curve ):
+                # ALL the data arrays are empty. Throw away the entire curve
+                return None
+
             for x in curve:
                 if x.size <= 0:
-                    raise GnuplotlibError("Can't plot a length-0 numpy array")
+                    # SOME of the data ararys are empty. I complain
+                    raise GnuplotlibError("Received data where SOME (but not ALL) of the arrays had length-0. Giving up")
 
             if 'tuplesize' in d and d['tuplesize'] < 0:
                 if len(curve) != 1:
@@ -2119,6 +2126,8 @@ labels with spaces in them
             return d
         curves = [ reformat(curve) for curve in curves ]
 
+        # throw out any "None" curves
+        curves = [ curve for curve in curves if curve is not None ]
 
         binwidth = None
         for curve in curves:
