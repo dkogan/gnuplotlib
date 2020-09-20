@@ -673,10 +673,10 @@ is enabled (see below)
 - ascii
 
 If set, ASCII data is passed to gnuplot instead of binary data. Binary is the
-default because it is much more efficient (and thus faster). Usually there's no
-reason to touch this option. Binary input works for most plots, but not for all
-of them. An example where binary plotting doesn't work is 'with labels', and
-gnuplotlib will use ascii there regardless of this setting
+default because it is much more efficient (and thus faster). Any time you're
+plotting something that isn't just numbers (labels, time/date strings, etc)
+ascii communication is required instead. gnuplotlib tries to auto-detect when
+this is needed, but sometimes you do have to specify this manually.
 
 - notest
 
