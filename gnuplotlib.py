@@ -1493,6 +1493,11 @@ class gnuplotlib:
 
         cmd = ['gnuplot']
 
+        # I dup the handle to standard output. The main use for this is the dumb
+        # terminal. I want it to write to the console. Normally "set dumb"
+        # writes to gnuplot's stdout, which normally IS the console. But when
+        # talking to gnuplotlib, gnuplot's stdout is my control pipe. So when
+        # using the dumb terminal I tell gnuplot to write to python's stdout
         try:
             self.fdDupSTDOUT = os.dup(sys.stdout.fileno())
         except:
