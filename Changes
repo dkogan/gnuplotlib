@@ -1,3 +1,12 @@
+gnuplotlib (0.34) unstable; urgency=medium
+
+  * Lots of updates to the guide contents, and to the way it is built
+  * I now barf if both "_key" and "key" are given in any set of options
+  * Reduced the uninteresting complaining at exit with ipython
+  * Any curves where ALL the data arrays are empty are ignored
+
+ -- Dima Kogan <dkogan@debian.org>  Sat, 19 Sep 2020 20:28:11 -0700
+
 gnuplotlib (0.33)
 
   * BIG documentation update. Added the "guide": a tutorial and set of
