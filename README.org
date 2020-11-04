@@ -690,9 +690,8 @@ process calling gnuplotlib.
 
 - set/unset
 
-These take either a string or a list. If given a string, a set or unset gnuplot
-command is executed with that argument. If given a list, elements of that list
-are set/unset separately. Example:
+Either a string or a list/tuple; if given a list/tuple, each element is used in
+separate set/unset command. Example:
 
 #+BEGIN_SRC python
 plot(..., set='grid', unset=['xtics', 'ytics])
@@ -704,9 +703,9 @@ instead of the normal behavior of a subplot option overriding the process option
 
 - cmds
 
-Arbitrary extra commands to pass to gnuplot before the plots are created. These
-are passed directly to gnuplot, without any validation. The value is either a
-string or a list of strings, one per command
+Either a string or a list/tuple; if given a list/tuple, each element is used in
+separate command. Arbitrary extra commands to pass to gnuplot before the plots
+are created. These are passed directly to gnuplot, without any validation.
 
 This is both a process and a subplot option. If both are given, BOTH are used,
 instead of the normal behavior of a subplot option overriding the process option
@@ -775,9 +774,8 @@ so '_3d' is accepted for that purpose. Same issue exists with with/_with
 
 - set/unset
 
-These take either a string or a list. If given a string, a set or unset gnuplot
-command is executed with that argument. If given a list, elements of that list
-are set/unset separately. Example:
+Either a string or a list/tuple; if given a list/tuple, each element is used in
+separate set/unset command. Example:
 
 #+BEGIN_SRC python
 plot(..., set='grid', unset=['xtics', 'ytics])
@@ -789,9 +787,9 @@ instead of the normal behavior of a subplot option overriding the process option
 
 - cmds
 
-Arbitrary extra commands to pass to gnuplot before the plots are created. These
-are passed directly to gnuplot, without any validation. The value is either a
-string or a list of strings, one per command
+Either a string or a list/tuple; if given a list/tuple, each element is used in
+separate command. Arbitrary extra commands to pass to gnuplot before the plots
+are created. These are passed directly to gnuplot, without any validation.
 
 This is both a process and a subplot option. If both are given, BOTH are used,
 instead of the normal behavior of a subplot option overriding the process option
@@ -847,9 +845,9 @@ options), then it is up to the user to flip the axis, if that's what they want.
 
 - equation, equation_above, equation_below
 
-These options allows equations represented as formula strings to be plotted
-along with data passed in as numpy arrays. These can be a string (for a single
-equation) or an array/tuple of strings (for multiple equations). See the
+Either a string or a list/tuple; if given a list/tuple, each element is used in
+separate equation to plot. These options allows equations represented as formula
+strings to be plotted along with data passed in as numpy arrays. See the
 "Symbolic equations" section above.
 
 By default, the equations are plotted BEFORE other data, so the data plotted
@@ -1334,6 +1332,46 @@ This applies to the global gnuplotlib object.
 
 It's not at all trivial to detect if a current plot window exists. If not,
 this function will end up waiting forever, and the user will need to Ctrl-C
+
+** add_plot_option()
+Ingests new key/value pairs into an option dict
+
+SYNOPSIS
+
+#+BEGIN_SRC python
+# A baseline plot_options dict was given to us. We want to make the
+# plot, but make sure to omit the legend key
+
+add_plot_option(plot_options, 'unset', 'key')
+
+gp.plot(..., **plot_options)
+#+END_SRC
+
+DESCRIPTION
+
+Given a plot_options dict we can easily add a new option with
+
+#+BEGIN_SRC python
+plot_options[key] = value
+#+END_SRC
+
+This has several potential problems:
+
+- If an option for this key already exists, the above will overwrite the old
+  value instead of adding a NEW option
+
+- All options may take a leading _ to avoid conflicting with Python reserved
+  words (set, _set for instance). The above may unwittingly create a
+  duplicate
+
+- Some plot options support multiple values, which the simple call ignores
+  completely
+
+THIS function takes care of the _ in keys. And this function knows which
+keys support multiple values. If a duplicate is given, it will either raise
+an exception, or append to the existing list, as appropriate.
+
+Multiple values can be given in one call.
 
 * COMPATIBILITY
 

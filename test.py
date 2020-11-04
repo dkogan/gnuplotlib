@@ -318,12 +318,12 @@ gp.plot3d( (zz, dict(tuplesize = 3,
                      _with     = np.array(('image','lines')))),
 
            title = 'matrix plot with contours',
-           cmds  = [ 'set contours base',
-                     'set cntrparam bspline',
-                     'set cntrparam levels 15',
-                     'unset grid',
-                     'unset surface',
-                     'set view 0,0'],
+           _set  = [ 'contours base',
+                     'cntrparam bspline',
+                     'cntrparam levels 15',
+                     'view 0,0'],
+           unset  = 'grid',
+           _unset = 'surface',
            square = 1,
            wait = 1)
 

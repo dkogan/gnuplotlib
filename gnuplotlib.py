@@ -634,9 +634,8 @@ process calling gnuplotlib.
 
 - set/unset
 
-These take either a string or a list. If given a string, a set or unset gnuplot
-command is executed with that argument. If given a list, elements of that list
-are set/unset separately. Example:
+Either a string or a list/tuple; if given a list/tuple, each element is used in
+separate set/unset command. Example:
 
     plot(..., set='grid', unset=['xtics', 'ytics])
     [ turns on the grid, turns off the x and y axis tics ]
@@ -646,9 +645,9 @@ instead of the normal behavior of a subplot option overriding the process option
 
 - cmds
 
-Arbitrary extra commands to pass to gnuplot before the plots are created. These
-are passed directly to gnuplot, without any validation. The value is either a
-string or a list of strings, one per command
+Either a string or a list/tuple; if given a list/tuple, each element is used in
+separate command. Arbitrary extra commands to pass to gnuplot before the plots
+are created. These are passed directly to gnuplot, without any validation.
 
 This is both a process and a subplot option. If both are given, BOTH are used,
 instead of the normal behavior of a subplot option overriding the process option
@@ -717,9 +716,8 @@ so '_3d' is accepted for that purpose. Same issue exists with with/_with
 
 - set/unset
 
-These take either a string or a list. If given a string, a set or unset gnuplot
-command is executed with that argument. If given a list, elements of that list
-are set/unset separately. Example:
+Either a string or a list/tuple; if given a list/tuple, each element is used in
+separate set/unset command. Example:
 
     plot(..., set='grid', unset=['xtics', 'ytics])
     [ turns on the grid, turns off the x and y axis tics ]
@@ -729,9 +727,9 @@ instead of the normal behavior of a subplot option overriding the process option
 
 - cmds
 
-Arbitrary extra commands to pass to gnuplot before the plots are created. These
-are passed directly to gnuplot, without any validation. The value is either a
-string or a list of strings, one per command
+Either a string or a list/tuple; if given a list/tuple, each element is used in
+separate command. Arbitrary extra commands to pass to gnuplot before the plots
+are created. These are passed directly to gnuplot, without any validation.
 
 This is both a process and a subplot option. If both are given, BOTH are used,
 instead of the normal behavior of a subplot option overriding the process option
@@ -787,9 +785,9 @@ options), then it is up to the user to flip the axis, if that's what they want.
 
 - equation, equation_above, equation_below
 
-These options allows equations represented as formula strings to be plotted
-along with data passed in as numpy arrays. These can be a string (for a single
-equation) or an array/tuple of strings (for multiple equations). See the
+Either a string or a list/tuple; if given a list/tuple, each element is used in
+separate equation to plot. These options allows equations represented as formula
+strings to be plotted along with data passed in as numpy arrays. See the
 "Symbolic equations" section above.
 
 By default, the equations are plotted BEFORE other data, so the data plotted
@@ -1128,6 +1126,8 @@ knownCurveOptions = frozenset(( 'with',   # both a plot option and a curve optio
 
 knownInteractiveTerminals = frozenset(('x11', 'wxt', 'qt', 'aquaterm'))
 
+keysAcceptingIterable = frozenset(('cmds','set','unset','equation','equation_below','equation_above'))
+
 # when testing plots with ASCII i/o, this is the unit of test data
 testdataunit_ascii = 10
 
@@ -1179,25 +1179,33 @@ features = _getGnuplotFeatures()
 
 
 
+def _normalize_options_dict(d):
+    r'''Normalizes a dict of options to handle human-targeted conveniences
 
+The options we accept allow some things that make life easier for humans, but
+complicate it for computers. This function takes care of these. It ingests a
+dict passed-in by the user, and outputs a massaged dict with these changes:
 
-def _dictDeUnderscore(d):
-    r'''Takes a dict, and renames all keys that start with an '_' to not contain that
-    anymore. This is done because some keys are illegal as kwargs (notably
-    'with' and '3d'), so the user passes in '_with' and '_3d', which ARE legal
+- All keys that start with an '_' are renamed to omit the '_'
+
+- All keys that accept either an iterable or a value (those in
+  keysAcceptingIterable) are converted to always contain an iterable
+
+- Any keys with a value of None or (None,) are removed: checking for a value of
+  None ends up being identical to checking for the existence of a value
+
+- Similarly, any iterable-supporting keys with [] or () are removed
 
     '''
 
     d2 = {}
     for key in d:
-        if isinstance(key, (str, bytes)) and key[0] == '_':
-            keynew = key[1:]
-            if keynew in d:
-                raise GnuplotlibError("Both '{}' and '{}' were given in the same set of options. Please use one or the other".format(key, keynew))
-            d2[key[1:]] = d[key]
+        key_normalized = key if key[0] != '_' else key[1:]
+        if key_normalized in keysAcceptingIterable and \
+           isinstance(d[key], (list,tuple)):
+            add_plot_option(d2, key, *d[key])
         else:
-            d2[key] = d[key]
-
+            add_plot_option(d2, key, d[key])
     return d2
 
 class GnuplotlibError(Exception):
@@ -1244,24 +1252,10 @@ def _split_dict(d, *keysets):
     return dicts
 
 
-def _get_cmds__cmds(cmds, options):
-
-    if 'cmds' in options:
-        # if there's a single cmds option, put it into a 1-element list to
-        # make the processing work
-        if isinstance(options['cmds'], (list, tuple)):
-            cmds += options['cmds']
-        else:
-            cmds.append(options['cmds'])
-
 def _get_cmds__setunset(cmds,options):
-    # send all set/unset as is
     for setunset in ('set', 'unset'):
         if setunset in options:
-            if isinstance(options[setunset], (list, tuple)):
-                cmds += [ setunset + ' ' + setting for setting in options[setunset] ]
-            else:
-                cmds.append(setunset + ' ' + options[setunset])
+            cmds += [ setunset + ' ' + setting for setting in options[setunset] ]
 
 def _massageProcessOptionsAndGetCmds(processOptions):
     r'''Compute commands to set the given process options, and massage the input, as
@@ -1313,8 +1307,7 @@ def _massageProcessOptionsAndGetCmds(processOptions):
             processOptions['dump'  ] = 1
             processOptions['notest'] = 1
 
-    _get_cmds__cmds(cmds, processOptions)
-
+    if 'cmds' in processOptions: cmds += processOptions['cmds']
     return cmds
 
 
@@ -1447,8 +1440,7 @@ def _massageSubplotOptionsAndGetCmds(subplotOptions):
         if subplotOptions.get('square'):
             cmds.append("set size ratio -1")
 
-    _get_cmds__cmds(cmds, subplotOptions)
-
+    if 'cmds' in subplotOptions: cmds += subplotOptions['cmds']
     return cmds
 
 
@@ -1462,7 +1454,7 @@ class gnuplotlib:
         self.checkpoint_stuck = False
         self.sync_count       = 1
 
-        plotOptions = _dictDeUnderscore(plotOptions)
+        plotOptions = _normalize_options_dict(plotOptions)
 
         self.curveOptions_base,self.subplotOptions_base,self.processOptions = \
             _split_dict(plotOptions,
@@ -1983,10 +1975,7 @@ labels with spaces in them
         # send all pre-data equations
         def set_equation(equation, cmds):
             if equation in subplotOptions:
-                if isinstance(subplotOptions[equation], (list, tuple)):
-                    cmds += subplotOptions[equation]
-                else:
-                    cmds.append(subplotOptions[equation])
+                cmds += subplotOptions[equation]
 
         set_equation('equation',       plotCurveCmdsNonDataBefore)
         set_equation('equation_below', plotCurveCmdsNonDataBefore)
@@ -2104,7 +2093,7 @@ labels with spaces in them
         def reformat(curve):
 
             if type(curve[-1]) is dict:
-                d     = _dictDeUnderscore(curve[-1])
+                d     = _normalize_options_dict(curve[-1])
                 curve = curve[:-1]
             else:
                 d = {}
@@ -2358,7 +2347,8 @@ labels with spaces in them
                     # user requested nothing. Is this a known interactive terminal or an
                     # unspecified terminal (unspecified terminal assumed to be
                     # interactive)? Then set the null output
-                    if 'terminal' not in self.processOptions or self.processOptions['terminal'] in knownInteractiveTerminals:
+                    if 'terminal' not in self.processOptions or \
+                       self.processOptions['terminal'] in knownInteractiveTerminals:
                         self._safelyWriteToPipe('set output',
                                                 'output')
                     else:
@@ -2482,7 +2472,7 @@ labels with spaces in them
                               *curves, **jointOptions):
 
             subplotOptions,curveOptions = \
-                ingest_joint_options( _dictDeUnderscore(jointOptions),
+                ingest_joint_options( _normalize_options_dict(jointOptions),
                                       subplotOptions_base,
                                       curveOptions_base )
 
@@ -2511,13 +2501,13 @@ labels with spaces in them
             subplots = curves
 
             subplotOptions_base,curveOptions_base = \
-                ingest_joint_options( _dictDeUnderscore(jointOptions),
+                ingest_joint_options( _normalize_options_dict(jointOptions),
                                       self.subplotOptions_base,
                                       self.curveOptions_base )
 
             def make_subplot_data_embedded_kwargs(subplot):
                 if type(subplot[-1]) is dict:
-                    d = _dictDeUnderscore(subplot[-1])
+                    d = _normalize_options_dict(subplot[-1])
                     subplot = subplot[:-1]
                 else:
                     d = {}
@@ -2760,6 +2750,74 @@ def wait():
 
     globalplot.wait()
 
+
+def add_plot_option(d, key, *values):
+    r'''Ingests new key/value pairs into an option dict
+
+    SYNOPSIS
+
+        # A baseline plot_options dict was given to us. We want to make the
+        # plot, but make sure to omit the legend key
+
+        add_plot_option(plot_options, 'unset', 'key')
+
+        gp.plot(..., **plot_options)
+
+    DESCRIPTION
+
+    Given a plot_options dict we can easily add a new option with
+
+        plot_options[key] = value
+
+    This has several potential problems:
+
+    - If an option for this key already exists, the above will overwrite the old
+      value instead of adding a NEW option
+
+    - All options may take a leading _ to avoid conflicting with Python reserved
+      words (set, _set for instance). The above may unwittingly create a
+      duplicate
+
+    - Some plot options support multiple values, which the simple call ignores
+      completely
+
+    THIS function takes care of the _ in keys. And this function knows which
+    keys support multiple values. If a duplicate is given, it will either raise
+    an exception, or append to the existing list, as appropriate.
+
+    Multiple values can be given in one call.
+
+    '''
+
+    values = [v for v in values if v is not None]
+    if len(values) == 0: return
+
+    key_normalized = key if key[0] != '_' else key[1:]
+
+    if key_normalized not in keysAcceptingIterable:
+        if key in d or key_normalized in d or len(values) > 1:
+            # Already have old key, so can't add a new key. Or have multiple new
+            # values.
+            raise GnuplotlibError("Options dict given multiple values for key '{}'".format(key_normalized))
+
+        d[key_normalized] = values[0]
+
+    else:
+        def listify(v):
+            if isinstance(v, (list,tuple)): return v
+            return [v]
+        def accum(k,v):
+            try:
+                v += listify(d[k])
+                del d[k]
+            except KeyError: pass
+
+        v = []
+        accum(key,v)
+        if key != key_normalized:
+            accum(key_normalized,v)
+
+        d[key_normalized] = v + values
 
 
 
