@@ -1292,7 +1292,7 @@ def _massageProcessOptionsAndGetCmds(processOptions):
                          'ps':  'postscript noenhanced solid color landscape 10',
                          'pdf': 'pdf noenhanced solid color font ",10" size 11in,8.5in',
                          'png': 'png noenhanced size 1280,1024',
-                         'svg': 'svg noenhanced solid',
+                         'svg': 'svg noenhanced solid dynamic fontscale 0.5',
                          'gp':  'gp'}
 
         processOptions['terminal'] = terminalOpts[outputfileType]
