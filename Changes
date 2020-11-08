@@ -1,3 +1,10 @@
+gnuplotlib (0.35) unstable; urgency=medium
+
+  * Improved default svg terminal settings
+  * Added add_plot_option() function, more robust plot option parsing
+
+ -- Dima Kogan <dkogan@debian.org>  Sun, 08 Nov 2020 01:33:03 -0800
+
 gnuplotlib (0.34) unstable; urgency=medium
 
   * Lots of updates to the guide contents, and to the way it is built
