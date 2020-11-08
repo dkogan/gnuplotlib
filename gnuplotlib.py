@@ -1721,8 +1721,7 @@ class gnuplotlib:
                 self.checkpoint_stuck = True
 
                 raise GnuplotlibError(
-                    r'''Gnuplot process no longer responding. This is likely a bug in gnuplotlib
-and/or gnuplot itself. Please report this as a gnuplotlib bug''')
+                    r'''Gnuplot process no longer responding. This shouldn't happen... Is your X connection working?''')
 
         fromerr = re.search(r'\s*(.*?)\s*{}$'.format(checkpoint), fromerr, re.M + re.S).group(1)
 
