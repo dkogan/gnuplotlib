@@ -1200,12 +1200,7 @@ dict passed-in by the user, and outputs a massaged dict with these changes:
 
     d2 = {}
     for key in d:
-        key_normalized = key if key[0] != '_' else key[1:]
-        if key_normalized in keysAcceptingIterable and \
-           isinstance(d[key], (list,tuple)):
-            add_plot_option(d2, key, *d[key])
-        else:
-            add_plot_option(d2, key, d[key])
+        add_plot_option(d2, key, d[key])
     return d2
 
 class GnuplotlibError(Exception):
@@ -2750,7 +2745,7 @@ def wait():
     globalplot.wait()
 
 
-def add_plot_option(d, key, *values):
+def add_plot_option(d, key, values):
     r'''Ingests new key/value pairs into an option dict
 
     SYNOPSIS
@@ -2784,14 +2779,18 @@ def add_plot_option(d, key, *values):
     keys support multiple values. If a duplicate is given, it will either raise
     an exception, or append to the existing list, as appropriate.
 
-    Multiple values can be given in one call.
+    If the given key supports multiple values, they can be given in a single
+    call, as a list or a tuple.
 
     '''
 
+    key_normalized = key if key[0] != '_' else key[1:]
+    if not (key_normalized in keysAcceptingIterable and \
+            isinstance(values, (list,tuple))):
+        values = (values,)
+
     values = [v for v in values if v is not None]
     if len(values) == 0: return
-
-    key_normalized = key if key[0] != '_' else key[1:]
 
     if key_normalized not in keysAcceptingIterable:
         if key in d or key_normalized in d or len(values) > 1:
