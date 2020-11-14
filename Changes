@@ -1,3 +1,10 @@
+gnuplotlib (0.36) unstable; urgency=medium
+
+  * add_plot_option() API change: takes single options as scalars and
+    lists as lists, just like the plot options that accept multiple values
+
+ -- Dima Kogan <dkogan@debian.org>  Fri, 13 Nov 2020 21:28:55 -0800
+
 gnuplotlib (0.35) unstable; urgency=medium
 
   * Improved default svg terminal settings
