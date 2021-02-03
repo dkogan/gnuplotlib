@@ -1371,7 +1371,8 @@ THIS function takes care of the _ in keys. And this function knows which
 keys support multiple values. If a duplicate is given, it will either raise
 an exception, or append to the existing list, as appropriate.
 
-Multiple values can be given in one call.
+If the given key supports multiple values, they can be given in a single
+call, as a list or a tuple.
 
 * COMPATIBILITY
 
