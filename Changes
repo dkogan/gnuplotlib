@@ -1,3 +1,9 @@
+gnuplotlib (0.37) unstable; urgency=medium
+
+  * Updated default hardcopy settings
+
+ -- Dima Kogan <dkogan@debian.org>  Wed, 03 Feb 2021 14:31:33 -0800
+
 gnuplotlib (0.36) unstable; urgency=medium
 
   * add_plot_option() API change: takes single options as scalars and
