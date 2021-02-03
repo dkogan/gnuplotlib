@@ -1284,10 +1284,10 @@ def _massageProcessOptionsAndGetCmds(processOptions):
         outputfileType = m.group(1)
 
         terminalOpts = { 'eps': 'postscript noenhanced solid color eps',
-                         'ps':  'postscript noenhanced solid color landscape 10',
-                         'pdf': 'pdf noenhanced solid color font ",10" size 11in,8.5in',
-                         'png': 'png noenhanced size 1280,1024',
-                         'svg': 'svg noenhanced solid dynamic fontscale 0.5',
+                         'ps':  'postscript noenhanced solid color landscape 12',
+                         'pdf': 'pdfcairo noenhanced solid color font ",12" size 8in,6in',
+                         'png': 'pngcairo noenhanced size 1024,768 transparent crop font ",12"',
+                         'svg': 'svg noenhanced solid dynamic size 800,600 font ",14"',
                          'gp':  'gp'}
 
         processOptions['terminal'] = terminalOpts[outputfileType]
