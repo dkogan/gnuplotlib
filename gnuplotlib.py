@@ -1092,7 +1092,7 @@ import numpy as np
 import numpysane as nps
 
 # setup.py assumes the version is a simple string in '' quotes
-__version__ = '0.37'
+__version__ = '0.38'
 
 # In a multiplot, the "process" options apply to the larger plot containing all
 # the subplots, and the "subplot" options apply to each invididual plot.
