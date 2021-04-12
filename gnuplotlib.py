@@ -2745,44 +2745,80 @@ def wait():
     globalplot.wait()
 
 
-def add_plot_option(d, key, values):
+def add_plot_option(d,
+                    key       = None,
+                    values    = None,
+                    overwrite = None,
+                    **kwargs):
     r'''Ingests new key/value pairs into an option dict
 
-    SYNOPSIS
+SYNOPSIS
 
-        # A baseline plot_options dict was given to us. We want to make the
-        # plot, but make sure to omit the legend key
+    # A baseline plot_options dict was given to us. We want to make the
+    # plot, but make sure to omit the legend key
+    add_plot_option(plot_options, 'unset', 'key')
 
-        add_plot_option(plot_options, 'unset', 'key')
+    gp.plot(..., **plot_options)
 
-        gp.plot(..., **plot_options)
+DESCRIPTION
 
-    DESCRIPTION
+Given a plot_options dict we can easily add a new option with
 
-    Given a plot_options dict we can easily add a new option with
+    plot_options[key] = value
 
-        plot_options[key] = value
+This has several potential problems:
 
-    This has several potential problems:
+- If an option for this key already exists, the above will overwrite the old
+  value instead of adding a NEW option
 
-    - If an option for this key already exists, the above will overwrite the old
-      value instead of adding a NEW option
+- All options may take a leading _ to avoid conflicting with Python reserved
+  words (set, _set for instance). The above may unwittingly create a
+  duplicate
 
-    - All options may take a leading _ to avoid conflicting with Python reserved
-      words (set, _set for instance). The above may unwittingly create a
-      duplicate
+- Some plot options support multiple values, which the simple call ignores
+  completely
 
-    - Some plot options support multiple values, which the simple call ignores
-      completely
+THIS function takes care of the _ in keys. And this function knows which
+keys support multiple values. If a duplicate is given, it will either raise
+an exception, or append to the existing list, as appropriate.
 
-    THIS function takes care of the _ in keys. And this function knows which
-    keys support multiple values. If a duplicate is given, it will either raise
-    an exception, or append to the existing list, as appropriate.
+If the given key supports multiple values, they can be given in a single
+call, as a list or a tuple.
 
-    If the given key supports multiple values, they can be given in a single
-    call, as a list or a tuple.
+Multiple key/values can be given using keyword arguments.
+
+ARGUMENTS
+
+- d: the plot options dict we're updating
+
+- key: string. The key being set
+
+- values: string (if setting a single value) or iterable (if setting multiple
+  values)
+
+- **kwargs: more key/value pairs to set. We set the key/value positional
+  arguments first, and then move on to the kwargs
+
+- overwrite: optional boolean that controls how we handle overwriting keys that
+  do not accept multiple values. By default (overwrite is None), trying to set a
+  key that is already set results in an exception. elif overwrite: we overwrite
+  the previous values. elif not overwrite: we leave the previous value
 
     '''
+
+    if kwargs:
+        add_plot_option(d, key, values,
+                        overwrite)
+        for key in kwargs:
+            add_plot_option(d, key, kwargs[key],
+                            overwrite)
+        return
+
+    if key is None:
+        if values is not None:
+            raise Exception("key is None, but values is not. Giving up")
+        return
+
 
     key_normalized = key if key[0] != '_' else key[1:]
     if not (key_normalized in keysAcceptingIterable and \
@@ -2793,10 +2829,17 @@ def add_plot_option(d, key, values):
     if len(values) == 0: return
 
     if key_normalized not in keysAcceptingIterable:
-        if key in d or key_normalized in d or len(values) > 1:
-            # Already have old key, so can't add a new key. Or have multiple new
-            # values.
-            raise GnuplotlibError("Options dict given multiple values for key '{}'".format(key_normalized))
+        if len(values) > 1:
+            raise GnuplotlibError("plot options given multiple values for key '{}'".format(key_normalized))
+        if key in d or key_normalized in d:
+            # A value already exists. What do I do?
+            if   (overwrite is not None) and overwrite:
+                pass
+            elif (overwrite is not None) and not overwrite:
+                return
+            else:
+                # overwrite is None (the default). Barf.
+                raise GnuplotlibError("plot options already have a value for key '{}'. Pass 'overwrite=False' to use the existing one of 'overwrite=True' to use the new one".format(key_normalized))
 
         d[key_normalized] = values[0]
 
