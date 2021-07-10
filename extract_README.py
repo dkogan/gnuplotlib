@@ -47,8 +47,8 @@ with open('README.org', 'w') as f_target_org:
     with open('README', 'w') as f_target:
 
         f_target_org.write(r'''* TALK
-I just gave a talk about this at [[https://www.socallinuxexpo.org/scale/18x][SCaLE 18x]]. Presentation lives [[https://github.com/dkogan/talk-numpysane-gnuplotlib/raw/master/numpysane-gnuplotlib.pdf][here]].
-
+I just gave a talk about this at [[https://www.socallinuxexpo.org/scale/18x][SCaLE 18x]]. Here are the [[https://www.youtube.com/watch?v=YOOapXNtUWw][video of the talk]] and
+the [[https://github.com/dkogan/talk-numpysane-gnuplotlib/raw/master/numpysane-gnuplotlib.pdf]["slides"]].
 ''')
 
         def write(s, verbatim):
