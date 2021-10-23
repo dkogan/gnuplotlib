@@ -2756,7 +2756,7 @@ SYNOPSIS
 
     # A baseline plot_options dict was given to us. We want to make the
     # plot, but make sure to omit the legend key
-    add_plot_option(plot_options, 'unset', 'key')
+    gp.add_plot_option(plot_options, 'unset', 'key')
 
     gp.plot(..., **plot_options)
 
