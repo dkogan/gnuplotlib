@@ -1341,8 +1341,7 @@ SYNOPSIS
 #+BEGIN_SRC python
 # A baseline plot_options dict was given to us. We want to make the
 # plot, but make sure to omit the legend key
-
-add_plot_option(plot_options, 'unset', 'key')
+gp.add_plot_option(plot_options, 'unset', 'key')
 
 gp.plot(..., **plot_options)
 #+END_SRC
@@ -1373,6 +1372,27 @@ an exception, or append to the existing list, as appropriate.
 
 If the given key supports multiple values, they can be given in a single
 call, as a list or a tuple.
+
+Multiple key/values can be given using keyword arguments.
+
+ARGUMENTS
+
+- d: the plot options dict we're updating
+
+- key: string. The key being set
+
+- values: string (if setting a single value) or iterable (if setting multiple
+  values)
+
+- **kwargs: more key/value pairs to set. We set the key/value positional
+  arguments first, and then move on to the kwargs
+
+- overwrite: optional boolean that controls how we handle overwriting keys that
+  do not accept multiple values. By default (overwrite is None), trying to set a
+  key that is already set results in an exception. elif overwrite: we overwrite
+  the previous values. elif not overwrite: we leave the previous value
+
+    
 
 * COMPATIBILITY
 
