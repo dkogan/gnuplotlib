@@ -1091,6 +1091,16 @@ import numbers
 import numpy as np
 import numpysane as nps
 
+from threading import Thread
+from queue import Queue, Empty
+
+ON_POSIX = 'posix' in sys.builtin_module_names
+
+def enqueue_output(out, queue):
+    while True:
+        result = out.read(1).decode()
+        queue.put(result)
+
 # setup.py assumes the version is a simple string in '' quotes
 __version__ = '0.38'
 
@@ -1474,6 +1484,8 @@ class gnuplotlib:
                 self._logEvent("_startgnuplot() finished")
 
 
+
+
     def _startgnuplot(self):
 
         self._logEvent("_startgnuplot()")
@@ -1509,7 +1521,7 @@ class gnuplotlib:
                              # I need this to make fdDupSTDOUT available to the
                              # child gnuplot. close_fds=False was default in
                              # python2, but was changed in python3
-                             close_fds = False,
+                             close_fds = ON_POSIX,
 
                              # This was helpful in python3 to implicitly
                              # encode() strings, but it broke the
@@ -1527,6 +1539,11 @@ class gnuplotlib:
                              #encoding = 'utf-8',
             )
 
+        # Handle stderr sync crossplatform
+        self.stderr_queue = Queue()
+        self.stderr_thread = Thread(target=enqueue_output, args=(self.gnuplotProcess.stderr, self.stderr_queue))
+        self.stderr_thread.daemon = True
+        self.stderr_thread.start()
         # What is the default terminal?
         self._printGnuplotPipe( "show terminal\n" )
         errorMessage, warnings = self._checkpoint('printwarnings')
@@ -1694,24 +1711,27 @@ class gnuplotlib:
 
             self._logEvent("Trying to read from gnuplot")
 
-            rlist,wlist,xlist = select.select([self.gnuplotProcess.stderr],[], [],
-                                              None if waitforever else 15)
+            # rlist,wlist,xlist = select.select([self.gnuplotProcess.stderr],[], [],
+            #                                   None if waitforever else 15)
 
-            if rlist:
+            try:
+                byte = self.stderr_queue.get(timeout=None if waitforever else 15)
+                # if rlist:
                 # read a byte. I'd like to read "as many bytes as are
                 # available", but I don't know how to this in a very portable
                 # way (I just know there will be windows users complaining if I
                 # simply do a non-blocking read). Very little data will be
                 # coming in anyway, so doing this a byte at a time is an
                 # irrelevant inefficiency
-                byte = self.gnuplotProcess.stderr.read(1).decode()
+                # byte = self.gnuplotProcess.stderr.read(1).decode()
                 fromerr += byte
                 if byte is not None and len(byte):
                     self._logEvent("Read byte '{}' ({}) from gnuplot child process".format(byte,
                                                                                            hex(ord(byte))))
                 else:
                     self._logEvent("read() returned no data")
-            else:
+            except Empty:
+            # else:
                 self._logEvent("Gnuplot read timed out")
                 self.checkpoint_stuck = True
 
@@ -2521,7 +2541,7 @@ labels with spaces in them
             # stdout output, then eventually the buffer fills up and gnuplot blocks.
             # So keep it going to /dev/null, or make sure to read the test plot from
             # stdout
-            self._printGnuplotPipe( "set output '/dev/null'\n" )
+            self._printGnuplotPipe( f"set output '{os.devnull}'\n" )
             self._printGnuplotPipe( "set terminal dumb\n" )
 
             if self.processOptions.get('multiplot'):
