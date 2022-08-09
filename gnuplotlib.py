@@ -1697,7 +1697,7 @@ class gnuplotlib:
             # a data-receiving mode. I'm careful to avoid this situation, but bugs in
             # this module and/or in gnuplot itself can make this happen
 
-            self._logEvent("Trying to read from gnuplot")
+            self._logEvent("Trying to read byte from gnuplot")
 
             rlist,wlist,xlist = select.select([self.gnuplotProcess.stderr],[], [],
                                               None if waitforever else 15)
@@ -1722,6 +1722,8 @@ class gnuplotlib:
 
                 raise GnuplotlibError(
                     r'''Gnuplot process no longer responding. This shouldn't happen... Is your X connection working?''')
+
+        self._logEvent(f"Read string from gnuplot: '{fromerr}'")
 
         fromerr = re.search(r'\s*(.*?)\s*{}$'.format(checkpoint), fromerr, re.M + re.S).group(1)
 
@@ -1834,7 +1836,7 @@ class gnuplotlib:
                 np.savetxt(pipe,
                            nps.glue(*curve['_data'], axis=-2).astype(np.float64,copy=False),
                            '%s')
-                pipe.write(b"\ne\n")
+                self._printGnuplotPipe( "\ne\n" )
             else:
                 # Previously I was doing this:
                 #     np.savetxt( pipe,
@@ -1869,12 +1871,12 @@ labels with spaces in them
                     pipe.write(b'\n')
 
 
-                pipe.write(b"e\n")
+                self._printGnuplotPipe( "e\n" )
 
         else:
             nps.mv(nps.cat(*curve['_data']), 0, -1).astype(np.float64,copy=False).tofile(pipe)
 
-        self._logEvent("Sent the data to child process")
+        self._logEvent("Sent the data to child process (not logged)")
 
 
     def _getPlotCmd(self, curves, subplotOptions):
