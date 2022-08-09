@@ -1993,6 +1993,8 @@ labels with spaces in them
         for curve in curves:
             optioncmds = optioncmd(curve)
 
+            plot_pipe_name = '-'
+
             if not self._plotCurveInASCII(curve):
                 # I get 2 formats: one real, and another to test the plot cmd, in case it
                 # fails. The test command is the same, but with a minimal point count. I
@@ -2000,8 +2002,8 @@ labels with spaces in them
                 formatFull,formatMinimal = binaryFormatcmd(curve)
                 Ntestbytes_here          = getTestDataLen(curve)
 
-                plotCurveCmds       .append( "'-' " + formatFull    + ' ' + optioncmds )
-                plotCurveCmdsMinimal.append( "'-' " + formatMinimal + ' ' + optioncmds )
+                plotCurveCmds       .append( f"'{plot_pipe_name}' {formatFull}    {optioncmds}" )
+                plotCurveCmdsMinimal.append( f"'{plot_pipe_name}' {formatMinimal} {optioncmds}" )
 
                 # If there was an error, these whitespace commands will simply do
                 # nothing. If there was no error, these are data that will be plotted in
@@ -2026,11 +2028,7 @@ labels with spaces in them
                 # commands are the same (point count is not in the plot command)
                 matrix = ''
                 if curve.get('matrix'): matrix =  'matrix'
-                plotCurveCmds.append( \
-                    "'-' {matrix} {using} {optioncmds}".
-                        format(matrix     = matrix,
-                               using      = using,
-                               optioncmds = optioncmds))
+                plotCurveCmds.append( f"'{plot_pipe_name}' {matrix} {using} {optioncmds}" )
                 plotCurveCmdsMinimal.append( plotCurveCmds[-1] ) # same testing command
 
                 testData_curve = ''
