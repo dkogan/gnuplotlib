@@ -1221,6 +1221,11 @@ def _data_dump_only(processOptions):
         processOptions.get('terminal') == 'gp' or \
         is_gp()
 
+def is_knownInteractiveTerminal(t):
+    # I check the first word in the terminal string. This is the terminal type.
+    # Everything else is options
+    return t.split(maxsplit=1)[0] in knownInteractiveTerminals
+
 def _split_dict(d, *keysets):
     r'''Given a dict and some sets of keys, split into sub-dicts with keys
 
@@ -1293,7 +1298,7 @@ def _massageProcessOptionsAndGetCmds(processOptions):
         processOptions['terminal'] = terminalOpts[outputfileType]
 
     if processOptions.get('terminal') is not None:
-        if processOptions['terminal'] in knownInteractiveTerminals:
+        if is_knownInteractiveTerminal(processOptions['terminal']):
             # known interactive terminal
             if processOptions.get('output', '') != '':
                 sys.stderr.write("Warning: requested a known-interactive gnuplot terminal AND an output file. Is this REALLY what you want?\n")
@@ -2342,7 +2347,7 @@ labels with spaces in them
                     # unspecified terminal (unspecified terminal assumed to be
                     # interactive)? Then set the null output
                     if 'terminal' not in self.processOptions or \
-                       self.processOptions['terminal'] in knownInteractiveTerminals:
+                       is_knownInteractiveTerminal(self.processOptions['terminal']):
                         self._safelyWriteToPipe('set output',
                                                 'output')
                     else:
@@ -2403,7 +2408,7 @@ labels with spaces in them
                 is_non_interactive = self.processOptions.get('output')
                 is_interactive     = \
                     not self.processOptions.get('output') and \
-                    terminal in knownInteractiveTerminals
+                    is_knownInteractiveTerminal(terminal)
 
                 # This is certain
                 is_multiplot = self.processOptions.get('multiplot')
