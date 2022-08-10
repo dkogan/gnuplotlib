@@ -365,7 +365,7 @@ gnuplot -e 'help multiplot'
 This is a good overview of the syntax. Now let's demo some fancy plots to
 serve as a cookbook.
 
-Since the actual plotting is handled by =gnuplot=, its documentation and [[http://gnuplot.sourceforge.net/demo_5.2/][demos]]
+Since the actual plotting is handled by =gnuplot=, its documentation and [[http://www.gnuplot.info/demo/][demos]]
 are the primary reference on how to do stuff.
 
 ** Line, point sizes, thicknesses, styles
