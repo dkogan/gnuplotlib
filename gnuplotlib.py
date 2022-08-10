@@ -1680,7 +1680,7 @@ class gnuplotlib:
         if self.processOptions.get('notest') and not waitforever and not final and not printwarnings:
             return None, None
 
-        checkpoint = "gpsync{}xxx".format(self.sync_count)
+        checkpoint = f"gpsync{'final' if final else 'notfinal'}{self.sync_count}xxx"
         self.sync_count += 1
 
         self._printGnuplotPipe( 'print "{}"\n'.format(checkpoint) )
@@ -1691,7 +1691,7 @@ class gnuplotlib:
             return '',[]
 
         fromerr       = ''
-        while not fromerr.endswith(checkpoint):
+        while not fromerr.endswith(checkpoint + '\n'):
             # if no data received in 5 seconds, the gnuplot process is stuck. This
             # usually happens if the gnuplot process is not in a command mode, but in
             # a data-receiving mode. I'm careful to avoid this situation, but bugs in
@@ -1828,53 +1828,48 @@ class gnuplotlib:
 
     def _sendCurve(self, curve):
 
-        pipe = self._gnuplotStdin()
+        with open("/tmp/gpipe", "wb") as pipe:
 
-        if self._plotCurveInASCII(curve):
+            if self._plotCurveInASCII(curve):
 
-            if curve.get('matrix'):
-                np.savetxt(pipe,
-                           nps.glue(*curve['_data'], axis=-2).astype(np.float64,copy=False),
-                           '%s')
-                self._printGnuplotPipe( "\ne\n" )
+                if curve.get('matrix'):
+                    np.savetxt(pipe,
+                               nps.glue(*curve['_data'], axis=-2).astype(np.float64,copy=False),
+                               '%s')
+                else:
+                    # Previously I was doing this:
+                    #     np.savetxt( pipe,
+                    #                 nps.glue(*curve['_data'], axis=-2).transpose().astype(np.float64,copy=False),
+                    #                 '%s' )
+                    #
+                    # That works in most cases, but sometimes we have disparate data
+                    # types in each column, so glueing the components together into
+                    # a single array is impossible (most notably when plotting 'with
+                    # labels' at some particular locations). Thus I loop myself
+                    # here. This is slow, but if we're plotting in ascii, we
+                    # probably aren't looking for maximal performance here. And
+                    # 'with labels' isn't super common
+                    Ncurves = len(curve['_data'])
+                    def write_element(e):
+                        r'''Writes value to pipe. Encloses strings in "". This is required to support
+    labels with spaces in them
+
+                        '''
+                        if type(e) is np.string_ or type(e) is np.str_:
+                            pipe.write(b'"')
+                            pipe.write(str(e).encode())
+                            pipe.write(b'"')
+                        else:
+                            pipe.write(str(e).encode())
+
+                    for i in range(curve['_data'][0].shape[-1]):
+                        for j in range(Ncurves-1):
+                            write_element(curve['_data'][j][i])
+                            pipe.write(b' ')
+                        write_element(curve['_data'][Ncurves-1][i])
+                        pipe.write(b'\n')
             else:
-                # Previously I was doing this:
-                #     np.savetxt( pipe,
-                #                 nps.glue(*curve['_data'], axis=-2).transpose().astype(np.float64,copy=False),
-                #                 '%s' )
-                #
-                # That works in most cases, but sometimes we have disparate data
-                # types in each column, so glueing the components together into
-                # a single array is impossible (most notably when plotting 'with
-                # labels' at some particular locations). Thus I loop myself
-                # here. This is slow, but if we're plotting in ascii, we
-                # probably aren't looking for maximal performance here. And
-                # 'with labels' isn't super common
-                Ncurves = len(curve['_data'])
-                def write_element(e):
-                    r'''Writes value to pipe. Encloses strings in "". This is required to support
-labels with spaces in them
-
-                    '''
-                    if type(e) is np.string_ or type(e) is np.str_:
-                        pipe.write(b'"')
-                        pipe.write(str(e).encode())
-                        pipe.write(b'"')
-                    else:
-                        pipe.write(str(e).encode())
-
-                for i in range(curve['_data'][0].shape[-1]):
-                    for j in range(Ncurves-1):
-                        write_element(curve['_data'][j][i])
-                        pipe.write(b' ')
-                    write_element(curve['_data'][Ncurves-1][i])
-                    pipe.write(b'\n')
-
-
-                self._printGnuplotPipe( "e\n" )
-
-        else:
-            nps.mv(nps.cat(*curve['_data']), 0, -1).astype(np.float64,copy=False).tofile(pipe)
+                nps.mv(nps.cat(*curve['_data']), 0, -1).astype(np.float64,copy=False).tofile(pipe)
 
         self._logEvent("Sent the data to child process (not logged)")
 
@@ -1993,7 +1988,7 @@ labels with spaces in them
         for curve in curves:
             optioncmds = optioncmd(curve)
 
-            plot_pipe_name = '-'
+            plot_pipe_name = f'<cat /tmp/gpipe'
 
             if not self._plotCurveInASCII(curve):
                 # I get 2 formats: one real, and another to test the plot cmd, in case it
@@ -2033,11 +2028,10 @@ labels with spaces in them
 
                 testData_curve = ''
                 if curve.get('matrix'):
-                    testmatrix = "{0} {0}\n" + "{0} {0}\n" + "\ne\n"
+                    testmatrix = "{0} {0}\n" + "{0} {0}\n\n"
                     testData_curve = testmatrix.format(testdataunit_ascii) * (curve['tuplesize'] - 2)
                 else:
-                    testData_curve = ' '.join( ['{}'.format(testdataunit_ascii)] * curve['tuplesize']) + \
-                    "\n" + "e\n"
+                    testData_curve = ' '.join( ['{}'.format(testdataunit_ascii)] * curve['tuplesize']) + "\n"
 
                 testData += testData_curve
 
@@ -2385,7 +2379,6 @@ labels with spaces in them
             #          ^
             #          line 0: invalid command
             # ' while sending cmd 'set output'
-            self._printGnuplotPipe('\n\n\n\n')
 
         def plot_process_footer():
             if self.processOptions.get('terminal') == 'gp':
