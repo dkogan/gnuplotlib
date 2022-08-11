@@ -1091,6 +1091,9 @@ import numbers
 import numpy as np
 import numpysane as nps
 
+
+gnuplot_executable='gnuplot'
+
 # setup.py assumes the version is a simple string in '' quotes
 __version__ = '0.38'
 
@@ -1147,7 +1150,7 @@ def _getGnuplotFeatures():
 
     # first, I run 'gnuplot --help' to extract all the cmdline options as features
     try:
-        helpstring = subprocess.check_output(['gnuplot', '--help'],
+        helpstring = subprocess.check_output([gnuplot_executable, '--help'],
                                              stderr=subprocess.STDOUT,
                                              env=env).decode()
     except FileNotFoundError:
@@ -1161,7 +1164,7 @@ def _getGnuplotFeatures():
     # then I try to set a square aspect ratio for 3D to see if it works
     equal_3d_works = True
     try:
-        out = subprocess.check_output(('gnuplot', '-e', "set view equal"),
+        out = subprocess.check_output((gnuplot_executable, '-e', "set view equal"),
                                       stderr=subprocess.STDOUT,
                                       env=env).decode()
         if re.search("(undefined variable)|(unrecognized option)", out, re.I):
@@ -1483,7 +1486,7 @@ class gnuplotlib:
 
         self._logEvent("_startgnuplot()")
 
-        cmd = ['gnuplot']
+        cmd = [gnuplot_executable]
 
         # I dup the handle to standard output. The main use for this is the dumb
         # terminal. I want it to write to the console. Normally "set dumb"
