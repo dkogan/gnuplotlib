@@ -768,7 +768,7 @@ The y2 axis is the secondary y-axis that is enabled by the 'y2' curve option.
 The 'cb' axis represents the color axis, used when color-coded plots are being
 generated
 
-- xlabel, ylabel, zlabel, y2label
+- xlabel, ylabel, zlabel, y2label, cblabel
 
 These specify axis labels
 
@@ -1121,7 +1121,7 @@ knownSubplotOptions   = frozenset(('cmds',   # both process and subplot
                                    'y2max', 'y2min', 'y2range', 'y2inv', 'y2label',
                                    'ymax',  'ymin',  'yrange',  'yinv',  'ylabel',
                                    'zmax',  'zmin',  'zrange',  'zinv',  'zlabel',
-                                   'cbmin', 'cbmax', 'cbrange'))
+                                   'cbmax', 'cbmin', 'cbrange', 'cblabel'))
 
 knownCurveOptions = frozenset(( 'with',   # both a plot option and a curve option
                                 'legend', 'y2', 'tuplesize', 'using',
@@ -1369,10 +1369,9 @@ def _massageSubplotOptionsAndGetCmds(subplotOptions):
     for axis in ('x', 'y', 'y2', 'z', 'cb'):
 
         # set the curve labels
-        if not axis == 'cb':
-            if axis + 'label' in subplotOptions:
-                cmds.append('set {axis}label "{label}"'.format(axis = axis,
-                                                               label = subplotOptions[axis + 'label']))
+        if axis + 'label' in subplotOptions:
+            cmds.append('set {axis}label "{label}"'.format(axis = axis,
+                                                           label = subplotOptions[axis + 'label']))
 
         # I deal with range bounds here. These can be given for the various
         # axes by variables (W-axis here; replace W with x, y, z, etc):
