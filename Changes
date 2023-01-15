@@ -1,3 +1,9 @@
+gnuplotlib (0.39)
+
+  * Added 'cblegend' plot option
+
+ -- Dima Kogan <dkogan@debian.org>  Sat, 14 Jan 2023 23:08:35 -0800
+
 gnuplotlib (0.38)
 
   * Extended add_plot_option() API
