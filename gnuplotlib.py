@@ -2066,7 +2066,7 @@ labels with spaces in them
         # convert any scalars in the data list
         if len(curves):
             curves = [ np.array((c,)) if isinstance(c, numbers.Real) else c for c in curves ]
-            if all(type(curve) is np.ndarray for curve in curves):
+            if all( isinstance(curve,np.ndarray) for curve in curves):
                 curves = (list(curves),)
             elif all(type(curve) is tuple for curve in curves):
                 # we have a list of tuples. I convert this into a list of lists, and
