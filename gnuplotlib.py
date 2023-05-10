@@ -1502,7 +1502,7 @@ class gnuplotlib:
         # would happen by default, but in python3 I need to do this extra thing
         # for some reason. And it's a new thing that didn't exist in python2, so
         # I need to explicitly allow this to fail in python2
-        if self.fdDupSTDOUT:
+        if self.fdDupSTDOUT is not None:
             try:
                 os.set_inheritable(self.fdDupSTDOUT, True)
             except AttributeError:
