@@ -1502,10 +1502,11 @@ class gnuplotlib:
         # would happen by default, but in python3 I need to do this extra thing
         # for some reason. And it's a new thing that didn't exist in python2, so
         # I need to explicitly allow this to fail in python2
-        try:
-            os.set_inheritable(self.fdDupSTDOUT, True)
-        except AttributeError:
-            pass
+        if self.fdDupSTDOUT:
+            try:
+                os.set_inheritable(self.fdDupSTDOUT, True)
+            except AttributeError:
+                pass
 
         self.gnuplotProcess = \
             subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
