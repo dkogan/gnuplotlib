@@ -1683,7 +1683,7 @@ class gnuplotlib:
         if self.processOptions.get('notest') and not waitforever and not final and not printwarnings:
             return None, None
 
-        checkpoint = "gpsync{}xxx".format(self.sync_count)
+        checkpoint = f"gpsync{self.sync_count}xxx"
         self.sync_count += 1
 
         self._printGnuplotPipe( 'print "{}"\n'.format(checkpoint) )
