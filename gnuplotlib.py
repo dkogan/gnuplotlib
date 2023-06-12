@@ -1712,7 +1712,14 @@ class gnuplotlib:
                 # simply do a non-blocking read). Very little data will be
                 # coming in anyway, so doing this a byte at a time is an
                 # irrelevant inefficiency
-                byte = self.gnuplotProcess.stderr.read(1).decode()
+                byte = self.gnuplotProcess.stderr.read(1)
+                if len(byte) == 0:
+                    # Did the child process die?
+                    returncode = self.gnuplotProcess.poll()
+                    if returncode is not None:
+                        # Yep. It died.
+                        raise Exception(f"gnuplot child died. returncode = {returncode}")
+                byte = byte.decode()
                 fromerr += byte
                 if byte is not None and len(byte):
                     self._logEvent("Read byte '{}' ({}) from gnuplot child process".format(byte,
@@ -1728,7 +1735,10 @@ class gnuplotlib:
 
         self._logEvent(f"Read string from gnuplot: '{fromerr}'")
 
-        fromerr = re.search(r'\s*(.*?)\s*{}$'.format(checkpoint), fromerr, re.M + re.S).group(1)
+        m = re.search(rf'\s*(.*?)\s*{checkpoint}$', fromerr, re.M + re.S)
+        if m is None:
+            raise Exception(f"checkpoint '{checkpoint}' not found in received string '{fromerr}'")
+        fromerr = m.group(1)
 
         warningre = re.compile(r'^\s*(.*?(?:warning|undefined).*?)\s*$', re.M + re.I)
         warnings  = warningre.findall(fromerr)
