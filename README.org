@@ -828,7 +828,7 @@ The y2 axis is the secondary y-axis that is enabled by the 'y2' curve option.
 The 'cb' axis represents the color axis, used when color-coded plots are being
 generated
 
-- xlabel, ylabel, zlabel, y2label
+- xlabel, ylabel, zlabel, y2label, cblabel
 
 These specify axis labels
 
