@@ -1,3 +1,10 @@
+gnuplotlib (0.40) unstable; urgency=medium
+
+  * gnuplotlib works with subclasses of np.ndarray
+  * minor improvements to error-handling logic
+
+ -- Dima Kogan <dkogan@debian.org>  Mon, 19 Jun 2023 16:41:33 -0700
+
 gnuplotlib (0.39)
 
   * Added 'cblegend' plot option
