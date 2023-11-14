@@ -375,14 +375,20 @@ arrays.
 Also, note that while the DEFAULT tuplesize depends on whether we're making a 3D
 plot, once a tuplesize is given, the logic doesn't care if a 3D plot is being
 made. It can make sense to have a 2D implicit domain when making 2D plots. For
-example, one can be plotting a color map:
+example, one can be plotting a color map from an array of shape (H,W):
 
     x,y = np.ogrid[-10:11,-10:11]
     gp.plot( x**2 + y**2,
              title     = 'Heat map',
-             set       = 'view map',
              _with     = 'image',
              tuplesize = 3)
+
+Or a full-color image from an array of shape (H,W,3)
+
+    gp.plot( *nps.mv(image, -1,0),
+             title     = 'Full-color image',
+             _with     = 'rgbimage',
+             tuplesize = 5)
 
 Also note that the 'tuplesize' curve option is independent of implicit domains.
 This option specifies not how many data arrays we have, but how many values
@@ -1036,7 +1042,6 @@ Image arrays plots can be plotted as a heat map:
     x,y = np.ogrid[-10:11,-10:11]
     gp.plot( x**2 + y**2,
              title     = 'Heat map',
-             set       = 'view map',
              _with     = 'image',
              tuplesize = 3)
 
