@@ -2431,21 +2431,18 @@ labels with spaces in them
                 # This is certain
                 is_multiplot = self.processOptions.get('multiplot')
 
-                # Some noninteractive terminals need to be told we're done
-                # plotting (unset multiplot, set output) to actually write the
-                # data to disk in full. svg needs this to write out some closing
-                # stanza, and png needs this to write anything, if we're
-                # multiplotting.
-
-                # If we're using an unknown interactive terminal, this will
-                # 'unset multiplot', and make multiplots break. Unknown
-                # interactive terminals aren't likely to happen
-                if is_multiplot and not is_interactive:
+                if is_multiplot:
                     self._safelyWriteToPipe('unset multiplot')
+
+                # Some noninteractive terminals need to be told we're done
+                # plotting (set output) to actually write the data to disk in
+                # full. For instance "svg" needs this to write out some closing
+                # stanza
+
                 # If we're using an unknown interactive terminal, this will 'set
                 # output', and make multiplots break. Unknown interactive
                 # terminals aren't likely to happen
-                if not (is_multiplot and is_interactive):
+                if not is_interactive:
                     self._safelyWriteToPipe('set output', 'output')
 
                 # If I KNOW that I'm using a non-interactive terminal, I don't
