@@ -1100,7 +1100,7 @@ import numpysane as nps
 gnuplot_executable='gnuplot'
 
 # setup.py assumes the version is a simple string in '' quotes
-__version__ = '0.40'
+__version__ = '0.41'
 
 # In a multiplot, the "process" options apply to the larger plot containing all
 # the subplots, and the "subplot" options apply to each invididual plot.

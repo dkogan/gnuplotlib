@@ -1,4 +1,10 @@
-gnuplotlib (0.40) unstable; urgency=medium
+gnuplotlib (0.41)
+
+  * I "unset multiplot" after sending multiplot data
+
+ -- Dima Kogan <dkogan@debian.org>  Sat, 23 Dec 2023 12:24:59 -0800
+
+gnuplotlib (0.40)
 
   * gnuplotlib works with subclasses of np.ndarray
   * minor improvements to error-handling logic
