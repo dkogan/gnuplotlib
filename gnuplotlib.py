@@ -1663,6 +1663,51 @@ class gnuplotlib:
                        format(len(string), string))
 
 
+    def _receive_until_checkpoint_or_timeout(self, checkpoint, waitforever):
+
+        fromerr = ''
+        while not fromerr.endswith(checkpoint):
+            # if no data received in 5 seconds, the gnuplot process is stuck. This
+            # usually happens if the gnuplot process is not in a command mode, but in
+            # a data-receiving mode. I'm careful to avoid this situation, but bugs in
+            # this module and/or in gnuplot itself can make this happen
+
+            self._logEvent("Trying to read byte from gnuplot")
+
+            rlist,wlist,xlist = select.select([self.gnuplotProcess.stderr],[], [],
+                                              None if waitforever else 15)
+
+            if not rlist:
+                self._logEvent("Gnuplot read timed out")
+                self.checkpoint_stuck = True
+
+                raise GnuplotlibError(
+                    r'''Gnuplot process no longer responding. This shouldn't happen... Is your X connection working?''')
+
+            # read a byte. I'd like to read "as many bytes as are
+            # available", but I don't know how to this in a very portable
+            # way (I just know there will be windows users complaining if I
+            # simply do a non-blocking read). Very little data will be
+            # coming in anyway, so doing this a byte at a time is an
+            # irrelevant inefficiency
+            byte = self.gnuplotProcess.stderr.read(1)
+            if len(byte) == 0:
+                # Did the child process die?
+                returncode = self.gnuplotProcess.poll()
+                if returncode is not None:
+                    # Yep. It died.
+                    raise Exception(f"gnuplot child died. returncode = {returncode}")
+                self._logEvent("read() returned no data")
+                continue
+
+            byte = byte.decode()
+            fromerr += byte
+            self._logEvent("Read byte '{}' ({}) from gnuplot child process".format(byte,
+                                                                                   hex(ord(byte))))
+
+        self._logEvent(f"Read string from gnuplot: '{fromerr}'")
+        return fromerr
+
     # syncronizes the child and parent processes. After _checkpoint() returns, I
     # know that I've read all the data from the child. Extra data that represents
     # errors is returned. Warnings are explicitly stripped out
@@ -1698,47 +1743,7 @@ class gnuplotlib:
         if not self.gnuplotProcess or not self.gnuplotProcess.stderr:
             return '',[]
 
-        fromerr       = ''
-        while not fromerr.endswith(checkpoint):
-            # if no data received in 5 seconds, the gnuplot process is stuck. This
-            # usually happens if the gnuplot process is not in a command mode, but in
-            # a data-receiving mode. I'm careful to avoid this situation, but bugs in
-            # this module and/or in gnuplot itself can make this happen
-
-            self._logEvent("Trying to read byte from gnuplot")
-
-            rlist,wlist,xlist = select.select([self.gnuplotProcess.stderr],[], [],
-                                              None if waitforever else 15)
-
-            if rlist:
-                # read a byte. I'd like to read "as many bytes as are
-                # available", but I don't know how to this in a very portable
-                # way (I just know there will be windows users complaining if I
-                # simply do a non-blocking read). Very little data will be
-                # coming in anyway, so doing this a byte at a time is an
-                # irrelevant inefficiency
-                byte = self.gnuplotProcess.stderr.read(1)
-                if len(byte) == 0:
-                    # Did the child process die?
-                    returncode = self.gnuplotProcess.poll()
-                    if returncode is not None:
-                        # Yep. It died.
-                        raise Exception(f"gnuplot child died. returncode = {returncode}")
-                byte = byte.decode()
-                fromerr += byte
-                if byte is not None and len(byte):
-                    self._logEvent("Read byte '{}' ({}) from gnuplot child process".format(byte,
-                                                                                           hex(ord(byte))))
-                else:
-                    self._logEvent("read() returned no data")
-            else:
-                self._logEvent("Gnuplot read timed out")
-                self.checkpoint_stuck = True
-
-                raise GnuplotlibError(
-                    r'''Gnuplot process no longer responding. This shouldn't happen... Is your X connection working?''')
-
-        self._logEvent(f"Read string from gnuplot: '{fromerr}'")
+        fromerr = self._receive_until_checkpoint_or_timeout(checkpoint, waitforever)
 
         m = re.search(rf'\s*(.*?)\s*{checkpoint}$', fromerr, re.M + re.S)
         if m is None:
