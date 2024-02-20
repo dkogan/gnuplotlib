@@ -253,9 +253,19 @@ options".
 
 A few helper global functions are available:
 
-plot3d(...) is equivalent to plot(..., _3d=True)
+    plot3d(...)
 
-plotimage(...) is equivalent to plot(..., _with='image', tuplesize=3)
+is equivalent to
+
+    plot(..., _3d=True)
+
+And
+
+    plotimage(...)
+
+is equivalent to
+
+    plot(..., _with='image', tuplesize=3)
 
 ** Data arguments
 
