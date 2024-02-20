@@ -33,7 +33,7 @@ def generate_plots():
     g1 = gp.gnuplotlib(title = 'Parabola with error bars',
                        _with = 'xyerrorbars',
                        hardcopy = 'parabola-with-x-y-errobars-pops-up-in-a-new-window.svg')
-    g1.plot( x**2 * 10, np.abs(x)/10, np.abs(x)*5,
+    g1.plot( x**2 * 10, np.abs(x)/10, np.abs(x)*25,
              legend    = 'Parabola',
              tuplesize = 4 )
 
@@ -42,6 +42,7 @@ def generate_plots():
              title     = 'Heat map',
              unset     = 'grid',
              cmds      = 'set view map',
+             square    = True,
              _with     = 'image',
              tuplesize = 3,
              hardcopy = 'Heat-map-pops-up-where-first-parabola-used-to-be.svg')
@@ -55,17 +56,26 @@ def generate_plots():
              z )
 
     x = np.arange(1000)
-    gp.plot( (x*x, dict(histogram=1,
-                        binwidth =10000)),
-             (x*x, dict(histogram='cumulative', y2=1)),
+    gp.plot( (x*x, dict(histogram= True,
+                        binwidth = 20000,
+                        legend   = 'Frequency')),
+             (x*x, dict(histogram='cumulative',
+                        legend   = 'Cumulative',
+                        y2       = True )),
+             ylabel  = 'Histogram frequency',
+             y2label = 'Cumulative sum',
+             _set='key opaque',
              hardcopy = 'A-density-and-cumulative-histogram-of-x-2-are-plotted-on-the-same-plot.svg' )
 
-    gp.plot( (x*x, dict(histogram=1,
-                        binwidth =10000)),
-             (x*x, dict(histogram='cumulative')),
+    gp.plot( (x*x, dict(histogram=True,
+                        binwidth =20000,
+                        legend   = 'Frequency')),
+             (x*x, dict(histogram='cumulative',
+                        legend   = 'Cumulative')),
              _xmin=0, _xmax=1e6,
              multiplot='title "multiplot histograms" layout 2,1',
-             _set='lmargin at screen 0.05',
+             _set=('lmargin at screen 0.05',
+                   'key opaque'),
              hardcopy  = 'Same-histograms-but-plotted-on-two-separate-plots.svg')
 
 
