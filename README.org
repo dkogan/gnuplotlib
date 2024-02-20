@@ -19,7 +19,7 @@ gp.plot(x**2)
 
 g1 = gp.gnuplotlib(title = 'Parabola with error bars',
                    _with = 'xyerrorbars')
-g1.plot( x**2 * 10, np.abs(x)/10, np.abs(x)*5,
+g1.plot( x**2 * 10, np.abs(x)/10, np.abs(x)*25,
          legend    = 'Parabola',
          tuplesize = 4 )
 #+END_SRC
@@ -32,6 +32,7 @@ gp.plot( x**2 + y**2,
          title     = 'Heat map',
          unset     = 'grid',
          cmds      = 'set view map',
+         square    = True,
          _with     = 'image',
          tuplesize = 3)
 #+END_SRC
@@ -51,16 +52,23 @@ g2.plot( np.cos(theta),
 
 
 x = np.arange(1000)
-gp.plot( (x*x, dict(histogram=1,
-                    binwidth =10000)),
-         (x*x, dict(histogram='cumulative', y2=1)))
+gp.plot( (x*x, dict(histogram= True,
+                    binwidth = 20000,
+                    legend   = 'Frequency')),
+         (x*x, dict(histogram='cumulative',
+                    legend   = 'Cumulative',
+                    y2       = True )),
+         ylabel  = 'Histogram frequency',
+         y2label = 'Cumulative sum')
 #+END_SRC
 [[file:A-density-and-cumulative-histogram-of-x-2-are-plotted-on-the-same-plot.svg]]
 #+BEGIN_SRC python
 
-gp.plot( (x*x, dict(histogram=1,
-                    binwidth =10000)),
-         (x*x, dict(histogram='cumulative')),
+gp.plot( (x*x, dict(histogram=True,
+                    binwidth =20000,
+                    legend   = 'Frequency')),
+         (x*x, dict(histogram='cumulative',
+                    legend   = 'Cumulative')),
          _xmin=0, _xmax=1e6,
          multiplot='title "multiplot histograms" layout 2,1',
          _set='lmargin at screen 0.05')
@@ -275,9 +283,27 @@ options".
 
 A few helper global functions are available:
 
-plot3d(...) is equivalent to plot(..., _3d=True)
+#+BEGIN_SRC python
+plot3d(...)
+#+END_SRC
 
-plotimage(...) is equivalent to plot(..., _with='image', tuplesize=3)
+is equivalent to
+
+#+BEGIN_SRC python
+plot(..., _3d=True)
+#+END_SRC
+
+And
+
+#+BEGIN_SRC python
+plotimage(...)
+#+END_SRC
+
+is equivalent to
+
+#+BEGIN_SRC python
+plot(..., _with='image', tuplesize=3)
+#+END_SRC
 
 ** Data arguments
 
