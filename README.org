@@ -12,7 +12,9 @@ import gnuplotlib as gp
 
 x = np.arange(101) - 50
 gp.plot(x**2)
-[ basic parabola plot pops up ]
+#+END_SRC
+[[file:basic-parabola-plot-pops-up.svg]]
+#+BEGIN_SRC python
 
 
 g1 = gp.gnuplotlib(title = 'Parabola with error bars',
@@ -20,7 +22,9 @@ g1 = gp.gnuplotlib(title = 'Parabola with error bars',
 g1.plot( x**2 * 10, np.abs(x)/10, np.abs(x)*5,
          legend    = 'Parabola',
          tuplesize = 4 )
-[ parabola with x,y errobars pops up in a new window ]
+#+END_SRC
+[[file:parabola-with-x-y-errobars-pops-up-in-a-new-window.svg]]
+#+BEGIN_SRC python
 
 
 x,y = np.ogrid[-10:11,-10:11]
@@ -30,7 +34,9 @@ gp.plot( x**2 + y**2,
          cmds      = 'set view map',
          _with     = 'image',
          tuplesize = 3)
-[ Heat map pops up where first parabola used to be ]
+#+END_SRC
+[[file:Heat-map-pops-up-where-first-parabola-used-to-be.svg]]
+#+BEGIN_SRC python
 
 
 theta = np.linspace(0, 6*np.pi, 200)
@@ -39,14 +45,18 @@ g2 = gp.gnuplotlib(_3d = True)
 g2.plot( np.cos(theta),
          np.vstack((np.sin(theta), -np.sin(theta))),
          z )
-[ Two 3D spirals together in a new window ]
+#+END_SRC
+[[file:Two-3D-spirals-together-in-a-new-window.svg]]
+#+BEGIN_SRC python
 
 
 x = np.arange(1000)
 gp.plot( (x*x, dict(histogram=1,
                     binwidth =10000)),
          (x*x, dict(histogram='cumulative', y2=1)))
-[ A density and cumulative histogram of x^2 are plotted on the same plot ]
+#+END_SRC
+[[file:A-density-and-cumulative-histogram-of-x-2-are-plotted-on-the-same-plot.svg]]
+#+BEGIN_SRC python
 
 gp.plot( (x*x, dict(histogram=1,
                     binwidth =10000)),
@@ -54,7 +64,9 @@ gp.plot( (x*x, dict(histogram=1,
          _xmin=0, _xmax=1e6,
          multiplot='title "multiplot histograms" layout 2,1',
          _set='lmargin at screen 0.05')
-[ Same histograms, but plotted on two separate plots ]
+#+END_SRC
+[[file:Same-histograms-but-plotted-on-two-separate-plots.svg]]
+#+BEGIN_SRC python
 #+END_SRC
 
 * DESCRIPTION
