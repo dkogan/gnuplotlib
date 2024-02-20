@@ -87,7 +87,9 @@ the [[https://github.com/dkogan/talk-numpysane-gnuplotlib/raw/master/numpysane-g
             for l in sio:
 
                 # handle links
-                l = re.sub( "([^ ]+) *\((https?://[^ ]+)\)", "[[\\2][\\1]]", l)
+                l = re.sub( r"([^ ]+) *\((https?://[^ ]+)\)",
+                            r"[[\2][\1]]",
+                            l)
 
                 if in_quote is None:
                     if len(l) <= 1:
