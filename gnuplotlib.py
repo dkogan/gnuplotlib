@@ -2759,35 +2759,77 @@ def plotimage(*curves, **jointOptions):
     plot(*curves, **jointOptions)
 
 
-def wait():
-    r'''Waits until the open interactive plot window is closed
+def wait(*args):
+    r'''Waits until the given interactive plot window(s) are closed
 
     SYNOPSIS
 
         import numpy as np
         import gnuplotlib as gp
 
-        gp.plot(np.arange(5))
-
+        ### Waiting for the global plot window
+        gp.plot(...)
         # interactive plot pops up
-
         gp.wait()
-
         # We get here when the user closes the plot window
+
+
+        ### Waiting on some arbitrary plots
+        plot0 = gp.gnuplotlib(...)
+        plot1 = gp.gnuplotlib(...)
+        plot0.plot(...)
+        plot1.plot(...)
+        gp.wait(plot0,plot1)
+        # We get here when the user closes the plot windows
+
 
     DESCRIPTION
 
-    This applies to the global gnuplotlib object.
+    Wait for the interactive plot window(s) to be closed by the user. Without
+    any argument this applies to the global gnuplotlib object. Or the specific
+    plots to wait for can be given in arguments (in-line or as a single
+    iterable):
 
-    It's not at all trivial to detect if a current plot window exists. If not,
-    this function will end up waiting forever, and the user will need to Ctrl-C
+    - wait() waits on the global gnuplot object
+
+    - wait(plot0,plot1)
+    - wait((plot0,plot1),) both wait on the given gnuplotlib objects
+
+    It's not at all trivial to detect if a plot object has an open plot window.
+    If it does not, this function will end up waiting forever, and the user will
+    need to Ctrl-C
 
     '''
     global globalplot
-    if not globalplot:
-        raise GnuplotlibError("There isn't a plot to wait on")
 
-    globalplot.wait()
+    if len(args) == 0:
+        if not globalplot:
+            raise GnuplotlibError("There isn't a plot to wait on")
+        plots = (globalplot,)
+    elif all(isinstance(p,gnuplotlib) for p in args):
+        plots = args
+    elif len(args) == 1:
+        plots = args[0]
+    else:
+        raise Exception("gnuplotlib.wait() takes an inline list of plots or a single list-of-plots argumnent. Got neither")
+
+    if len(plots) == 1:
+        # Special-case if we have exactly one plot to wait on. Can avoid forking
+        # in this case, so I do that
+        plots[0].wait()
+        return
+
+    # N plots
+    pids = [0] * len(plots)
+    for i,plot in enumerate(plots):
+        pid = os.fork()
+        if pid == 0:
+            # child
+            plot.wait()
+            os._exit(0)
+        pids[i] = pid
+    for pid in pids:
+        os.waitpid(pid,0)
 
 
 def add_plot_option(d,
