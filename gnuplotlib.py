@@ -1190,7 +1190,7 @@ def _getGnuplotFeatures():
         out = subprocess.check_output((gnuplot_executable, '-e', "set view equal"),
                                       stderr=subprocess.STDOUT,
                                       env=env).decode()
-        if re.search("(undefined variable)|(unrecognized option)", out, re.I):
+        if re.search(r"(undefined variable)|(unrecognized option)", out, re.I):
             equal_3d_works = False
     except:
         equal_3d_works = False
@@ -1241,7 +1241,7 @@ def _data_dump_only(processOptions):
         h = processOptions.get('hardcopy')
         return \
             type(h) is str and \
-            re.match(".*\.gp$", h)
+            re.match(r".*\.gp$", h)
     return \
         processOptions.get('dump') or \
         processOptions.get('terminal') == 'gp' or \
@@ -1409,7 +1409,7 @@ def _massageSubplotOptionsAndGetCmds(subplotOptions):
 
         # This axis was set up with the 'set' plot option, so I don't touch
         # it
-        if any ( re.match(" *set +{}range[\s=]".format(axis), s) for s in cmds ):
+        if any ( re.match(r" *set +{}range[\s=]".format(axis), s) for s in cmds ):
             continue
 
         # images generally have the origin at the top-left instead of the
@@ -1561,7 +1561,7 @@ class gnuplotlib:
         # What is the default terminal?
         self._printGnuplotPipe( "show terminal\n" )
         errorMessage, warnings = self._checkpoint('printwarnings')
-        m = re.match("terminal type is +(.+?) +", errorMessage, re.I)
+        m = re.match(r"terminal type is +(.+?) +", errorMessage, re.I)
         if m:
             self.terminal_default = m.group(1)
         else:
@@ -1740,10 +1740,10 @@ class gnuplotlib:
         # yet arrived. I thus print out a checkpoint message and keep reading the
         # child's STDERR pipe until I get that message back. Any errors would have
         # been printed before this
-        waitforever                = re.search('waitforever',                flags)
-        final                      = re.search('final',                      flags)
-        printwarnings              = re.search('printwarnings',              flags)
-        ignore_known_test_failures = re.search('ignore_known_test_failures', flags)
+        waitforever                = re.search(r'waitforever',                flags)
+        final                      = re.search(r'final',                      flags)
+        printwarnings              = re.search(r'printwarnings',              flags)
+        ignore_known_test_failures = re.search(r'ignore_known_test_failures', flags)
 
         # I always checkpoint() before exiting. Even if notest==1. Without this
         # 'set terminal dumb' plots don't end up rendering anything: we kill the
@@ -1968,8 +1968,8 @@ labels with spaces in them
 
             # to test the plot I plot a single record
             fmtTest = fmt
-            fmtTest = re.sub('record=\d+',        'record=1',     fmtTest)
-            fmtTest = re.sub('array=\(\d+,\d+\)', 'array=(2, 2)', fmtTest)
+            fmtTest = re.sub(r'record=\d+',        'record=1',     fmtTest)
+            fmtTest = re.sub(r'array=\(\d+,\d+\)', 'array=(2, 2)', fmtTest)
 
             return fmt,fmtTest
 
@@ -2197,7 +2197,7 @@ labels with spaces in them
                 curve['using'] = '(histbin($1)):(1.0) smooth ' + histogram_type
 
                 if 'with' not in curve:
-                    if re.match('freq|fnorm', histogram_type) and 'with' not in curve:
+                    if re.match(r'freq|fnorm', histogram_type) and 'with' not in curve:
                         curve['with'] = 'boxes fill solid border lt -1'
                     else:
                         curve['with'] = 'lines'
