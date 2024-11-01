@@ -155,7 +155,7 @@ curve3           = (x3, y3, curve_options3)
 subplot_options1 = dict(...)
 subplot1         = (curve2, curve3, subplot_options1)
 
-g.plot( subplot_options0, subplot_options1 )
+g.plot( subplot0, subplot1 )
 #+END_SRC
 
 This is verbose, and rarely will you actually specify everything in this much
