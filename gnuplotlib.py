@@ -132,7 +132,7 @@ and a FULL multiplot command wraps this once more:
     subplot_options1 = dict(...)
     subplot1         = (curve2, curve3, subplot_options1)
 
-    g.plot( subplot_options0, subplot_options1 )
+    g.plot( subplot0, subplot1 )
 
 This is verbose, and rarely will you actually specify everything in this much
 detail:
