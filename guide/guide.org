@@ -544,6 +544,7 @@ gp.plot( rho,
          _with  = 'lines',
          set    = 'polar',
          square = True,
+         xrange = [-5,5],
          yrange = [-5,5],
          legend = np.array(["a = {}".format(_) for _ in a.ravel()]) )
 #+END_SRC
