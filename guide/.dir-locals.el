@@ -25,7 +25,8 @@
             (org-babel-do-load-languages
              'org-babel-load-languages
               '((python  . t)
-                (shell   . t)))
+                (shell   . t)
+                (gnuplot . t)))
   ;; This is all very convoluted. There are 3 different advices, commented in
   ;; place
   ;;
