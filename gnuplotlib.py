@@ -1580,6 +1580,9 @@ class gnuplotlib:
                 pass
 
             try:
+                # Sometimes I see the terminate() call do nothing, and
+                # explicitly asking gnuplot to exit is needed
+                self._printGnuplotPipe('exit\n')
                 self.gnuplotProcess.wait()
             except:
                 pass
