@@ -1900,7 +1900,14 @@ class gnuplotlib:
 labels with spaces in them
 
                     '''
-                    if type(e) is np.string_ or type(e) is np.str_:
+
+                    # Numpy 2 broke this (no more np.string_), and this extra
+                    # code is needed to work with both numpy 2 and numpy 1
+                    try:    is_string = type(e) is np.string_
+                    except: is_string = False
+                    try:    is_bytes  = type(e) is np.bytes_
+                    except: is_bytes  = False
+                    if is_string or is_bytes or type(e) is np.str_:
                         pipe.write(b'"')
                         pipe.write(str(e).encode())
                         pipe.write(b'"')
