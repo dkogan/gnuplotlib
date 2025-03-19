@@ -1,3 +1,11 @@
+gnuplotlib (0.43) unstable; urgency=medium
+
+  * Updated to work with numpy2
+  * gnuplot child process is asked to "exit" explicitly. This is needed on
+    some machines
+
+ -- Dima Kogan <dkogan@debian.org>  Wed, 19 Mar 2025 11:27:03 -0700
+
 gnuplotlib (0.42)
 
   * Regexes use raw strings, so Python 3.12 will not throw warnings to
