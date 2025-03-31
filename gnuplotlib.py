@@ -1388,14 +1388,16 @@ def _massageSubplotOptionsAndGetCmds(subplotOptions):
 
     _get_cmds__setunset(cmds, subplotOptions)
 
-    # set the plot bounds
-    for axis in ('x', 'y', 'y2', 'z', 'cb'):
 
-        # set the curve labels
+    # set the curve labels
+    for axis in ('x', 'y', 'y2', 'z', 'cb'):
         if axis + 'label' in subplotOptions:
             cmds.append('set {axis}label "{label}"'.format(axis = axis,
                                                            label = subplotOptions[axis + 'label']))
 
+    # set the plot bounds
+    ranges = dict()
+    for axis in ('x', 'y', 'y2', 'z', 'cb'):
         # I deal with range bounds here. These can be given for the various
         # axes by variables (W-axis here; replace W with x, y, z, etc):
         #
@@ -1418,7 +1420,7 @@ def _massageSubplotOptionsAndGetCmds(subplotOptions):
            axis == 'y' and \
            not any ( ('y'+what) in subplotOptions \
                      for what in ('min','max','range','inv')):
-            cmds.append("set yrange [:] reverse")
+            ranges[axis] = "set yrange [:] reverse"
             continue
 
         opt_min   = subplotOptions.get( axis + 'min'   )
@@ -1444,11 +1446,14 @@ def _massageSubplotOptionsAndGetCmds(subplotOptions):
             if opt_min is not None and opt_max is not None and opt_min < opt_max:
                 opt_min,opt_max = opt_max,opt_min
 
-        cmds.append( "set {}range [{}:{}] {}reverse".
+        ranges[axis] = \
+                     "set {}range [{}:{}] {}reverse". \
                      format(axis,
                             '*' if opt_min is None else opt_min,
                             '*' if opt_max is None else opt_max,
-                            '' if opt_inv else 'no'))
+                            '' if opt_inv else 'no')
+
+    cmds.extend(ranges.values())
 
     # set the title
     if 'title' in subplotOptions:
