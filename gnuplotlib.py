@@ -1387,9 +1387,6 @@ def _massageSubplotOptionsAndGetCmds(subplotOptions):
     # grid on by default
     cmds = ['set grid']
 
-    _get_cmds__setunset(cmds, subplotOptions)
-
-
     # set the curve labels
     for axis in ('x', 'y', 'y2', 'z', 'cb'):
         if axis + 'label' in subplotOptions:
@@ -1471,6 +1468,7 @@ def _massageSubplotOptionsAndGetCmds(subplotOptions):
         if subplotOptions.get('square'):
             cmds.append("set size ratio -1")
 
+    _get_cmds__setunset(cmds, subplotOptions)
     if 'cmds' in subplotOptions: cmds += subplotOptions['cmds']
     return cmds
 
