@@ -1281,7 +1281,8 @@ def _split_dict(d, *keysets):
 def _get_cmds__setunset(cmds,options):
     for setunset in ('set', 'unset'):
         if setunset in options:
-            cmds += [ setunset + ' ' + setting for setting in options[setunset] ]
+            for setunset,thing in options.items():
+                cmds.append(f"{setunset} {thing}")
 
 def _massageProcessOptionsAndGetCmds(processOptions):
     r'''Compute commands to set the given process options, and massage the input, as
