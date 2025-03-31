@@ -1394,8 +1394,28 @@ def _massageSubplotOptionsAndGetCmds(subplotOptions):
             cmds.append('set {axis}label "{label}"'.format(axis = axis,
                                                            label = subplotOptions[axis + 'label']))
 
+    have_set_range = set()
+    for axis in ('x', 'x2', 'y', 'y2', 'z', 'cb'):
+        if subplotOptions.get('set') and \
+           any ( re.match(rf" *{axis}range[\s=]", s) for s in subplotOptions['set'] ):
+            have_set_range.add(axis)
+        elif subplotOptions.get('cmds') and \
+             any ( re.search(rf"^ *set +{axis}range[\s=]", s, flags=re.M) for s in subplotOptions.get('cmds') ):
+            have_set_range.add(axis)
+
+    have_set_link = set()
+    for axis in ('x','y'):
+        if subplotOptions.get('set') and \
+           any ( re.match(rf" *link +{axis}", s) for s in subplotOptions['set'] ):
+            have_set_link.add(axis)
+        elif subplotOptions.get('cmds') and \
+             any ( re.search(rf"^ *set +link +{axis}", s, flags=re.M) for s in subplotOptions.get('cmds') ):
+            have_set_link.add(axis)
+
+
     # set the plot bounds
-    ranges = dict()
+    ranges         = dict()
+    ranges_default = dict()
     for axis in ('x', 'x2', 'y', 'y2', 'z', 'cb'):
         # I deal with range bounds here. These can be given for the various
         # axes by variables (W-axis here; replace W with x, y, z, etc):
@@ -1410,7 +1430,8 @@ def _massageSubplotOptionsAndGetCmds(subplotOptions):
 
         # This axis was set up with the 'set' plot option, so I don't touch
         # it
-        if any ( re.search(r"^ *set +{}range[\s=]".format(axis), s, flags=re.M) for s in cmds ):
+        if axis in have_set_range:
+            ranges_default[axis] = False
             continue
 
         # images generally have the origin at the top-left instead of the
@@ -1420,6 +1441,7 @@ def _massageSubplotOptionsAndGetCmds(subplotOptions):
            not any ( ('y'+what) in subplotOptions \
                      for what in ('min','max','range','inv')):
             ranges[axis] = "set yrange [:] reverse"
+            ranges_default[axis] = True
             continue
 
         opt_min   = subplotOptions.get( axis + 'min'   )
@@ -1451,6 +1473,25 @@ def _massageSubplotOptionsAndGetCmds(subplotOptions):
                             '*' if opt_min is None else opt_min,
                             '*' if opt_max is None else opt_max,
                             '' if opt_inv else 'no')
+        ranges_default[axis] = \
+            opt_min is None and \
+            opt_max is None and \
+            opt_inv is None
+
+    # If we have linked axes, do NOT set the default axis parameters, since the
+    # other axis will control it. Otherwise we hit
+    # https://sourceforge.net/p/gnuplot/bugs/2783/ and surprising behaviors can
+    # be triggered
+    for axis in ('x','y'):
+        axis2 = f"{axis}2"
+        if axis in have_set_link:
+            if axis  in ranges and not ranges_default[axis ] and \
+               axis2 in ranges and not ranges_default[axis2]:
+                raise GnuplotlibError(f"We're linking {axis},{axis2} so the range of at most one of these may be given")
+            if axis in ranges and ranges_default[axis ]:
+                del ranges[axis]
+            if axis2 in ranges and ranges_default[axis2]:
+                del ranges[axis2]
 
     cmds.extend(ranges.values())
 
