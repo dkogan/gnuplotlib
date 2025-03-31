@@ -1411,7 +1411,7 @@ def _massageSubplotOptionsAndGetCmds(subplotOptions):
 
         # This axis was set up with the 'set' plot option, so I don't touch
         # it
-        if any ( re.match(r" *set +{}range[\s=]".format(axis), s) for s in cmds ):
+        if any ( re.search(r"^ *set +{}range[\s=]".format(axis), s, flags=re.M) for s in cmds ):
             continue
 
         # images generally have the origin at the top-left instead of the
