@@ -858,7 +858,7 @@ a square aspect ratio in x and y, but scales z. square_xy and square-xy and
 squarexy are synonyms. In 2D, these are all synonyms. Using any of these in 3D
 requires Gnuplot >= 4.4
 
-- {x,y,y2,z,cb}{min,max,range,inv}
+- {x,x2y,y2,z,cb}{min,max,range,inv}
 
 If given, these set the extents of the plot window for the requested axes.
 Either min/max or range can be given but not both. min/max are numerical values.
@@ -874,7 +874,7 @@ The y2 axis is the secondary y-axis that is enabled by the 'y2' curve option.
 The 'cb' axis represents the color axis, used when color-coded plots are being
 generated
 
-- xlabel, ylabel, zlabel, y2label, cblabel
+- xlabel, x2label, ylabel, zlabel, y2label, cblabel
 
 These specify axis labels
 
