@@ -776,7 +776,7 @@ a square aspect ratio in x and y, but scales z. square_xy and square-xy and
 squarexy are synonyms. In 2D, these are all synonyms. Using any of these in 3D
 requires Gnuplot >= 4.4
 
-- {x,y,y2,z,cb}{min,max,range,inv}
+- {x,x2y,y2,z,cb}{min,max,range,inv}
 
 If given, these set the extents of the plot window for the requested axes.
 Either min/max or range can be given but not both. min/max are numerical values.
@@ -792,7 +792,7 @@ The y2 axis is the secondary y-axis that is enabled by the 'y2' curve option.
 The 'cb' axis represents the color axis, used when color-coded plots are being
 generated
 
-- xlabel, ylabel, zlabel, y2label, cblabel
+- xlabel, x2label, ylabel, zlabel, y2label, cblabel
 
 These specify axis labels
 
@@ -1141,8 +1141,9 @@ knownSubplotOptions   = frozenset(('cmds',   # both process and subplot
                                    'rgbimage',
                                    'equation', 'equation_above', 'equation_below',
                                    'xmax',  'xmin',  'xrange',  'xinv',  'xlabel',
-                                   'y2max', 'y2min', 'y2range', 'y2inv', 'y2label',
+                                   'x2max', 'x2min', 'x2range', 'x2inv', 'x2label',
                                    'ymax',  'ymin',  'yrange',  'yinv',  'ylabel',
+                                   'y2max', 'y2min', 'y2range', 'y2inv', 'y2label',
                                    'zmax',  'zmin',  'zrange',  'zinv',  'zlabel',
                                    'cbmax', 'cbmin', 'cbrange', 'cblabel'))
 
@@ -1388,14 +1389,14 @@ def _massageSubplotOptionsAndGetCmds(subplotOptions):
     cmds = ['set grid']
 
     # set the curve labels
-    for axis in ('x', 'y', 'y2', 'z', 'cb'):
+    for axis in ('x', 'x2', 'y', 'y2', 'z', 'cb'):
         if axis + 'label' in subplotOptions:
             cmds.append('set {axis}label "{label}"'.format(axis = axis,
                                                            label = subplotOptions[axis + 'label']))
 
     # set the plot bounds
     ranges = dict()
-    for axis in ('x', 'y', 'y2', 'z', 'cb'):
+    for axis in ('x', 'x2', 'y', 'y2', 'z', 'cb'):
         # I deal with range bounds here. These can be given for the various
         # axes by variables (W-axis here; replace W with x, y, z, etc):
         #
