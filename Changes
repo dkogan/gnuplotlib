@@ -1,4 +1,24 @@
-gnuplotlib (0.43) unstable; urgency=medium
+gnuplotlib (0.44)
+
+  * Added "axes" curve option. The extends the "y2" curve option, so that
+    we can request "x2y2" for instance
+  * If we have linked axes, do NOT set the default axis parameters. Conflicting
+    settings can result otherwise
+  * Added options x2{max,min,range,inv,label}
+  * set/unset are added to the commands AFTER processing stuff
+
+    Which means that the given set/unset override the automatic stuff, as
+    expected. The specific things that can be overridden are:
+
+      set {axis}label
+      set {axis}ranges
+      set title
+      set view
+      set size
+
+ -- Dima Kogan <dkogan@debian.org>  Wed, 02 Apr 2025 10:43:05 -0700
+
+gnuplotlib (0.43)
 
   * Updated to work with numpy2
   * gnuplot child process is asked to "exit" explicitly. This is needed on
