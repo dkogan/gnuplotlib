@@ -46,7 +46,7 @@
 		<text xml:space="preserve"><tspan font-family="Arial"  xml:space="preserve">svg  terminal test</tspan></text>
 	</g>
 	<g transform="translate(16.78,44.40)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="start">
-		<text xml:space="preserve"><tspan font-family="Arial"  xml:space="preserve">gnuplot version 6.0.0  </tspan></text>
+		<text xml:space="preserve"><tspan font-family="Arial"  xml:space="preserve">gnuplot version 6.0.2  </tspan></text>
 	</g>
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
