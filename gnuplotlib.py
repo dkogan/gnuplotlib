@@ -841,9 +841,17 @@ documentation for the 'with' keyword for more information
 Identical to 'with'. In python 'with' is a reserved word so it is illegal to use
 it as a keyword arg key, so '_with' exists as an alias
 
+- axes
+
+One of: ('x1y1','x1y2','x2y1','x2y2'). Specifies which xy axes in the plot
+should define this curve. This is the left/right and up/down axes in the plot.
+Only applies to 2D plots. Exclusive with the "y2" option
+
 - y2
 
-If true, requests that this curve be plotted on the y2 axis instead of the main y axis
+If true, requests that this curve be plotted on the x1y2 axes instead of the
+default x1y1 axes. This is a special case of the "axes" option, and is exclusive
+with it
 
 - tuplesize
 
@@ -1148,10 +1156,13 @@ knownSubplotOptions   = frozenset(('cmds',   # both process and subplot
                                    'cbmax', 'cbmin', 'cbrange', 'cblabel'))
 
 knownCurveOptions = frozenset(( 'with',   # both a plot option and a curve option
-                                'legend', 'y2', 'tuplesize', 'using',
+                                'legend', 'axes', 'y2', 'tuplesize', 'using',
                                 'histogram', 'binwidth'))
 
 knownInteractiveTerminals = frozenset(('x11', 'wxt', 'qt', 'aquaterm'))
+
+knownAxes = frozenset(('x1y1','x1y2','x2y1','x2y2'))
+
 
 keysAcceptingIterable = frozenset(('cmds','set','unset','equation','equation_below','equation_above'))
 
@@ -1988,8 +1999,11 @@ labels with spaces in them
             # back on the global
             _with = curve['with'] if 'with' in curve else subplotOptions['with']
 
-            if _with:           cmd += "with {} ".format(_with)
-            if curve.get('y2'): cmd += "axes x1y2 "
+            if _with: cmd += "with {} ".format(_with)
+
+            axes = curve.get('axes')
+            if axes is not None:
+                cmd += f"axes {axes} "
 
             return cmd
 
@@ -2044,10 +2058,10 @@ labels with spaces in them
         basecmd = ''
 
         # if anything is to be plotted on the y2 axis, set it up
-        if any( curve.get('y2') for curve in curves ):
-            if subplotOptions.get('3d'):
-                raise GnuplotlibError("3d plots don't have a y2 axis")
-
+        if subplotOptions.get('3d') and \
+           any( 'axes' in curve for curve in curves ):
+            raise GnuplotlibError("3d plots cannot have 'axes' specified")
+        if any( curve.get('axes','x')[-1] == '2' for curve in curves ):
             basecmd += "set ytics nomirror\n"
             basecmd += "set y2tics\n"
 
@@ -2228,6 +2242,17 @@ labels with spaces in them
                     continue
                 if not opt in knownCurveOptions:
                     raise GnuplotlibError("'{}' not a known curve option".format(opt))
+
+            axes = curve.get('axes')
+            if axes is not None:
+                if not axes in knownAxes:
+                    raise GnuplotlibError(f'"axes" must be one of {knownAxes}, but got {axes=}')
+            if curve.get('y2'):
+                if axes is not None:
+                    raise GnuplotlibError('"y2" and "axes" are mutually exclusive')
+                del curve['y2']
+                curve['axes'] = 'x1y2'
+
 
             # tuplesize is either given explicitly, or taken from the '3d' plot
             # option. 2d plots default to tuplesize=2 and 3d plots to

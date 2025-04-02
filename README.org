@@ -923,9 +923,17 @@ documentation for the 'with' keyword for more information
 Identical to 'with'. In python 'with' is a reserved word so it is illegal to use
 it as a keyword arg key, so '_with' exists as an alias
 
+- axes
+
+One of: ('x1y1','x1y2','x2y1','x2y2'). Specifies which xy axes in the plot
+should define this curve. This is the left/right and up/down axes in the plot.
+Only applies to 2D plots. Exclusive with the "y2" option
+
 - y2
 
-If true, requests that this curve be plotted on the y2 axis instead of the main y axis
+If true, requests that this curve be plotted on the x1y2 axes instead of the
+default x1y1 axes. This is a special case of the "axes" option, and is exclusive
+with it
 
 - tuplesize
 
