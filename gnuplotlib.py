@@ -1382,7 +1382,7 @@ def _massageSubplotOptionsAndGetCmds(subplotOptions):
 
     if subplotOptions.get('3d'):
         if 'y2min' in subplotOptions or 'y2max' in subplotOptions:
-            raise GnuplotlibError("'3d' does not make sense with 'y2'...")
+            raise GnuplotlibError("'3d' does not make sense with 'y2...'")
 
         if not 'equal_3d' in features and \
            ( subplotOptions.get('square_xy') or subplotOptions.get('square') ):
