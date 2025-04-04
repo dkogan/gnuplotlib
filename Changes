@@ -1,3 +1,9 @@
+gnuplotlib (0.45)
+
+  * Uninteresting bug fix introduced in 0.44
+
+ -- Dima Kogan <dkogan@debian.org>  Fri, 04 Apr 2025 11:30:12 -0700
+
 gnuplotlib (0.44)
 
   * Added "axes" curve option. The extends the "y2" curve option, so that
