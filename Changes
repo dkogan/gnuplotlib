@@ -1,3 +1,10 @@
+gnuplotlib (0.46) unstable; urgency=medium
+
+  * 'axes' and 'y2' options can broadcast again
+  * I draw x2 tics if anything uses the x2 axis
+
+ -- Dima Kogan <dkogan@debian.org>  Tue, 02 Dec 2025 23:31:27 -0800
+
 gnuplotlib (0.45)
 
   * Uninteresting bug fix introduced in 0.44
