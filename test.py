@@ -82,6 +82,17 @@ gp.plot( x, nps.cat(x**3, x**2) , wait=1)
 gp.plot( nps.cat(-x**3, x**2), _with='lines' , wait=1)
 gp.plot( (nps.cat(x**3, -x**2), dict(_with = 'points') ), wait=1)
 
+gp.plot( (nps.cat(x**3, -x**2),
+          dict(_with = 'points') ),
+         y2 = np.array((0,1)),
+         title = 'Broadcasting on y2',
+         wait=1)
+gp.plot( (nps.cat(x**3, -x**2),
+          dict(_with = 'points') ),
+         axes = np.array(('x1y1','x2y2')),
+         title = 'Broadcasting on axes',
+         wait=1)
+
 # Make sure xrange settings don't get overridden. The label below should be out
 # of bounds, and not visible
 gp.plot( ( np.arange(10), ),
