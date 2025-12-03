@@ -2056,9 +2056,12 @@ labels with spaces in them
 
         basecmd = ''
 
-        if any( curve.get('axes','x')[-1] == '2' for curve in curves ):
+        if any( curve.get('axes','xxx')[-2:] == 'y2' for curve in curves ):
             basecmd += "set ytics nomirror\n"
             basecmd += "set y2tics\n"
+        if any( curve.get('axes','xxx')[:2] == 'x2' for curve in curves ):
+            basecmd += "set xtics nomirror\n"
+            basecmd += "set x2tics\n"
 
         binwidth = None
         for curve in curves:
