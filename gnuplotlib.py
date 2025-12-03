@@ -2056,10 +2056,6 @@ labels with spaces in them
 
         basecmd = ''
 
-        # if anything is to be plotted on the y2 axis, set it up
-        if subplotOptions.get('3d') and \
-           any( 'axes' in curve for curve in curves ):
-            raise GnuplotlibError("3d plots cannot have 'axes' specified")
         if any( curve.get('axes','x')[-1] == '2' for curve in curves ):
             basecmd += "set ytics nomirror\n"
             basecmd += "set y2tics\n"
@@ -2242,16 +2238,9 @@ labels with spaces in them
                 if not opt in knownCurveOptions:
                     raise GnuplotlibError("'{}' not a known curve option".format(opt))
 
-            axes = curve.get('axes')
-            if axes is not None:
-                if not axes in knownAxes:
-                    raise GnuplotlibError(f'"axes" must be one of {knownAxes}, but got {axes=}')
-            if curve.get('y2'):
-                if axes is not None:
-                    raise GnuplotlibError('"y2" and "axes" are mutually exclusive')
-                del curve['y2']
-                curve['axes'] = 'x1y2'
-
+            if curve.get('y2') is not None and \
+               curve.get('axes') is not None:
+                raise GnuplotlibError('"y2" and "axes" are mutually exclusive')
 
             # tuplesize is either given explicitly, or taken from the '3d' plot
             # option. 2d plots default to tuplesize=2 and 3d plots to
@@ -2380,6 +2369,19 @@ labels with spaces in them
                 curves_flattened.append( curve_slice )
 
         curves = curves_flattened
+
+        # if anything is to be plotted on the y2 axis, set it up
+        for curve in curves:
+            axes = curve.get('axes')
+            if axes is not None:
+                if not axes in knownAxes:
+                    raise GnuplotlibError(f'"axes" must be one of {knownAxes}, but got {axes=}')
+            if curve.get('y2'):
+                del curve['y2']
+                curve['axes'] = 'x1y2'
+
+            if subplotOptions.get('3d') and axes is not None:
+                raise GnuplotlibError("3d plots cannot have 'axes' specified")
 
         return curves
 
