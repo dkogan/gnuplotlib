@@ -403,10 +403,10 @@ example, one can be plotting a color map from an array of shape (H,W):
 
 Or a full-color image from an array of shape (H,W,3)
 
-    gp.plot( *nps.mv(image, -1,0),
+    gp.plot( image,
              title     = 'Full-color image',
              _with     = 'rgbimage',
-             tuplesize = 5)
+             tuplesize = -5)
 
 Also note that the 'tuplesize' curve option is independent of implicit domains.
 This option specifies not how many data arrays we have, but how many values

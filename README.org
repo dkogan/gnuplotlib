@@ -460,10 +460,10 @@ gp.plot( x**2 + y**2,
 Or a full-color image from an array of shape (H,W,3)
 
 #+BEGIN_SRC python
-gp.plot( *nps.mv(image, -1,0),
+gp.plot( image,
          title     = 'Full-color image',
          _with     = 'rgbimage',
-         tuplesize = 5)
+         tuplesize = -5)
 #+END_SRC
 
 Also note that the 'tuplesize' curve option is independent of implicit domains.
