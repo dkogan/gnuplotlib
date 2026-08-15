@@ -2440,12 +2440,14 @@ labels with spaces in them
 
             if self.processOptions.get('terminal') == 'gp':
                 self._dumpPipe = open(self.processOptions['output'],'w')
-                os.chmod(self.processOptions['output'], 0o755)
 
                 import shutil
                 gnuplotpath = shutil.which('gnuplot')
+                if gnuplotpath is not None:
+                    # Executable and shebang if we have a gnuplot
+                    os.chmod(self.processOptions['output'], 0o755)
+                    self._safelyWriteToPipe('#!' + gnuplotpath)
 
-                self._safelyWriteToPipe('#!' + gnuplotpath)
                 self._safelyWriteToPipe(self.processOptionsCmds)
 
             else:
