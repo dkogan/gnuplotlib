@@ -2442,8 +2442,8 @@ labels with spaces in them
                 self._dumpPipe = open(self.processOptions['output'],'w')
                 os.chmod(self.processOptions['output'], 0o755)
 
-                import distutils.spawn
-                gnuplotpath = distutils.spawn.find_executable('gnuplot')
+                import shutil
+                gnuplotpath = shutil.which('gnuplot')
 
                 self._safelyWriteToPipe('#!' + gnuplotpath)
                 self._safelyWriteToPipe(self.processOptionsCmds)
