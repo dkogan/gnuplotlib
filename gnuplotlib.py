@@ -1171,49 +1171,56 @@ testdataunit_ascii = 10
 
 
 
-def _getGnuplotFeatures():
+def have_gnuplot_feature(feature, dump_only):
 
-    # Be careful talking to gnuplot here. If you use a tty then gnuplot messes
-    # with the tty settings where it should NOT. For example it turns on the
-    # local echo. So make sure to not use a tty. Furthermore, I turn off the
-    # DISPLAY. I'm not actually plotting anything, so a DISPLAY can try to
-    # X-forward and be really slow pointlessly
+    if dump_only:
+        # We're just dumping, and aren't even trying to talk to gnuplot. We
+        # claim to have ALL the features
+        return True
 
-    # I pass in the current environment, but with DISPLAY turned off
-    env = os.environ.copy()
-    env['DISPLAY'] = ''
+    if not hasattr(have_gnuplot_feature, 'features'):
 
-    # first, I run 'gnuplot --help' to extract all the cmdline options as features
-    try:
-        helpstring = subprocess.check_output([gnuplot_executable, '--help'],
-                                             stderr=subprocess.STDOUT,
-                                             env=env).decode()
-    except FileNotFoundError:
-        print("Couldn't run gnuplot. Is it installed? Is it findable in the PATH?",
-              file=sys.stderr)
-        raise
+        # Be careful talking to gnuplot here. If you use a tty then gnuplot messes
+        # with the tty settings where it should NOT. For example it turns on the
+        # local echo. So make sure to not use a tty. Furthermore, I turn off the
+        # DISPLAY. I'm not actually plotting anything, so a DISPLAY can try to
+        # X-forward and be really slow pointlessly
 
-    features = set( re.findall(r'--([a-zA-Z0-9_]+)', helpstring) )
+        # I pass in the current environment, but with DISPLAY turned off
+        env = os.environ.copy()
+        env['DISPLAY'] = ''
+
+        # first, I run 'gnuplot --help' to extract all the cmdline options as features
+        try:
+            helpstring = subprocess.check_output([gnuplot_executable, '--help'],
+                                                 stderr=subprocess.STDOUT,
+                                                 env=env).decode()
+        except FileNotFoundError:
+            print("Couldn't run gnuplot. Is it installed? Is it findable in the PATH?",
+                  file=sys.stderr)
+            raise
+
+        features = set( re.findall(r'--([a-zA-Z0-9_]+)', helpstring) )
 
 
-    # then I try to set a square aspect ratio for 3D to see if it works
-    equal_3d_works = True
-    try:
-        out = subprocess.check_output((gnuplot_executable, '-e', "set view equal"),
-                                      stderr=subprocess.STDOUT,
-                                      env=env).decode()
-        if re.search(r"(undefined variable)|(unrecognized option)", out, re.I):
+        # then I try to set a square aspect ratio for 3D to see if it works
+        equal_3d_works = True
+        try:
+            out = subprocess.check_output((gnuplot_executable, '-e', "set view equal"),
+                                          stderr=subprocess.STDOUT,
+                                          env=env).decode()
+            if re.search(r"(undefined variable)|(unrecognized option)", out, re.I):
+                equal_3d_works = False
+        except:
             equal_3d_works = False
-    except:
-        equal_3d_works = False
 
-    if equal_3d_works:
-        features.add('equal_3d')
+        if equal_3d_works:
+            features.add('equal_3d')
 
-    return frozenset(features)
+        have_gnuplot_feature.features = frozenset(features)
 
+    return feature in have_gnuplot_feature.features
 
-features = _getGnuplotFeatures()
 
 
 
@@ -1349,7 +1356,7 @@ def _massageProcessOptionsAndGetCmds(processOptions):
     return cmds
 
 
-def _massageSubplotOptionsAndGetCmds(subplotOptions):
+def _massageSubplotOptionsAndGetCmds(subplotOptions, dump_only):
     r'''Compute commands to set the given subplot options, and massage the input, as
     needed
 
@@ -1383,8 +1390,9 @@ def _massageSubplotOptionsAndGetCmds(subplotOptions):
         if 'y2min' in subplotOptions or 'y2max' in subplotOptions:
             raise GnuplotlibError("'3d' does not make sense with 'y2...'")
 
-        if not 'equal_3d' in features and \
-           ( subplotOptions.get('square_xy') or subplotOptions.get('square') ):
+        if ( subplotOptions.get('square_xy') or subplotOptions.get('square') ) and \
+           not have_gnuplot_feature('equal_3d',
+                                    dump_only = dump_only):
 
             sys.stderr.write("Your gnuplot doesn't support square aspect ratios for 3D plots, so I'm ignoring that\n")
             if 'square_xy' in subplotOptions: del subplotOptions['square_xy']
@@ -2602,7 +2610,8 @@ labels with spaces in them
                                       subplotOptions_base,
                                       curveOptions_base )
 
-            subplotOptionsCmds = _massageSubplotOptionsAndGetCmds(subplotOptions)
+            subplotOptionsCmds = _massageSubplotOptionsAndGetCmds(subplotOptions,
+                                                                  dump_only = _data_dump_only(self.processOptions))
 
             curves = self._massageAndValidateArgs(curves,
                                                   curveOptions,
