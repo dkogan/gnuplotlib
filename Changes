@@ -1,4 +1,13 @@
-gnuplotlib (0.46) unstable; urgency=medium
+gnuplotlib (0.47)
+
+  * We don't ask for gnuplot features (and spawn extra gnuplot processes)
+    unless necessary
+  * .gp files are executable and have a #! only if gnuplot was found
+  * Replaced distutils.spawn with shutil
+
+ -- Dima Kogan <dkogan@debian.org>  Sat, 15 Aug 2026 14:58:42 -0700
+
+gnuplotlib (0.46)
 
   * 'axes' and 'y2' options can broadcast again
   * I draw x2 tics if anything uses the x2 axis
